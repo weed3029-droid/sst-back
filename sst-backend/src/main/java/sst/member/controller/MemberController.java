@@ -13,7 +13,7 @@ import sst.global.response.ApiResponse;
 import sst.global.security.domain.CustomUserDetails;
 import sst.member.domain.Member;
 import sst.member.service.MemberService;
-
+/* 수정함 */
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
