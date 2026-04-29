@@ -78,6 +78,17 @@ public class AuthController {
     	authService.logout(member.getMemberId(), response);
         return ResponseEntity.noContent().build();
     }
+	/**
+	 * refresh token
+	 */
+	@PostMapping("/me")
+    public ResponseEntity<Void> me(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response) {
+    	Member member = userDetails.getMember();
+    	authService.logout(member.getMemberId(), response);
+        return ResponseEntity.noContent().build();
+    }
 }
 
 
