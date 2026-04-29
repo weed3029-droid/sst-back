@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.member.mapper.MemberMapper">
+
+    <resultMap id="memberResultMap" type="sst.member.domain.Member">
+        <id     column="member_id"            	property="memberId"/>
+        <result column="member_email"         	property="memberEmail"/>
+        <result column="member_password"      	property="memberPassword"/>
+        <result column="member_name"      		property="memberName"/>
+        <result column="member_nickname"      	property="memberNickname"/>
+        <result column="member_role"   			property="memberRole"/>
+        <result column="member_phone"          	property="memberPhone"/>
+        <result column="member_status" 			property="memberStatus"/>
+        <result column="member_created_at" 		property="memberCreatedAt"/>
+        <result column="member_updated_at" 		property="memberUpdatedAt"/>
+        <result column="member_refresh_token" 	property="memberRefreshToken"/>
+    </resultMap>
+
+	<select id="findMemberByEmail" resultMap="memberResultMap">
+		/* 회원정보 조회 */
+		SELECT 
+			  member_id
+			, member_email
+			, member_password
+			, member_name
+			, member_nickname
+			, member_role
+			, member_phone
+			, member_status
+			, member_created_at
+			, member_updated_at
+			, member_refresh_token
+		FROM 
+			member
+		WHERE
+			member_email = #{memberEmail};
+	</select>
+	
+	<insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="memberId">
+		/* 회원등록 */
+		INSERT INTO member (
+			  member_email
+			, member_password
+			, member_name
+			, member_nickname
+			, member_role
+			, member_phone
+			, member_status
+			, member_created_at
+		) VALUES (
+			  #{memberEmail}
+			, #{memberPassword}
+			, #{memberName}
+			, #{memberNickname}
+			, #{memberRole}
+			, #{memberPhone}
+			, 1
+			, NOW()
+		);
+	</insert>
+	
+	<update id="updateRefreshTokenById">
+		/* 리프레시토큰 수정 */
+		UPDATE member
+        SET 
+        	member_refresh_token = #{memberRefreshToken}
+        WHERE 
+        	member_id = #{memberId};
+	</update>
+ 
+</mapper>
+
+

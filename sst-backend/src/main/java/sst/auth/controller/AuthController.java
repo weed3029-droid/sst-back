@@ -1,0 +1,95 @@
+package sst.auth.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import sst.auth.dto.LoginRequest;
+import sst.auth.dto.LoginResponse;
+import sst.auth.dto.SignUpRequest;
+import sst.auth.service.AuthService;
+import sst.global.response.ApiResponse;
+import sst.global.security.domain.CustomUserDetails;
+import sst.member.domain.Member;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/auth")
+@Slf4j
+public class AuthController {
+	
+	private final AuthService authService;
+
+	/**
+	 * 회원가입
+	 * @param SignUpRequest 사용자 회원정보
+	 * @return Member 회원정보
+	 */
+	@PostMapping("/signup")
+	public ResponseEntity<ApiResponse<Member>> signUp(@Valid @RequestBody SignUpRequest request){
+		
+		Member member = authService.addMember(request);
+		
+		return ResponseEntity.status(201)
+							 .body(ApiResponse.created(member));
+	}
+	
+	/**
+	 * 로그인
+	 * @param LoginRequest 사용자로그인 정보
+	 * @param LoginResponse 로그인 후 사용자 정보
+	 */
+	@PostMapping("/login")
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response){
+		LoginResponse loginResponse = authService.login(request, response);
+		return ResponseEntity.ok(ApiResponse.success(loginResponse));
+	}
+	
+	/**
+	 * refresh token 재발급
+	 * @param HttpServletRequest (RefreshToken를 포함한 쿠키 정보 추출) 
+	 * @param HttpServletResponse (새 AccessToken 추가)
+	 */
+	@PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(HttpServletRequest request,
+                                        HttpServletResponse response) {
+        authService.refresh(request, response);
+        return ResponseEntity.noContent().build();
+    }
+	
+	/**
+	 * 로그아웃 — DB의 Refresh Token 삭제 + 쿠키 만료
+     * @param userDetails    로그아웃할 회원의 정보 (@AuthenticationPrincipal에서 추출)
+     * @param response 쿠키 삭제를 위한 응답 객체
+	 */
+	@PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response) {
+    	Member member = userDetails.getMember();
+    	authService.logout(member.getMemberId(), response);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
