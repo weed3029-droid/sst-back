@@ -14,6 +14,8 @@ import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import sst.global.security.filter.JwtAuthenticationFilter;
+import sst.auth.service.CustomOAuth2UserService;
+import sst.auth.service.OAuth2SuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +25,9 @@ public class SecurityConfig {
 	
 	private final CorsConfigurationSource corsConfigurationSource;
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	
+	private final CustomOAuth2UserService customOAuth2UserService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -42,6 +47,13 @@ public class SecurityConfig {
 					// 그외의 모든 요청은 인증 필요
 					.anyRequest().authenticated()
 			)
+			// ======= OAuth2 로그인 설정 추가 =======
+	        .oauth2Login(oauth2 -> oauth2
+	                .userInfoEndpoint(userInfo -> userInfo
+	                        .userService(customOAuth2UserService) // 사용자 정보 처리
+	                )
+	                .successHandler(oAuth2SuccessHandler) // 성공 시 토큰 발급 및 리다이렉트
+	        )
 			.exceptionHandling(exception -> 
 					exception
 							.authenticationEntryPoint((request, response, authException) ->
