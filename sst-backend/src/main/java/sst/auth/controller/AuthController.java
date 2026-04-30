@@ -2,6 +2,7 @@ package sst.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,15 +80,23 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 	/**
-	 * refresh token
-	 */
-	@PostMapping("/me")
-    public ResponseEntity<Void> me(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            HttpServletResponse response) {
-    	Member member = userDetails.getMember();
-    	authService.logout(member.getMemberId(), response);
-        return ResponseEntity.noContent().build();
+     * 새로고침 시 인증 상태 유지 (Refresh Token 기반)
+     * HTTP Method를 GET으로 수정하고, 응답 본문에 사용자 정보를 담아 반환
+     */
+	@GetMapping("/me")
+    public ResponseEntity<ApiResponse<LoginResponse>> me(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        // 🚀 SecurityContext에 저장된 유저 정보를 꺼내어 프론트엔드에 필요한 데이터만 응답
+        Member member = userDetails.getMember();
+        
+        LoginResponse response = LoginResponse.builder()
+                .memberId(member.getMemberId())
+                .memberEmail(member.getMemberEmail())
+                .memberName(member.getMemberName())
+                .memberNickname(member.getMemberNickname())
+                .memberRole(member.getMemberRole())
+                .build();
+                
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
 
