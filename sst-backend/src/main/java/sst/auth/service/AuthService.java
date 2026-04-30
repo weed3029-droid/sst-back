@@ -141,6 +141,46 @@ public class AuthService {
                 cookieUtil.deleteRefreshTokenCookie().toString());
 
     }
+    
+    /**
+     * 새로고침 시 자동 로그인 (Refresh Token 검증 -> Access Token 재발급 -> 사용자 정보 반환)
+     * @param request  Refresh Token 쿠키를 포함한 요청
+     * @param response 새 Access Token 쿠키를 추가할 응답
+     * @return LoginResponse (사용자 정보)
+     */
+    @Transactional
+    public LoginResponse verifyAndRefresh(HttpServletRequest request, HttpServletResponse response) {
+        // 1. 쿠키에서 Refresh Token 추출
+        String refreshToken = cookieUtil.extractCookie(request, CookieUtil.REFRESH_TOKEN_COOKIE);
+        if (refreshToken == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 2. JWT 파싱으로 이메일 추출 (만료 시 ExpiredTokenException 발생)
+        String email = jwtTokenProvider.getEmail(refreshToken);
+
+        // 3. DB에 저장된 RefreshToken과 비교
+        Member member = memberMapper.findMemberByEmail(email)
+                                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        
+        if (!refreshToken.equals(member.getMemberRefreshToken())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        // 4. 새 Access Token 발급 → 쿠키로 전달
+        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getMemberRole());
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieUtil.createAccessTokenCookie(newAccessToken).toString());
+
+        // 5. 프론트엔드 Context API 상태 유지를 위한 사용자 정보 반환
+        return LoginResponse.builder()
+                .memberId(member.getMemberId())
+                .memberEmail(member.getMemberEmail())
+                .memberName(member.getMemberName())
+                .memberNickname(member.getMemberNickname())
+                .memberRole(member.getMemberRole())
+                .build();
+    }
 }
 
 
