@@ -184,6 +184,18 @@ public class AuthService {
 			                .memberRole(member.getMbrAuthCd())
 			                .build();
     }
+    
+    // 닉네임 중복 여부
+    @Transactional(readOnly = true)
+    public boolean checkNicknameDuplicate(String nickname) {
+        return memberMapper.existsByNickname(nickname) > 0;
+    }
+    
+    // 이메일 중복 여부 반환 (true: 중복, false: 사용가능)
+    @Transactional(readOnly = true)
+    public boolean checkEmailDuplicate(String email) {
+        return memberMapper.existsByEmail(email) > 0;
+    }
 }
 
 
