@@ -4,7 +4,35 @@
 
 <mapper namespace="sst.member.mapper.MemberMapper">
 
-    <!-- 🚀 DB의 컬럼명과 Member 도메인 객체의 필드명을 정확하게 1:1 매핑 -->
+	<!-- 이메일 중복 조회 -->
+    <select id="existsByEmail" resultType="int">
+        SELECT COUNT(*) 
+        FROM MEMBER 
+        WHERE MBR_EMAIL = #{email} 
+          AND MBR_USE_YN = 'Y'
+    </select>
+
+	<!-- 회원 정보 수정 -->
+    <update id="updateMemberInfo">
+        UPDATE MEMBER
+        SET MBR_NAME = #{mbrName},
+            MBR_NICKNAME = #{mbrNickname},
+            MBR_TELNO = #{mbrTelno},
+            MBR_ZIP = #{mbrZip},
+            MBR_ADDR = #{mbrAddr},
+            MBR_DADDR = #{mbrDaddr}
+        WHERE MBR_ID = #{mbrId}
+    </update>
+    
+	<!-- 활성화된(MBR_USE_YN='Y') 회원 중 동일한 닉네임이 있는지 개수 조회 -->
+    <select id="existsByNickname" resultType="int">
+        SELECT COUNT(*) 
+        FROM MEMBER 
+        WHERE MBR_NICKNAME = #{nickname} 
+          AND MBR_USE_YN = 'Y'
+    </select>
+    
+    <!-- DB의 컬럼명과 Member 도메인 객체의 필드명을 정확하게 1:1 매핑 -->
     <resultMap id="memberResultMap" type="sst.member.domain.Member">
         <id     column="MBR_ID"            property="mbrId"/>
         <result column="MBR_PASSWORD"      property="mbrPassword"/>
