@@ -14,17 +14,22 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Member {
-	private Long memberId; 
-	private String memberEmail; 
-	private String memberPassword; 
-	private String memberName; 
-	private String memberNickname; 
-	private String memberRole; 
-	private String memberPhone; 
-	private String memberStatus; 
-	private LocalDateTime memberCreatedAt; 
-	private LocalDateTime memberUpdatedAt; 
-	private String memberRefreshToken;
+	private Long mbrId;                  
+    private String mbrPassword;          
+    private String mbrName;              
+    private String mbrNickname;          
+    private String mbrEmail;             
+    private String mbrTelno;             
+    private String mbrZip;               
+    private String mbrAddr;              
+    private String mbrDaddr;             
+    private String mbrProviderCd;        
+    private String mbrAuthCd;            
+    private String mbrRefreshToken;      
+    private LocalDateTime mbrJoinDate;   
+    private LocalDateTime mbrLastLgnDate;
+    private String mbrUseYn;
+    
 }
 
 

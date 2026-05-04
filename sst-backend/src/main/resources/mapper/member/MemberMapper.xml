@@ -4,72 +4,53 @@
 
 <mapper namespace="sst.member.mapper.MemberMapper">
 
+    <!-- 🚀 DB의 컬럼명과 Member 도메인 객체의 필드명을 정확하게 1:1 매핑 -->
     <resultMap id="memberResultMap" type="sst.member.domain.Member">
-        <id     column="member_id"            	property="memberId"/>
-        <result column="member_email"         	property="memberEmail"/>
-        <result column="member_password"      	property="memberPassword"/>
-        <result column="member_name"      		property="memberName"/>
-        <result column="member_nickname"      	property="memberNickname"/>
-        <result column="member_role"   			property="memberRole"/>
-        <result column="member_phone"          	property="memberPhone"/>
-        <result column="member_status" 			property="memberStatus"/>
-        <result column="member_created_at" 		property="memberCreatedAt"/>
-        <result column="member_updated_at" 		property="memberUpdatedAt"/>
-        <result column="member_refresh_token" 	property="memberRefreshToken"/>
+        <id     column="MBR_ID"            property="mbrId"/>
+        <result column="MBR_PASSWORD"      property="mbrPassword"/>
+        <result column="MBR_NAME"          property="mbrName"/>
+        <result column="MBR_NICKNAME"      property="mbrNickname"/>
+        <result column="MBR_EMAIL"         property="mbrEmail"/>
+        <result column="MBR_TELNO"         property="mbrTelno"/>
+        <result column="MBR_ZIP"           property="mbrZip"/>
+        <result column="MBR_ADDR"          property="mbrAddr"/>
+        <result column="MBR_DADDR"         property="mbrDaddr"/>
+        <result column="MBR_PROVIDER_CD"   property="mbrProviderCd"/>
+        <result column="MBR_REFRESH_TOKEN" property="mbrRefreshToken"/>
+        <result column="MBR_AUTH_CD"       property="mbrAuthCd"/>
+        <result column="MBR_JOIN_DATE"     property="mbrJoinDate"/>
+        <result column="MBR_LAST_LGN_DATE" property="mbrLastLgnDate"/>
+        <result column="MBR_USE_YN"        property="mbrUseYn"/>
     </resultMap>
 
-	<select id="findMemberByEmail" resultMap="memberResultMap">
-		/* 회원정보 조회 */
-		SELECT 
-			  member_id
-			, member_email
-			, member_password
-			, member_name
-			, member_nickname
-			, member_role
-			, member_phone
-			, member_status
-			, member_created_at
-			, member_updated_at
-			, member_refresh_token
-		FROM 
-			member
-		WHERE
-			member_email = #{memberEmail};
-	</select>
-	
-	<insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="memberId">
-		/* 회원등록 */
-		INSERT INTO member (
-			  member_email
-			, member_password
-			, member_name
-			, member_nickname
-			, member_role
-			, member_phone
-			, member_status
-			, member_created_at
-		) VALUES (
-			  #{memberEmail}
-			, #{memberPassword}
-			, #{memberName}
-			, #{memberNickname}
-			, #{memberRole}
-			, #{memberPhone}
-			, 1
-			, NOW()
-		);
-	</insert>
-	
-	<update id="updateRefreshTokenById">
-		/* 리프레시토큰 수정 */
-		UPDATE member
-        SET 
-        	member_refresh_token = #{memberRefreshToken}
-        WHERE 
-        	member_id = #{memberId};
-	</update>
- 
+    <select id="findMemberByEmail" resultMap="memberResultMap">
+        /* 회원정보 조회 */
+        SELECT 
+              MBR_ID, MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, 
+              MBR_TELNO, MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, 
+              MBR_REFRESH_TOKEN, MBR_AUTH_CD, MBR_JOIN_DATE, MBR_LAST_LGN_DATE, MBR_USE_YN
+        FROM MEMBER
+        WHERE MBR_EMAIL = #{email} 
+          AND MBR_USE_YN = 'Y';
+    </select>
+    
+    <insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="mbrId">
+        /* 회원등록 */
+        INSERT INTO MEMBER (
+              MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, MBR_TELNO, 
+              MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, MBR_AUTH_CD, 
+              MBR_JOIN_DATE, MBR_USE_YN
+        ) VALUES (
+              #{mbrPassword}, #{mbrName}, #{mbrNickname}, #{mbrEmail}, #{mbrTelno}, 
+              #{mbrZip}, #{mbrAddr}, #{mbrDaddr}, #{mbrProviderCd}, #{mbrAuthCd}, 
+              NOW(), 'Y'
+        );
+    </insert>
+    
+    <update id="updateRefreshTokenById">
+        /* 리프레시토큰 수정 */
+        UPDATE MEMBER
+        SET MBR_REFRESH_TOKEN = #{refreshToken}
+        WHERE MBR_ID = #{mbrId};
+    </update>
 </mapper>
-
-

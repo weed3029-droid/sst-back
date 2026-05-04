@@ -14,8 +14,8 @@ import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import sst.global.security.filter.JwtAuthenticationFilter;
-import sst.auth.service.CustomOAuth2UserService;
-import sst.auth.service.OAuth2SuccessHandler;
+import sst.global.security.handler.OAuth2SuccessHandler;
+import sst.global.security.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity

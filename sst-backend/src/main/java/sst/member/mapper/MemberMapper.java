@@ -13,9 +13,9 @@ public interface MemberMapper {
 	int saveMember(Member member);
 	
 	// 회원 정보 조회 (이메일)
-	Optional<Member> findMemberByEmail(@Param(value = "memberEmail") String memberEmail);
+	Optional<Member> findMemberByEmail(@Param(value = "email") String email);
 	
 	// 리프레시토큰 업데이트
-	int updateRefreshTokenById(@Param("memberId") Long memberId,
-			   				   @Param("memberRefreshToken") String memberRefreshToken);
+	int updateRefreshTokenById(@Param("mbrId") Long memberId,
+			   				   @Param("refreshToken") String refreshToken);
 }

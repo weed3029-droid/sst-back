@@ -1,5 +1,5 @@
 
-package sst.auth.service;
+package sst.global.security.service;
 
 import java.util.Map;
 import java.util.UUID;
@@ -34,16 +34,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 🚀 DB에서 이메일로 유저 조회, 없으면 강제 회원가입 (소셜 로그인 최초 1회)
         Member member = memberMapper.findMemberByEmail(email)
                 .orElseGet(() -> {
+                    // 🚀 최신 DB 도메인 명세에 맞춰 필드명 변경 (mbr 접두사)
                     Member newMember = Member.builder()
-                            .memberEmail(email)
-                            // 🚀 소셜 유저는 비밀번호를 안 쓰므로 임의의 UUID 저장
-                            .memberPassword(UUID.randomUUID().toString()) 
-                            .memberName(nickname)
-                            .memberNickname(nickname)
-                            .memberRole("ROLE_USER")
-                            .memberPhone("010-0000-0000") // 소셜 연동 시 번호를 못 받으면 임시값 처리
-                            .memberStatus("1")
-                            .build();
+				                            .mbrEmail(email)
+				                            .mbrName(nickname) // 🚀 실명을 못 받으므로 닉네임을 이름으로 대체
+				                            .mbrNickname(nickname)
+				                            .mbrTelno("010-0000-0000") // 🚀 DB 필수값이므로 임시 전화번호
+				                            .mbrZip("00000") // 🚀 DB 필수값이므로 임시 우편번호
+				                            .mbrAddr("카카오 연동 가입") // 🚀 DB 필수값이므로 임시 주소
+				                            .mbrDaddr("")
+				                            .mbrProviderCd("KAKAO")
+				                            .mbrAuthCd("ROLE_USER")
+				                            .mbrUseYn("Y")
+				                            .build();
                     memberMapper.saveMember(newMember);
                     return newMember; // 저장 직후의 Member 객체 반환 (keyProperty로 ID가 담김)
                 });

@@ -20,24 +20,34 @@ public class SignUpRequest {
 
 	@NotBlank(message = "회원의 이메일은 필수 입력 값입니다.")
 	@Email(message = "이메일형식에 어긋납니다.")
-	private String memberEmail; 
+	private String mbrEmail;
 	
 	@NotBlank(message = "회원의 닉네임은 필수 입력 값입니다.")
 	@Size(min = 2, max = 10, message = "회원의 닉네임은 최소 2글자이상 최대 10글자이하로 입력해야 합니다.")
-	private String memberNickname;
+	private String mbrNickname;
 	
 	@NotBlank(message = "회원의 비밀번호는 필수 입력 값입니다.")
 	@Size(min = 8, max = 20, message = "비밀번호는 최소 8글자이상 최대 20글자이하로 입력해야 합니다.")
-	private String memberPassword; 
+	private String mbrPassword;
 	
 	@NotBlank(message = "회원의 이름은 필수 입력 값입니다.")
 	@Size(min = 2, max = 20, message = "회원의 이름은 최소 2글자이상 입력해야합니다.")
-	private String memberName;
+	private String mbrNm;
 	
 	@NotBlank(message = "회원의 연락처는 필수 입력 값입니다.")
 	@Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", 
     		 message = "핸드폰 번호 양식이 맞지 않습니다. (01x-xxx(x)-xxxx)")
-	private String memberPhone; 
+	private String telno; 
+	
+	@NotBlank(message = "우편번호는 필수 입력 값입니다.")
+    private String zip;
+    
+    @NotBlank(message = "주소는 필수 입력 값입니다.")
+    private String addr;
+    
+    private String daddr; // 상세주소는 선택일 수 있으므로 NotBlank 제외
+    
+	
 	
 }
 

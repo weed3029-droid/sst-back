@@ -24,9 +24,9 @@ public class MemberController {
 	//@PreAuthorize("hasRole('ADMIN')")
 	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	@GetMapping("/{email}")
-	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@PathVariable(value="email") String memberEmail){
+	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@PathVariable(value="email") String email){
 		
-		Member member = memberService.getMemberInfoByEmail(memberEmail);
+		Member member = memberService.getMemberInfoByEmail(email);
 		
 		return ResponseEntity.ok(ApiResponse.success(member));
 	}

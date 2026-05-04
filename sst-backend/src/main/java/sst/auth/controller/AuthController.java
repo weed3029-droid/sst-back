@@ -76,7 +76,7 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletResponse response) {
     	Member member = userDetails.getMember();
-    	authService.logout(member.getMemberId(), response);
+    	authService.logout(member.getMbrId(), response);
         return ResponseEntity.noContent().build();
     }
 	/**
@@ -89,12 +89,12 @@ public class AuthController {
         Member member = userDetails.getMember();
         
         LoginResponse response = LoginResponse.builder()
-                .memberId(member.getMemberId())
-                .memberEmail(member.getMemberEmail())
-                .memberName(member.getMemberName())
-                .memberNickname(member.getMemberNickname())
-                .memberRole(member.getMemberRole())
-                .build();
+							        		  .mbrId(member.getMbrId())
+							                  .mbrEmail(member.getMbrEmail())
+							                  .mbrName(member.getMbrName())
+							                  .mbrNickname(member.getMbrNickname())
+							                  .memberRole(member.getMbrAuthCd()) 
+		                                      .build();
                 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

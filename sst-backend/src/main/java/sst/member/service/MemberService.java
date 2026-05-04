@@ -16,8 +16,8 @@ public class MemberService {
 	private final MemberMapper memberMapper;
 	
 	@Transactional
-	public Member getMemberInfoByEmail(String memberEmail) {
-		return memberMapper.findMemberByEmail(memberEmail)
-						   .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
-	}
+	public Member getMemberInfoByEmail(String email) {
+        return memberMapper.findMemberByEmail(email)
+                           .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }

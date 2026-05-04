@@ -34,20 +34,24 @@ public class AuthService {
 	@Transactional
 	public Member addMember(SignUpRequest request) {
 		// 이메일 중복 체크
-		memberMapper.findMemberByEmail(request.getMemberEmail())
-					.ifPresent(member -> {
-						throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-					});
+		memberMapper.findMemberByEmail(request.getMbrEmail())
+									        .ifPresent(member -> {
+									            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+									        });
 		
 		Member member = Member.builder()
-							  .memberEmail(request.getMemberEmail())
-							  .memberPassword(passwordEncoder.encode(request.getMemberPassword())) // 패스워드 암호화
-							  .memberName(request.getMemberName())
-							  .memberNickname(request.getMemberNickname())
-							  .memberPhone(request.getMemberPhone())
-							  .memberRole("ROLE_USER")
-							  .memberStatus("1")
-							  .build();
+					  		  .mbrEmail(request.getMbrEmail())
+			                  .mbrPassword(passwordEncoder.encode(request.getMbrPassword()))
+			                  .mbrName(request.getMbrNm())
+			                  .mbrNickname(request.getMbrNickname())
+			                  .mbrTelno(request.getTelno())
+			                  .mbrZip(request.getZip())
+			                  .mbrAddr(request.getAddr())
+			                  .mbrDaddr(request.getDaddr())
+			                  .mbrProviderCd("LOCAL")
+			                  .mbrAuthCd("ROLE_USER")    
+			                  .mbrUseYn("Y")
+			                  .build();
 			  
 		memberMapper.saveMember(member);
 		
@@ -61,22 +65,21 @@ public class AuthService {
 	@Transactional
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
 
-        // 회원 정보 조회
-        Member member = memberMapper.findMemberByEmail(request.getMemberEmail())
-        							.orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
-        
-        // 비밀번호 검증 (입력값 평문 vs DB 암호화값 비교)
-        if (!passwordEncoder.matches(request.getMemberPassword(), member.getMemberPassword())) {
+		Member member = memberMapper.findMemberByEmail(request.getMbrEmail())
+									.orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+		// 비밀번호 검증 (입력값 평문 vs DB 암호화값 비교)
+		if (!passwordEncoder.matches(request.getMbrPassword(), member.getMbrPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
-
-        // Access Token + Refresh Token 발급 
-        String accessToken  = jwtTokenProvider.createAccessToken(member.getMemberEmail(), member.getMemberRole());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMemberEmail());
-
-        // Refresh Token을 DB에 저장 
-        memberMapper.updateRefreshTokenById(member.getMemberId(), refreshToken);
-
+		
+		// Access Token + Refresh Token 발급 
+		String accessToken  = jwtTokenProvider.createAccessToken(member.getMbrEmail(), member.getMbrAuthCd());
+		String refreshToken = jwtTokenProvider.createRefreshToken(member.getMbrEmail());
+		
+		 // Refresh Token을 DB에 저장 
+		memberMapper.updateRefreshTokenById(member.getMbrId(), refreshToken);
+		
+		
         // httpOnly 쿠키로 토큰을 브라우저에 전달
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(accessToken).toString());
@@ -84,12 +87,12 @@ public class AuthService {
                 cookieUtil.createRefreshTokenCookie(refreshToken).toString());
         
         return LoginResponse.builder()
-        					.memberId(member.getMemberId())
-        					.memberEmail(member.getMemberEmail())
-        					.memberName(member.getMemberName())
-        					.memberNickname(member.getMemberNickname())
-        					.memberRole(member.getMemberRole())
-        					.build();
+			                .mbrId(member.getMbrId())
+			                .mbrEmail(member.getMbrEmail())
+			                .mbrName(member.getMbrName())
+			                .mbrNickname(member.getMbrNickname())
+			                .memberRole(member.getMbrAuthCd()) 
+			                .build();
     }
 	
 	/**
@@ -112,12 +115,12 @@ public class AuthService {
         Member member = memberMapper.findMemberByEmail(email)
         							.orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         
-        if (!refreshToken.equals(member.getMemberRefreshToken())) {
+        if (!refreshToken.equals(member.getMbrRefreshToken())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
         // 새 Access Token 발급 → 쿠키로 전달
-        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getMemberRole());
+        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getMbrAuthCd());
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(newAccessToken).toString());
     }
@@ -163,23 +166,23 @@ public class AuthService {
         Member member = memberMapper.findMemberByEmail(email)
                                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         
-        if (!refreshToken.equals(member.getMemberRefreshToken())) {
+        if (!refreshToken.equals(member.getMbrRefreshToken())) {
             throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
         }
 
         // 4. 새 Access Token 발급 → 쿠키로 전달
-        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getMemberRole());
+        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getMbrAuthCd());
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(newAccessToken).toString());
 
         // 5. 프론트엔드 Context API 상태 유지를 위한 사용자 정보 반환
         return LoginResponse.builder()
-                .memberId(member.getMemberId())
-                .memberEmail(member.getMemberEmail())
-                .memberName(member.getMemberName())
-                .memberNickname(member.getMemberNickname())
-                .memberRole(member.getMemberRole())
-                .build();
+			                .mbrId(member.getMbrId())
+			                .mbrEmail(member.getMbrEmail())
+			                .mbrName(member.getMbrName())
+			                .mbrNickname(member.getMbrNickname())
+			                .memberRole(member.getMbrAuthCd())
+			                .build();
     }
 }
 

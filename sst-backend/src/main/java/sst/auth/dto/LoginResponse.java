@@ -13,10 +13,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public class LoginResponse {
 
-	private Long memberId;
-	private String memberEmail;
-	private String memberName;
-	private String memberRole;
-	private String memberNickname;
+	private Long mbrId;
+    private String mbrEmail;
+    private String mbrName;
+    private String mbrNickname;
+    private String memberRole;
 	
 }
