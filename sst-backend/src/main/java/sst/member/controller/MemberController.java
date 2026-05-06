@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import sst.global.response.ApiResponse;
 import sst.global.security.domain.CustomUserDetails;
 import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
+import sst.member.dto.PasswordChangeRequest;
 import sst.member.service.MemberService;
 
 @RestController
@@ -50,6 +52,19 @@ public class MemberController {
             @Valid @RequestBody MemberUpdateRequest request) {
 
         memberService.updateMemberInfo(userDetails.getMember().getMbrId(), request);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+    // 비밀번호 변경(인증된 사용자만 접근 가능)
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PutMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody PasswordChangeRequest request) {
+        
+        String userEmail = userDetails.getMember().getMbrEmail();
+        memberService.changePassword(userEmail, request);
+        
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
