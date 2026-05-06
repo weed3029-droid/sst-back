@@ -27,4 +27,7 @@ public interface MemberMapper {
     
     // 이메일 중복 조회
     int existsByEmail(@Param("email") String email);
+    
+    // 마지막 로그인 시간 업데이트
+    int updateLastLoginDate(@Param("mbrId") Long memberId);
 }

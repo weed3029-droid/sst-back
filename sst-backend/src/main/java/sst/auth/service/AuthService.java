@@ -80,6 +80,9 @@ public class AuthService {
 		memberMapper.updateRefreshTokenById(member.getMbrId(), refreshToken);
 		
 		
+		// 로그인 성공 시 마지막 로그인 시간 업데이트
+        memberMapper.updateLastLoginDate(member.getMbrId());
+        
         // httpOnly 쿠키로 토큰을 브라우저에 전달
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(accessToken).toString());
@@ -196,6 +199,8 @@ public class AuthService {
     public boolean checkEmailDuplicate(String email) {
         return memberMapper.existsByEmail(email) > 0;
     }
+    
+    
 }
 
 

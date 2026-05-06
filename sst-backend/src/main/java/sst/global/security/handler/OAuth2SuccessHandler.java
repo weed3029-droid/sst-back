@@ -39,6 +39,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			// Refresh Token DB 업데이트
 	        memberMapper.updateRefreshTokenById(member.getMbrId(), refreshToken);
 	        
+	        // 소셜 로그인 성공 시 마지막 로그인 시간 업데이트
+            memberMapper.updateLastLoginDate(member.getMbrId());
+            
 			// HttpOnly 쿠키에 토큰 탑재 (기존 로직과 동일)
 			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(accessToken).toString());
 			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());

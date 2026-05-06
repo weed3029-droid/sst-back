@@ -4,16 +4,16 @@
 
 <mapper namespace="sst.member.mapper.MemberMapper">
 
-	<!-- 이메일 중복 조회 -->
     <select id="existsByEmail" resultType="int">
+    	/* 이메일 중복 조회 */
         SELECT COUNT(*) 
         FROM MEMBER 
         WHERE MBR_EMAIL = #{email} 
           AND MBR_USE_YN = 'Y'
     </select>
 
-	<!-- 회원 정보 수정 -->
     <update id="updateMemberInfo">
+    	/* 회원 정보 수정 */
         UPDATE MEMBER
         SET MBR_NAME = #{mbrName},
             MBR_NICKNAME = #{mbrNickname},
@@ -24,8 +24,8 @@
         WHERE MBR_ID = #{mbrId}
     </update>
     
-	<!-- 활성화된(MBR_USE_YN='Y') 회원 중 동일한 닉네임이 있는지 개수 조회 -->
     <select id="existsByNickname" resultType="int">
+    	/* 닉네임 중복 조회 */
         SELECT COUNT(*) 
         FROM MEMBER 
         WHERE MBR_NICKNAME = #{nickname} 
@@ -79,6 +79,13 @@
         /* 리프레시토큰 수정 */
         UPDATE MEMBER
         SET MBR_REFRESH_TOKEN = #{refreshToken}
+        WHERE MBR_ID = #{mbrId};
+    </update>
+    
+    <update id="updateLastLoginDate">
+        /* 마지막 로그인 일시 업데이트 */
+        UPDATE MEMBER
+        SET MBR_LAST_LGN_DATE = NOW()
         WHERE MBR_ID = #{mbrId};
     </update>
 </mapper>
