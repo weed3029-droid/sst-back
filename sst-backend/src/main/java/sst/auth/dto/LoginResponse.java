@@ -18,5 +18,5 @@ public class LoginResponse {
     private String mbrName;
     private String mbrNickname;
     private String memberRole;
-	
+    private String mbrProviderCd;
 }

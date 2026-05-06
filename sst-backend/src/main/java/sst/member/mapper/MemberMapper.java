@@ -1,5 +1,6 @@
 package sst.member.mapper;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -30,4 +31,12 @@ public interface MemberMapper {
     
     // 마지막 로그인 시간 업데이트
     int updateLastLoginDate(@Param("mbrId") Long memberId);
+    
+    // 비밀번호 변경
+    int updatePassword(@Param("mbrId") Long mbrId, @Param("newPassword") String newPassword);
+    
+    // 관리자: 전체 회원 목록 조회
+    List<Member> findAllMembers();
+    
+    
 }

@@ -22,7 +22,8 @@ public class Member {
     private String mbrTelno;             
     private String mbrZip;               
     private String mbrAddr;              
-    private String mbrDaddr;             
+    private String mbrDaddr;   
+    private Long mbrProfileFileNo;
     private String mbrProviderCd;        
     private String mbrAuthCd;            
     private String mbrRefreshToken;      

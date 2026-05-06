@@ -95,6 +95,7 @@ public class AuthController {
 							                  .mbrName(member.getMbrName())
 							                  .mbrNickname(member.getMbrNickname())
 							                  .memberRole(member.getMbrAuthCd()) 
+							                  .mbrProviderCd(member.getMbrProviderCd())
 		                                      .build();
                 
         return ResponseEntity.ok(ApiResponse.success(response));
