@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.customersupport.mapper.CustomerSupportMapper">
+
+    <!-- 공지사항 조회 -->
+    <select id="selectNoticeList"
+        resultType="sst.customersupport.domain.CustomerSupport">
+
+    SELECT
+          CS_NO          AS csNo
+        , CS_CAT_CD      AS csCatCd
+        , CS_WRTER_NO    AS csWrterNo
+        , CS_TITLE       AS csTitle
+        , CS_CONTENT     AS csContent
+        , CS_INQIRE_CNT  AS csInqireCnt
+        , CS_PIN_YN      AS csPinYn
+        , CS_REG_DATE    AS csRegDate
+        , CS_UP_DATE     AS csUpDate
+        , CS_USE_YN      AS csUseYn
+    FROM CUSTOMER_SUPPORT
+    WHERE CS_CAT_CD = 'CSS001'
+      AND CS_USE_YN = 'Y'
+    ORDER BY CS_PIN_YN DESC, CS_REG_DATE DESC
+
+</select>
+
+
+    <!-- FAQ 조회 -->
+    <select id="selectFaqList"
+        resultType="sst.customersupport.domain.CustomerSupport">
+
+    SELECT
+          CS_NO          AS csNo
+        , CS_CAT_CD      AS csCatCd
+        , CS_WRTER_NO    AS csWrterNo
+        , CS_TITLE       AS csTitle
+        , CS_CONTENT     AS csContent
+        , CS_INQIRE_CNT  AS csInqireCnt
+        , CS_PIN_YN      AS csPinYn
+        , CS_REG_DATE    AS csRegDate
+        , CS_UP_DATE     AS csUpDate
+        , CS_USE_YN      AS csUseYn
+    FROM CUSTOMER_SUPPORT
+    WHERE CS_CAT_CD = 'CSS002'
+      AND CS_USE_YN = 'Y'
+    ORDER BY CS_REG_DATE DESC
+
+</select>
+
+</mapper>
