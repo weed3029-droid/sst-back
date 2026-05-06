@@ -42,12 +42,12 @@ public class AuthService {
 		Member member = Member.builder()
 					  		  .mbrEmail(request.getMbrEmail())
 			                  .mbrPassword(passwordEncoder.encode(request.getMbrPassword()))
-			                  .mbrName(request.getMbrNm())
+			                  .mbrName(request.getMbrName())         
 			                  .mbrNickname(request.getMbrNickname())
-			                  .mbrTelno(request.getTelno())
-			                  .mbrZip(request.getZip())
-			                  .mbrAddr(request.getAddr())
-			                  .mbrDaddr(request.getDaddr())
+			                  .mbrTelno(request.getMbrTelno())       
+			                  .mbrZip(request.getMbrZip())           
+			                  .mbrAddr(request.getMbrAddr())         
+			                  .mbrDaddr(request.getMbrDaddr())       
 			                  .mbrProviderCd("LOCAL")
 			                  .mbrAuthCd("ROLE_USER")    
 			                  .mbrUseYn("Y")
@@ -95,6 +95,7 @@ public class AuthService {
 			                .mbrName(member.getMbrName())
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd()) 
+			                .mbrProviderCd(member.getMbrProviderCd())
 			                .build();
     }
 	
@@ -185,6 +186,7 @@ public class AuthService {
 			                .mbrName(member.getMbrName())
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd())
+			                .mbrProviderCd(member.getMbrProviderCd())
 			                .build();
     }
     
