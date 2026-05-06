@@ -44,6 +44,11 @@ public class SecurityConfig {
 					.requestMatchers("/api/auth/logout","/api/auth/me").authenticated()
 					// 회원가입과 로그인에 관련된 주소는 모든 사용자에게 허용
 					.requestMatchers("/api/auth/**").permitAll()
+					// 고객지원 조회 API는 비회원도 접근 가능
+					.requestMatchers(
+					        "/api/customersupport/notice",
+					        "/api/customersupport/faq"
+					    ).permitAll()
 					// 그외의 모든 요청은 인증 필요
 					.anyRequest().authenticated()
 			)
