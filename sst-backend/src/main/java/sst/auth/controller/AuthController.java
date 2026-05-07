@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,7 +77,7 @@ public class AuthController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletResponse response) {
     	Member member = userDetails.getMember();
-    	authService.logout(member.getMemberId(), response);
+    	authService.logout(member.getMbrId(), response);
         return ResponseEntity.noContent().build();
     }
 	/**
@@ -89,14 +90,36 @@ public class AuthController {
         Member member = userDetails.getMember();
         
         LoginResponse response = LoginResponse.builder()
-                .memberId(member.getMemberId())
-                .memberEmail(member.getMemberEmail())
-                .memberName(member.getMemberName())
-                .memberNickname(member.getMemberNickname())
-                .memberRole(member.getMemberRole())
-                .build();
+							        		  .mbrId(member.getMbrId())
+							                  .mbrEmail(member.getMbrEmail())
+							                  .mbrName(member.getMbrName())
+							                  .mbrNickname(member.getMbrNickname())
+							                  .memberRole(member.getMbrAuthCd()) 
+							                  .mbrProviderCd(member.getMbrProviderCd())
+		                                      .build();
                 
         return ResponseEntity.ok(ApiResponse.success(response));
+    }
+	
+	/**
+     * 닉네임 중복 확인
+     * @param nickname 검사할 닉네임
+     * @return 중복이면 true, 사용 가능하면 false 반환
+     */
+    @GetMapping("/check-nickname")
+    public ResponseEntity<ApiResponse<Boolean>> checkNickname(@RequestParam("nickname") String nickname) {
+        boolean isDuplicate = authService.checkNicknameDuplicate(nickname);
+        return ResponseEntity.ok(ApiResponse.success(isDuplicate));
+    }
+    
+    /**
+     * 이메일 중복 확인
+     */
+    @GetMapping("/check-email")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam("email") String email) {
+        // URL 쿼리 파라미터로 받은 이메일 검사
+        boolean isDuplicate = authService.checkEmailDuplicate(email);
+        return ResponseEntity.ok(ApiResponse.success(isDuplicate));
     }
 }
 
