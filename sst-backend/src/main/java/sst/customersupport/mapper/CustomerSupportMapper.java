@@ -12,4 +12,22 @@ public interface CustomerSupportMapper {
 
     // FAQ 조회
     List<CustomerSupport> selectFaqList();
+
+    // 공지사항 작성
+    int insertNotice(CustomerSupport customerSupport);
+
+    // 공지사항 수정
+    int updateNotice(CustomerSupport customerSupport);
+
+    // 공지사항 삭제
+    int deleteNotice(Long csNo);
+    
+    // 자주묻는 질문 작성
+    int insertFaq(CustomerSupport customerSupport);
+
+    // 자주묻는 질문 수정
+    int updateFaq(CustomerSupport customerSupport);
+
+    // 자주묻는 질문 삭제
+    int deleteFaq(Long csNo);
 }
