@@ -41,13 +41,14 @@ public class SecurityConfig {
 					// 에러 페이지 포워딩 시 인증 블락(403)을 방지하여 프론트로 401이 무사히 가게 함
 					.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
 					// 로그아웃시 인증된 사용자만 주소 요청
-					.requestMatchers("/api/auth/logout","/api/auth/me").authenticated()
+					.requestMatchers("/api/auth/logout","/api/auth/me","/api/reports/**").authenticated()
 					// 회원가입과 로그인에 관련된 주소는 모든 사용자에게 허용
 					.requestMatchers("/api/auth/**").permitAll()
 					// 고객지원 조회 API는 비회원도 접근 가능
 					.requestMatchers(
 					        "/api/customersupport/notice",
-					        "/api/customersupport/faq"
+					        "/api/customersupport/faq",
+					        "/api/comments/**"
 					    ).permitAll()
 					// 그외의 모든 요청은 인증 필요
 					.anyRequest().authenticated()

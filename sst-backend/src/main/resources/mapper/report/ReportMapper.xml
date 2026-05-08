@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.report.mapper.ReportMapper">
+
+    <!-- 신고 등록 -->
+    <insert id="insertReport"
+        parameterType="sst.report.domain.Report">
+
+        INSERT INTO REPORT (
+            RPT_REPORTER_NO,
+            RPT_TYPE_CD,
+            RPT_REVIEW_NO,
+            RPT_COMM_NO,
+            RPT_CMNT_NO,
+            RPT_REASON_CD,
+            RPT_REASON_CONTENT,
+            RPT_REG_DATE
+        ) VALUES (
+            #{rptReporterNo},
+            #{rptTypeCd},
+            #{rptReviewNo},
+            #{rptCommNo},
+            #{rptCmntNo},
+            #{rptReasonCd},
+            #{rptReasonContent},
+            NOW()
+        )
+
+    </insert>
+
+    <!-- 중복 신고 확인 -->
+    <select id="countDuplicateReport"
+        parameterType="sst.report.domain.Report"
+        resultType="int">
+
+        SELECT COUNT(*)
+        FROM REPORT
+        WHERE RPT_REPORTER_NO = #{rptReporterNo}
+          AND RPT_TYPE_CD = #{rptTypeCd}
+
+        <if test="rptCommNo != null">
+          AND RPT_COMM_NO = #{rptCommNo}
+        </if>
+
+        <if test="rptCmntNo != null">
+          AND RPT_CMNT_NO = #{rptCmntNo}
+        </if>
+
+        <if test="rptReviewNo != null">
+          AND RPT_REVIEW_NO = #{rptReviewNo}
+        </if>
+
+    </select>
+
+</mapper>

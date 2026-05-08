@@ -148,6 +148,9 @@ public enum ErrorCode {
 
 	/** 마감된 게시글 */
 	CLOSED_POST(HttpStatus.GONE, "마감된 게시글입니다."),
+	
+	/** 중복 신고 */
+	ALREADY_REPORTED(HttpStatus.CONFLICT, "이미 신고한 대상입니다."),
 
 	// 413 Payload Too Large
 	/** 요청 본문 크기 초과 */

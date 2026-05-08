@@ -24,6 +24,8 @@ public class CorsConfig {
 		config.setAllowedOrigins(allowOrigins);
 		// 허용 httpmethod
 		config.setAllowedMethods(allowMethods);
+		// 허용 헤더
+		config.setAllowedHeaders(List.of("*"));
 		// httpOnly 쿠키 브라우저 포함
 		config.setAllowCredentials(true);
 		// preflight 1시간유지
