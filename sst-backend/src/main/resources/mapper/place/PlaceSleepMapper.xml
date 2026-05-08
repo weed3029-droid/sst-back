@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.content.mapper.PlaceSleepMapper">
+
+    <select id="findByRegion" resultType="sst.content.dto.SleepResponseDto">
+        SELECT
+            p.PLC_NO              AS plcNo,
+            p.PLC_ID              AS plcId,
+            p.PLC_RGN_CD          AS plcRgnCd,
+            p.PLC_NAME            AS plcName,
+            p.PLC_ADDR            AS plcAddr,
+            p.PLC_LAT             AS plcLat,
+            p.PLC_LOT             AS plcLot,
+            p.PLC_TELNO           AS plcTelno,
+            p.PLC_OVERVIEW        AS plcOverview,
+            p.PLC_MAIN_IMG_URL    AS plcMainImgUrl,
+            p.PLC_THUM_IMG_URL    AS plcThumImgUrl,
+            p.PLC_FLT_CD          AS plcFltCd,
+            s.SLEEP_CHECK_IN      AS sleepCheckIn,
+            s.SLEEP_CHECK_OUT     AS sleepCheckOut,
+            s.SLEEP_INFOCENTER    AS sleepInfocenter,
+            s.SLEEP_PARKING       AS sleepParking,
+            s.SLEEP_RESERVATION   AS sleepReservation,
+            s.SLEEP_RESERVATION_URL AS sleepReservationUrl,
+            s.SLEEP_SUB_FACILITY  AS sleepSubFacility,
+            s.SLEEP_BARBECU       AS sleepBarbecu,
+            s.SLEEP_BEAUTY        AS sleepBeauty,
+            s.SLEEP_BEVERAGE      AS sleepBeverage,
+            s.SLEEP_BICYCLE       AS sleepBicycle,
+            s.SLEEP_CAMPFIRE      AS sleepCampfire,
+            s.SLEEP_FITNESS       AS sleepFitness,
+            s.SLEEP_KARAOKE       AS sleepKaraoke,
+            s.SLEEP_PUBLIC_BATH   AS sleepPublicBath,
+            s.SLEEP_PUBLIC_PC     AS sleepPublicPc,
+            s.SLEEP_SAUNA         AS sleepSauna,
+            s.SLEEP_SEMINAR       AS sleepSeminar,
+            s.SLEEP_SPORTS        AS sleepSports
+        FROM PLACE p
+        LEFT JOIN PLACE_SLEEP s ON p.PLC_NO = s.SLEEP_PLC_NO
+        WHERE p.PLC_CAT_CD = 'PLC004'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        ORDER BY p.PLC_NO DESC
+    </select>
+
+    <select id="findById" resultType="sst.content.dto.SleepResponseDto">
+        SELECT
+            p.PLC_NO              AS plcNo,
+            p.PLC_ID              AS plcId,
+            p.PLC_RGN_CD          AS plcRgnCd,
+            p.PLC_NAME            AS plcName,
+            p.PLC_ADDR            AS plcAddr,
+            p.PLC_DADDR           AS plcDaddr,
+            p.PLC_LAT             AS plcLat,
+            p.PLC_LOT             AS plcLot,
+            p.PLC_TELNO           AS plcTelno,
+            p.PLC_HOMEPAGE        AS plcHomepage,
+            p.PLC_OVERVIEW        AS plcOverview,
+            p.PLC_MAIN_IMG_URL    AS plcMainImgUrl,
+            p.PLC_THUM_IMG_URL    AS plcThumImgUrl,
+            p.PLC_FLT_CD          AS plcFltCd,
+            s.SLEEP_CHECK_IN      AS sleepCheckIn,
+            s.SLEEP_CHECK_OUT     AS sleepCheckOut,
+            s.SLEEP_INFOCENTER    AS sleepInfocenter,
+            s.SLEEP_PARKING       AS sleepParking,
+            s.SLEEP_RESERVATION   AS sleepReservation,
+            s.SLEEP_RESERVATION_URL AS sleepReservationUrl,
+            s.SLEEP_SUB_FACILITY  AS sleepSubFacility,
+            s.SLEEP_BARBECU       AS sleepBarbecu,
+            s.SLEEP_BEAUTY        AS sleepBeauty,
+            s.SLEEP_BEVERAGE      AS sleepBeverage,
+            s.SLEEP_BICYCLE       AS sleepBicycle,
+            s.SLEEP_CAMPFIRE      AS sleepCampfire,
+            s.SLEEP_FITNESS       AS sleepFitness,
+            s.SLEEP_KARAOKE       AS sleepKaraoke,
+            s.SLEEP_PUBLIC_BATH   AS sleepPublicBath,
+            s.SLEEP_PUBLIC_PC     AS sleepPublicPc,
+            s.SLEEP_SAUNA         AS sleepSauna,
+            s.SLEEP_SEMINAR       AS sleepSeminar,
+            s.SLEEP_SPORTS        AS sleepSports
+        FROM PLACE p
+        LEFT JOIN PLACE_SLEEP s ON p.PLC_NO = s.SLEEP_PLC_NO
+        WHERE p.PLC_NO = #{plcNo}
+    </select>
+
+</mapper>
