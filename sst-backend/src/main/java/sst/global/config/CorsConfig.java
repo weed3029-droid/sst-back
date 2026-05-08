@@ -13,40 +13,34 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class CorsConfig {
 
 	private final List<String> allowOrigins = List.of("http://localhost:5173");
-	private final List<String> allowMethods = List.of("GET", "POST", "PUT", "PATCH","DELETE", "OPTIONS", "HEADERS");
-	
+
+	private final List<String> allowMethods = List.of(
+			"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+	);
+
 	@Bean
 	@Primary
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		
+
 		// 허용 출처
 		config.setAllowedOrigins(allowOrigins);
-		// 허용 httpmethod
+
+		// 허용 HTTP Method
 		config.setAllowedMethods(allowMethods);
-		// httpOnly 쿠키 브라우저 포함
+
+		// 허용 Header
+		config.setAllowedHeaders(List.of("*"));
+
+		// 브라우저 쿠키/인증정보 포함 허용
 		config.setAllowCredentials(true);
-		// preflight 1시간유지
+
+		// preflight 요청 캐시 시간
 		config.setMaxAge(3600L);
-		
-		// 모든 경로에 설정적용
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
-		
+
 		return source;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
