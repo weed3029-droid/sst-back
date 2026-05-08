@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.content.mapper.PlaceSeeMapper">
+
+    <!-- 지역코드로 볼거리 목록 조회 -->
+    <select id="findByRegion" resultType="sst.content.dto.SeeResponseDto">
+        SELECT
+            p.PLC_NO            AS plcNo,
+            p.PLC_ID            AS plcId,
+            p.PLC_RGN_CD        AS plcRgnCd,
+            p.PLC_NAME          AS plcName,
+            p.PLC_ADDR          AS plcAddr,
+            p.PLC_LAT           AS plcLat,
+            p.PLC_LOT           AS plcLot,
+            p.PLC_TELNO         AS plcTelno,
+            p.PLC_OVERVIEW      AS plcOverview,
+            p.PLC_MAIN_IMG_URL  AS plcMainImgUrl,
+            p.PLC_THUM_IMG_URL  AS plcThumImgUrl,
+            p.PLC_FLT_CD        AS plcFltCd,
+            s.SEE_USETIME       AS seeUsetime,
+            s.SEE_PARKING       AS seeParking,
+            s.SEE_RESTDATE      AS seeRestdate,
+            s.SEE_INFOCENTER    AS seeInfocenter
+        FROM PLACE p
+        LEFT JOIN PLACE_SEE s ON p.PLC_NO = s.SEE_PLC_NO
+        WHERE p.PLC_CAT_CD = 'PLC001'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        ORDER BY p.PLC_NO DESC
+    </select>
+
+    <!-- 볼거리 상세 조회 -->
+    <select id="findById" resultType="sst.content.dto.SeeResponseDto">
+        SELECT
+            p.PLC_NO            AS plcNo,
+            p.PLC_ID            AS plcId,
+            p.PLC_RGN_CD        AS plcRgnCd,
+            p.PLC_NAME          AS plcName,
+            p.PLC_ADDR          AS plcAddr,
+            p.PLC_DADDR         AS plcDaddr,
+            p.PLC_LAT           AS plcLat,
+            p.PLC_LOT           AS plcLot,
+            p.PLC_TELNO         AS plcTelno,
+            p.PLC_HOMEPAGE      AS plcHomepage,
+            p.PLC_OVERVIEW      AS plcOverview,
+            p.PLC_MAIN_IMG_URL  AS plcMainImgUrl,
+            p.PLC_THUM_IMG_URL  AS plcThumImgUrl,
+            p.PLC_FLT_CD        AS plcFltCd,
+            s.SEE_USETIME       AS seeUsetime,
+            s.SEE_PARKING       AS seeParking,
+            s.SEE_RESTDATE      AS seeRestdate,
+            s.SEE_INFOCENTER    AS seeInfocenter
+        FROM PLACE p
+        LEFT JOIN PLACE_SEE s ON p.PLC_NO = s.SEE_PLC_NO
+        WHERE p.PLC_NO = #{plcNo}
+    </select>
+
+</mapper>
