@@ -49,6 +49,8 @@ public class SecurityConfig {
 					        "/api/customersupport/notice",
 					        "/api/customersupport/faq"
 					    ).permitAll()
+					// 홈/랜딩 카드 조회 API는 비회원도 접근 가능
+					.requestMatchers("/api/home/**").permitAll()
 					// 그외의 모든 요청은 인증 필요
 					.anyRequest().authenticated()
 			)
