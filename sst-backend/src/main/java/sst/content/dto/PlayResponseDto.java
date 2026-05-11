@@ -20,6 +20,8 @@ public class PlayResponseDto {
     private String  plcThumImgUrl;
     private String  plcOverview;
     private String  plcFltCd;
+    private Double  plcAvgRating;   // ← 추가
+    private Integer plcReviewCnt;   // ← 추가
 
     // ── PLACE_PLAY 전용 필드 ───────────────────
     private String    playInfocenter;

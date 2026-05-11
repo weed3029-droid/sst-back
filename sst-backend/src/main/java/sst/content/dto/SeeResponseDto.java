@@ -28,4 +28,6 @@ public class SeeResponseDto {
     private String  seeParking;
     private String  seeRestdate;
     private String  seeUsetime;
+    private Double  plcAvgRating;   // ← 추가
+    private Integer plcReviewCnt;   // ← 추가
 }

@@ -24,6 +24,8 @@ public class FoodResponseDto {
     private String  plcThumImgUrl;
     private String  plcOverview;
     private String  plcFltCd;
+    private Double  plcAvgRating;   // ← 추가
+    private Integer plcReviewCnt;   // ← 추가
     // ✅ PLACE_FOOD 전용 필드
     private String  foodOpeningHours;
     private String  foodParking;

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.content.mapper.ReviewMapper">
+
+  <!-- ─────────────────────────────────────────
+    리뷰 등록
+  ───────────────────────────────────────── -->
+  <insert id="insertReview" parameterType="sst.content.dto.ReviewRequestDto"
+          useGeneratedKeys="true" keyProperty="rvwNo">
+    INSERT INTO REVIEW (
+      RVW_PLC_NO,
+      RVW_MBR_ID,
+      RVW_RATING,
+      RVW_CONTENT,
+      RVW_REG_DATE
+    ) VALUES (
+      #{rvwPlcNo},
+      #{rvwMbrId},
+      #{rvwRating},
+      #{rvwContent},
+      NOW()
+    )
+  </insert>
+
+  <!-- ─────────────────────────────────────────
+    리뷰 수정
+    - 본인 확인: RVW_MBR_ID = #{rvwMbrId}
+    - 삭제된 리뷰 제외: RVW_USE_YN = 'Y'
+  ───────────────────────────────────────── -->
+  <update id="updateReview" parameterType="sst.content.dto.ReviewRequestDto">
+    UPDATE REVIEW
+    SET
+      RVW_RATING  = #{rvwRating},
+      RVW_CONTENT = #{rvwContent},
+      RVW_UP_DATE = NOW()
+    WHERE RVW_NO     = #{rvwNo}
+      AND RVW_MBR_ID = #{rvwMbrId}
+      AND RVW_USE_YN = 'Y'
+  </update>
+
+  <!-- ─────────────────────────────────────────
+    리뷰 삭제 (소프트 딜리트)
+    - RVW_USE_YN = 'N' 처리
+    - 본인 확인: RVW_MBR_ID = #{rvwMbrId}
+  ───────────────────────────────────────── -->
+  <update id="deleteReview" parameterType="sst.content.dto.ReviewRequestDto">
+    UPDATE REVIEW
+    SET
+      RVW_USE_YN  = 'N',
+      RVW_UP_DATE = NOW()
+    WHERE RVW_NO     = #{rvwNo}
+      AND RVW_MBR_ID = #{rvwMbrId}
+      AND RVW_USE_YN = 'Y'
+  </update>
+
+  <!-- ─────────────────────────────────────────
+    평점 캐시 동기화
+    - RVW_USE_YN = 'Y' 인 것만 집계
+    - 리뷰 없으면 AVG = 0.0, COUNT = 0
+  ───────────────────────────────────────── -->
+  <update id="syncRatingCache" parameterType="long">
+    UPDATE PLACE
+    SET
+      PLC_AVG_RATING = (
+        SELECT COALESCE(ROUND(AVG(RVW_RATING), 1), 0.0)
+        FROM REVIEW
+        WHERE RVW_PLC_NO = #{plcNo}
+          AND RVW_USE_YN = 'Y'
+      ),
+      PLC_REVIEW_CNT = (
+        SELECT COUNT(*)
+        FROM REVIEW
+        WHERE RVW_PLC_NO = #{plcNo}
+          AND RVW_USE_YN = 'Y'
+      ),
+      PLC_UP_DATE = NOW()
+    WHERE PLC_NO = #{plcNo}
+  </update>
+
+	<!-- 리뷰 목록 조회 -->
+	<select id="selectReviews" parameterType="long" resultType="sst.content.dto.ReviewResponseDto">
+	  SELECT
+	    r.RVW_NO        AS rvwNo,
+	    r.RVW_PLC_NO    AS rvwPlcNo,
+	    r.RVW_MBR_ID    AS rvwMbrId,
+	    r.RVW_RATING    AS rvwRating,
+	    r.RVW_CONTENT   AS rvwContent,
+	    r.RVW_REG_DATE  AS rvwRegDate,
+	    r.RVW_UP_DATE   AS rvwUpDate,
+	    m.MBR_NICKNAME  AS nickname
+	  FROM REVIEW r
+	  JOIN MEMBER m ON r.RVW_MBR_ID = m.MBR_ID
+	  WHERE r.RVW_PLC_NO = #{plcNo}
+	    AND r.RVW_USE_YN = 'Y'
+	  ORDER BY r.RVW_REG_DATE DESC
+	</select>
+
+
+</mapper>
