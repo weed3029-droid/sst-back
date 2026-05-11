@@ -19,6 +19,8 @@
             p.PLC_MAIN_IMG_URL  AS plcMainImgUrl,
             p.PLC_THUM_IMG_URL  AS plcThumImgUrl,
             p.PLC_FLT_CD        AS plcFltCd,
+            p.PLC_AVG_RATING    AS plcAvgRating,
+			p.PLC_REVIEW_CNT    AS plcReviewCnt, 
             s.SEE_USETIME       AS seeUsetime,
             s.SEE_PARKING       AS seeParking,
             s.SEE_RESTDATE      AS seeRestdate,

@@ -18,6 +18,8 @@
             p.PLC_MAIN_IMG_URL  AS plcMainImgUrl,
             p.PLC_THUM_IMG_URL  AS plcThumImgUrl,
             p.PLC_FLT_CD        AS plcFltCd,
+            p.PLC_AVG_RATING    AS plcAvgRating,
+			p.PLC_REVIEW_CNT    AS plcReviewCnt,
             f.FOOD_OPENING_HOURS AS foodOpeningHours,
             f.FOOD_PARKING      AS foodParking,
             f.FOOD_RESTDATE     AS foodRestdate,

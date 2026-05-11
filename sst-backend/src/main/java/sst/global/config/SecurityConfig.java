@@ -57,6 +57,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/sleep/**").permitAll()
                 // 놀거리 API 허용
                 .requestMatchers("/api/play/**").permitAll()
+                // 리뷰 API 허용 ← 추가
+                .requestMatchers("/api/reviews/**").permitAll()
+                .requestMatchers("/api/place/**").permitAll()
+                .requestMatchers("/api/wishlist/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
