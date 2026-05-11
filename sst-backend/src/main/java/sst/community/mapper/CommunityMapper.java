@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import sst.community.domain.CommunityFile;
+import sst.community.dto.CommunityFileMapDto;
 
 import sst.community.domain.Community;
 
@@ -54,10 +56,31 @@ public interface CommunityMapper {
             @Param("commNo") Long commNo,
             @Param("tagNo") Long tagNo
     );
+    
+    // 게시글 좋아요 전체 삭제
+    void deleteCommunityLikes(Long commNo);
+
+    // 게시글 파일 매핑 전체 삭제
+    void deleteCommunityFileMaps(Long commNo);
 
     // 게시글 해시태그 전체 삭제
     void deleteCommunityHashtags(Long commNo);
     
+    // 파일 정보 등록
+    void insertFile(CommunityFile file);
     
+    // 커뮤니티 파일 매핑 등록
+    void insertCommunityFileMap(CommunityFileMapDto map);
+    
+    // 게시글 이미지 목록 조회
+    List<String> selectCommunityImages(Long commNo);
+    
+    // 게시글 대표 이미지 조회
+    String selectCommunityImageUrl(Long commNo);
 
+    // 게시글 파일 번호 목록 조회
+    List<Long> selectCommunityFileNos(Long commNo);
+
+    // 파일 정보 삭제
+    void deleteFiles(@Param("fileNos") List<Long> fileNos);
 }

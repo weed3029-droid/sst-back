@@ -60,7 +60,6 @@ public class CommunityController {
     // 커뮤니티 게시글 삭제
     @DeleteMapping("/api/community/{commNo}")
     public void removeCommunity(@PathVariable("commNo") Long commNo) {
-
         communityService.removeCommunity(commNo);
     }
     

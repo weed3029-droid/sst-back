@@ -27,4 +27,9 @@ public class Community {
     
     private List<String> hashtags;
     private String hashtagText;
+    private List<String> images;
+    private List<CommunityFile> files;
+    
+    
 }
+
