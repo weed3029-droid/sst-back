@@ -1,12 +1,10 @@
 package sst.plan.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.List;
 
-@Getter
-@Setter
+import lombok.Data;
+
+@Data
 public class PlaceResponseDto {
 
     private Long         id;                // PLC_NO
@@ -22,4 +20,5 @@ public class PlaceResponseDto {
     private List<String> placeThemeName;    // CMM_CD_NAME (테마) 목록
     private String       placeFilter;       // PLC_FLT_CD
     private String       placeFilterName;   // CMM_CD_NAME (필터)
+    private String 		 imgUrl;			// PLC_MAIN_IMG_URL
 }

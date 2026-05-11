@@ -1,10 +1,14 @@
 package sst.plan.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import sst.plan.dto.PlaceResponseDto;
 
-import java.util.List;
+import sst.plan.dto.AiScheduleDayInsertDto;
+import sst.plan.dto.AiScheduleInsertDto;
+import sst.plan.dto.AiSchedulePlaceInsertDto;
+import sst.plan.dto.PlaceResponseDto;
 
 @Mapper
 public interface AiPlanMapper {
@@ -26,4 +30,16 @@ public interface AiPlanMapper {
 
     // 태그코드 -> 태그명 목록 조회
     List<String> findThemeNamesByCodes(@Param("themeCodes") List<String> themeCodes);
+    
+    // AI 일정 저장
+    void insertAiSchedule(AiScheduleInsertDto dto);
+
+    // AI 일정 날짜별 저장
+    void insertAiScheduleDay(AiScheduleDayInsertDto dto);
+
+    // AI 일정 장소 저장
+    void insertAiSchedulePlace(AiSchedulePlaceInsertDto dto);
+
+    // 지역명 -> 지역번호 조회
+    Long findRgnNoByRgnName(@Param("rgnName") String rgnName);
 }

@@ -38,7 +38,8 @@
 	        p.PLC_LAT           AS y,
 	        p.PLC_OVERVIEW      AS overview,
 	        p.PLC_FLT_CD        AS placeFilter,
-	        flt.CMM_CD_NAME     AS placeFilterName
+	        flt.CMM_CD_NAME     AS placeFilterName,
+	        p.PLC_MAIN_IMG_URL  AS imgUrl
 	    FROM PLACE p
 	    JOIN REGION r           ON p.PLC_RGN_CD = r.RGN_CD
 	    JOIN CMM_CODE cat        ON p.PLC_CAT_CD = cat.CMM_CD
@@ -80,4 +81,69 @@
         AND CMM_USE_YN = 'Y'
     </select>
 
+
+	<!-- AI 일정 저장 -->
+	<insert id="insertAiSchedule" parameterType="sst.plan.dto.AiScheduleInsertDto"
+	        useGeneratedKeys="true" keyProperty="aisNo">
+	    INSERT INTO AI_SCHEDULE (
+	        AIS_MBR_ID,
+	        AIS_SCHDUL_NAME,
+	        AIS_BEGIN_DATE,
+	        AIS_END_DATE,
+	        AIS_TOT_DAYS,
+	        AIS_RGN_NO,
+	        AIS_THEME1_CD,
+	        AIS_THEME2_CD,
+	        AIS_THEME3_CD,
+	        AIS_RLS_YN
+	    ) VALUES (
+	        #{mbrId},
+	        #{scheduleName},
+	        #{startDate},
+	        #{endDate},
+	        #{totalDays},
+	        #{rgnNo},
+	        #{theme1},
+	        #{theme2},
+	        #{theme3},
+	        'N'
+	    )
+	</insert>
+	
+	<!-- AI 일정 날짜별 저장 -->
+	<insert id="insertAiScheduleDay" parameterType="sst.plan.dto.AiScheduleDayInsertDto"
+	        useGeneratedKeys="true" keyProperty="aisdNo">
+	    INSERT INTO AI_SCHEDULE_DAY (
+	        AISD_AIS_NO,
+	        AISD_TRAVEL_DATE,
+	        AISD_DAY_NO
+	    ) VALUES (
+	        #{aisNo},
+	        #{travelDate},
+	        #{dayNo}
+	    )
+	</insert>
+	
+	<!-- AI 일정 장소 저장 -->
+	<insert id="insertAiSchedulePlace" parameterType="sst.plan.dto.AiSchedulePlaceInsertDto">
+	    INSERT INTO AI_SCHEDULE_PLACE (
+	        AISP_AISD_NO,
+	        AISP_PLC_NO,
+	        AISP_VISIT_ORDR
+	    ) VALUES (
+	        #{aisdNo},
+	        #{plcNo},
+	        #{visitOrder}
+	    )
+	</insert>
+	
+	<!-- 지역명 -> 지역번호 조회 -->
+	<select id="findRgnNoByRgnName" resultType="java.lang.Long">
+	    SELECT RGN_NO
+	    FROM REGION
+	    WHERE RGN_NAME = #{rgnName}
+	    AND RGN_USE_YN = 'Y'
+	    LIMIT 1
+	</select>
+	
 </mapper>

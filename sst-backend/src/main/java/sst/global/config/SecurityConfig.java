@@ -58,7 +58,7 @@ public class SecurityConfig {
                 // 놀거리 API 허용
                 .requestMatchers("/api/play/**").permitAll()
                 // fastAPI 허용
-                .requestMatchers("/ai/travel/**").permitAll()
+                .requestMatchers("/api/ai/travel/**").permitAll()
                 // 리뷰 API 허용 ← 추가
                 .requestMatchers("/api/reviews/**").permitAll()
                 .requestMatchers("/api/place/**").permitAll()
