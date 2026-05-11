@@ -51,5 +51,22 @@
 	    WHERE C.COMM_USE_YN = 'Y'
 	      AND C.COMM_NO = #{commNo}
 	</select>
+	
+	<insert id="insertCommunity">
+	    INSERT INTO COMMUNITY (
+	        COMM_MBR_ID,
+	        COMM_CAT_CD,
+	        COMM_TITLE,
+	        COMM_CONTENT,
+	        COMM_MAIN_IMG_URL
+	    )
+	    VALUES (
+	        #{commMbrId},
+	        #{commCatCd},
+	        #{commTitle},
+	        #{commContent},
+	        #{commMainImgUrl}
+	    )
+	</insert>
 
 </mapper>

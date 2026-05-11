@@ -5,7 +5,12 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.mysql.cj.log.Log;
+
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
@@ -27,5 +32,12 @@ public class CommunityController {
     @GetMapping("/api/community/{commNo}")
     public Community communityDetail(@PathVariable("commNo") Long commNo) {
         return communityService.getCommunityDetail(commNo);
+    }
+    
+    // 핫딜거리 글쓰기
+    @PostMapping("/api/community")
+    public void createCommunity(@RequestBody Community community) {
+    	System.out.println(community.getCommMainImgUrl());
+        communityService.createCommunity(community);
     }
 }

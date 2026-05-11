@@ -13,5 +13,7 @@ public interface CommunityMapper {
     List<Community> selectCommunityList(@Param("catCd") String catCd);
     
     Community selectCommunityDetail(Long commNo);
+    
+    void insertCommunity(Community community);
 
 }
