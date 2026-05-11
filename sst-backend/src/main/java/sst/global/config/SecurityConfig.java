@@ -59,6 +59,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/play/**").permitAll()
                 // fastAPI 허용
                 .requestMatchers("/ai/travel/**").permitAll()
+                // 리뷰 API 허용 ← 추가
+                .requestMatchers("/api/reviews/**").permitAll()
+                .requestMatchers("/api/place/**").permitAll()
+                .requestMatchers("/api/wishlist/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
