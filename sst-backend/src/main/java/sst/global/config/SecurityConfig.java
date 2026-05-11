@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/see/**").permitAll()
                 // 홈/메인페이지 카드 조회 API 허용
                 .requestMatchers("/api/home/**").permitAll()
+                // 업로드 이미지 접근 허용
+                .requestMatchers("/uploads/**").permitAll()
                 // 먹거리 API 허용
                 .requestMatchers("/api/food/**").permitAll()
                 // 잘거리 API 허용
