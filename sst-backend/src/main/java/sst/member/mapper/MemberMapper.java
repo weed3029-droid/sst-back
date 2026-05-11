@@ -38,5 +38,20 @@ public interface MemberMapper {
     // 관리자: 전체 회원 목록 조회
     List<Member> findAllMembers();
     
+    // 회원 탈퇴 (논리 삭제 및 마스킹)
+    int withdrawMember(@Param("mbrId") Long mbrId);
     
+    // 관리자 : 회원 단건 조회 (ID 기준)
+    Optional<Member> findById(@Param("mbrId") Long mbrId);
+
+    // 관리자 : 회원 탈퇴 (소프트 삭제 및 개인정보 마스킹, 토큰 파기)
+    int withdrawMember(@Param("mbrId") Long mbrId, 
+                       @Param("maskedEmail") String maskedEmail, 
+                       @Param("maskedNickname") String maskedNickname);
+    
+    // 🚀 1. 페이징 처리된 회원 목록 조회 (offset: 건너뛸 개수, size: 가져올 개수)
+    List<Member> findAllMembersPaged(@Param("offset") int offset, @Param("size") int size);
+
+    // 🚀 2. 전체 회원 수 조회 (프론트에서 전체 페이지 수를 계산하기 위해 필수!)
+    int countAllMembers();
 }

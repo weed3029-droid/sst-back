@@ -13,4 +13,8 @@ public class PlaceCardDto {
     private String plcName;
     private String plcOverview;
     private String plcMainImgUrl;
+    
+    private String plcAddr;
+    private Double plcAvgRating;
+    private Integer plcReviewCnt;
 }

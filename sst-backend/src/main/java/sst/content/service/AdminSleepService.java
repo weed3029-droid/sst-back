@@ -2,16 +2,14 @@ package sst.content.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sst.content.dto.SleepResponseDto;
 import sst.content.mapper.PlaceSleepMapper;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -19,26 +17,26 @@ public class AdminSleepService {
 
     private final PlaceSleepMapper placeSleepMapper;
 
-    public List<SleepResponseDto> getListByRegion(Integer rgnCd) {
-        return placeSleepMapper.findByRegion(rgnCd);
+    @Transactional(readOnly = true)
+    public PageResponse<SleepResponseDto> getListPageByRegion(Integer rgnCd, PageRequest pageRequest) {
+        
+        // 🚀 1. 전체 개수를 먼저 조회합니다 (rgnCd 조건 포함)
+        int total = placeSleepMapper.countSleepListByRegion(rgnCd);
+        
+        // 🚀 2. offset과 size를 넘겨 페이징된 데이터만 가져옵니다.
+        List<SleepResponseDto> list = placeSleepMapper.findSleepListPaged(
+                rgnCd, 
+                pageRequest.getOffset(), 
+                pageRequest.getSize()
+        );
+
+        // 🚀 3. 우리가 만든 공통 응답 DTO에 담아 반환 (내부에서 totalPages 자동 계산)
+        return new PageResponse<>(list, total, pageRequest);
     }
 
+    @Transactional(readOnly = true)
     public SleepResponseDto getDetail(Long plcNo) {
         return placeSleepMapper.findById(plcNo);
-    }
-    
-    public PageImpl<SleepResponseDto> getListPageByRegion(Integer rgnCd, Pageable pageable) {
-        
-        // 1. 반드시 호출 직전에 배치!
-        PageHelper.startPage(pageable.getPageNumber() + 1, pageable.getPageSize());
-
-        // 2. 바로 다음에 Mapper가 와야 함
-        // 만약 이 사이에 "if (rgnCd == null) {...}" 등 내부에서 다른 쿼리를 날리면 페이징이 깨집니다.
-        List<SleepResponseDto> list = placeSleepMapper.findByRegion(rgnCd);
-
-        // 3. 결과 분석
-        PageInfo<SleepResponseDto> pageInfo = new PageInfo<>(list);
-        return new PageImpl<>(pageInfo.getList(), pageable, pageInfo.getTotal());
     }
     
 }

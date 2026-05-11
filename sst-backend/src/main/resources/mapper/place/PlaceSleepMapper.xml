@@ -4,6 +4,8 @@
 
 <mapper namespace="sst.content.mapper.PlaceSleepMapper">
 
+	
+	
     <select id="findByRegion" resultType="sst.content.dto.SleepResponseDto">
         SELECT
             p.PLC_NO              AS plcNo,
@@ -90,4 +92,6 @@
         WHERE p.PLC_NO = #{plcNo}
     </select>
 
+
+    
 </mapper>

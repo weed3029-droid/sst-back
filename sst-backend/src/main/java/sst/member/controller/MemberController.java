@@ -3,6 +3,7 @@ package sst.member.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sst.global.response.ApiResponse;
@@ -64,6 +66,20 @@ public class MemberController {
         
         String userEmail = userDetails.getMember().getMbrEmail();
         memberService.changePassword(userEmail, request);
+        
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+    /**
+     * 🚀 회원 탈퇴
+     */
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletResponse response) {
+        
+        // SecurityContext에서 현재 로그인한 유저의 PK 추출 후 서비스로 전달
+        memberService.withdrawMember(userDetails.getMember().getMbrId(), response);
         
         return ResponseEntity.ok(ApiResponse.success(null));
     }
