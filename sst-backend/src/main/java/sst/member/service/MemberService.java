@@ -1,12 +1,15 @@
 package sst.member.service;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import sst.global.exception.CustomException;
 import sst.global.exception.ErrorCode;
+import sst.global.utils.CookieUtil;
 import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
@@ -18,6 +21,8 @@ public class MemberService {
 
 	private final MemberMapper memberMapper;
 	private final PasswordEncoder passwordEncoder;
+	
+	private final CookieUtil cookieUtil;
 	
 	@Transactional
 	public Member getMemberInfoByEmail(String email) {
@@ -61,4 +66,16 @@ public class MemberService {
 	    
 	    memberMapper.updatePassword(member.getMbrId(), encodedNewPassword);
 	}
+	
+	@Transactional
+    public void withdrawMember(Long mbrId, HttpServletResponse response) {
+        // 1. DB 논리 삭제 및 마스킹 처리
+        memberMapper.withdrawMember(mbrId);
+
+        // 2. 🚀 프론트엔드 브라우저의 HttpOnly 쿠키(액세스/리프레시 토큰) 즉시 만료
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieUtil.deleteAccessTokenCookie().toString());
+        response.addHeader(HttpHeaders.SET_COOKIE,
+                cookieUtil.deleteRefreshTokenCookie().toString());
+    }
 }

@@ -1,11 +1,5 @@
 package sst.content.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import sst.content.dto.SleepResponseDto;
 import sst.content.service.AdminSleepService;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import sst.global.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/admin/sleep")
@@ -25,26 +22,21 @@ public class AdminSleepController {
     private final AdminSleepService sleepService;
 
     @GetMapping("/list")
-    public ResponseEntity<Map<String, Object>> getList(
+    public ResponseEntity<ApiResponse<PageResponse<SleepResponseDto>>> getList(
             @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
+            PageRequest pageRequest) { 
+        // 🚀 1. ?page=1&size=10 파라미터는 Spring이 PageRequest 객체에 자동으로 바인딩해 줍니다.
+        // 🚀 2. Map을 쓰지 않고 명확한 타입(PageResponse)과 공통 응답(ApiResponse)으로 감싸 반환합니다.
 
-        Pageable pageable = PageRequest.of(page - 1, size);
-        
-        // Service에서 PageImpl을 받아옵니다.
-        PageImpl<SleepResponseDto> resultPage = sleepService.getListPageByRegion(rgnCd, pageable);
+        PageResponse<SleepResponseDto> result = sleepService.getListPageByRegion(rgnCd, pageRequest);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("data", resultPage.getContent());
-        response.put("total", resultPage.getTotalElements()); // PageHelper가 계산해준 총 개수
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @GetMapping("/{plcNo}")
-    public ResponseEntity<SleepResponseDto> getDetail(
+    public ResponseEntity<ApiResponse<SleepResponseDto>> getDetail(
             @PathVariable(name = "plcNo") Long plcNo) {
-        return ResponseEntity.ok(sleepService.getDetail(plcNo));
+        // 🚀 3. 단건 조회도 ApiResponse 규격을 맞추어 프론트엔드 연동의 일관성을 유지합니다.
+        return ResponseEntity.ok(ApiResponse.success(sleepService.getDetail(plcNo)));
     }
 }
