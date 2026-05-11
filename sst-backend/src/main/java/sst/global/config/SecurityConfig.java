@@ -57,6 +57,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/sleep/**").permitAll()
                 // 놀거리 API 허용
                 .requestMatchers("/api/play/**").permitAll()
+                    // 관리자 API는 관리자만 허용
+                    .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 // fastAPI 허용
                 .requestMatchers("/ai/travel/**").permitAll()
                 // 리뷰 API 허용 ← 추가
