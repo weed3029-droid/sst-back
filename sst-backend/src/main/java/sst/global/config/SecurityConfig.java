@@ -57,6 +57,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/sleep/**").permitAll()
                 // 놀거리 API 허용
                 .requestMatchers("/api/play/**").permitAll()
+                // fastAPI 허용
+                .requestMatchers("/ai/travel/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
