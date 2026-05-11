@@ -5,6 +5,7 @@
 
 <mapper namespace="sst.community.mapper.CommunityMapper">
 
+	<!-- 커뮤니티 게시글 목록 조회 -->
     <select id="selectCommunityList" resultType="sst.community.domain.Community">
         SELECT
             C.COMM_NO AS commNo,
@@ -29,6 +30,7 @@
         ORDER BY C.COMM_NO DESC
     </select>
     
+    <!-- 커뮤니티 게시글 상세 조회 -->
     <select id="selectCommunityDetail" resultType="sst.community.domain.Community">
 	    SELECT
 	        C.COMM_NO AS commNo,
@@ -52,6 +54,7 @@
 	      AND C.COMM_NO = #{commNo}
 	</select>
 	
+	<!-- 커뮤니티 게시글 등록 -->
 	<insert id="insertCommunity">
 	    INSERT INTO COMMUNITY (
 	        COMM_MBR_ID,
@@ -68,5 +71,22 @@
 	        #{commMainImgUrl}
 	    )
 	</insert>
+	
+	<!-- 커뮤니티 게시글 수정 -->
+	<update id="updateCommunity">
+	    UPDATE COMMUNITY
+	    SET
+	        COMM_TITLE = #{commTitle},
+	        COMM_CONTENT = #{commContent},
+	        COMM_MAIN_IMG_URL = #{commMainImgUrl},
+	        COMM_UP_DATE = NOW()
+	    WHERE COMM_NO = #{commNo}
+	</update>
+	
+	<!-- 커뮤니티 게시글 삭제 -->
+	<delete id="deleteCommunity">
+	    DELETE FROM COMMUNITY
+	    WHERE COMM_NO = #{commNo}
+	</delete>
 
 </mapper>

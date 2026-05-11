@@ -14,17 +14,29 @@ public class CommunityService {
 
     private final CommunityMapper communityMapper;
 
+    // 커뮤니티 게시글 목록 조회
     public List<Community> getCommunityList(String catCd) {
         return communityMapper.selectCommunityList(catCd);
     }
     
+    // 커뮤니티 게시글 상세 조회
     public Community getCommunityDetail(Long commNo) {
         return communityMapper.selectCommunityDetail(commNo);
     }
     
-    // 게시글 등록 서비스 메서드
+    // 커뮤니티 게시글 등록
     public void createCommunity(Community community) {
         communityMapper.insertCommunity(community); // 실제 DB INSERT 실행
+    }
+    
+    // 커뮤니티 게시글 수정
+    public void modifyCommunity(Community community) {
+        communityMapper.updateCommunity(community);
+    }
+    
+    // 커뮤니티 게시글 삭제
+    public void removeCommunity(Long commNo) {
+        communityMapper.deleteCommunity(commNo);
     }
     
 }
