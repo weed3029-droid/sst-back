@@ -1,6 +1,7 @@
 package sst.community.domain;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class Community {
@@ -23,4 +24,7 @@ public class Community {
     private String commRegDate;
     private String commUpDate;
     private String commUseYn;
+    
+    private List<String> hashtags;
+    private String hashtagText;
 }

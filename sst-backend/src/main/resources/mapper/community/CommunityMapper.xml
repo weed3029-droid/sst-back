@@ -31,7 +31,7 @@
     </select>
     
     <!-- 커뮤니티 게시글 상세 조회 -->
-    <select id="selectCommunityDetail" resultType="sst.community.domain.Community">
+	<select id="selectCommunityDetail" resultType="sst.community.domain.Community">
 	    SELECT
 	        C.COMM_NO AS commNo,
 	        C.COMM_MBR_ID AS commMbrId,
@@ -46,16 +46,25 @@
 	        C.COMM_CMNT_CNT AS commCmntCnt,
 	        DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
 	        DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
-	        C.COMM_USE_YN AS commUseYn
+	        C.COMM_USE_YN AS commUseYn,
+	        GROUP_CONCAT(H.HTAG_TAG_NAME) AS hashtagText
 	    FROM COMMUNITY C
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
+	    LEFT JOIN COMMUNITY_HASHTAG CH
+	      ON C.COMM_NO = CH.CHTG_COMM_NO
+	    LEFT JOIN HASHTAG H
+	      ON CH.CHTG_HTAG_NO = H.HTAG_NO
 	    WHERE C.COMM_USE_YN = 'Y'
 	      AND C.COMM_NO = #{commNo}
+	    GROUP BY C.COMM_NO
 	</select>
 	
 	<!-- 커뮤니티 게시글 등록 -->
-	<insert id="insertCommunity">
+	<insert id="insertCommunity"
+	        useGeneratedKeys="true"
+	        keyProperty="commNo"
+	        keyColumn="COMM_NO">
 	    INSERT INTO COMMUNITY (
 	        COMM_MBR_ID,
 	        COMM_CAT_CD,
@@ -88,5 +97,89 @@
 	    DELETE FROM COMMUNITY
 	    WHERE COMM_NO = #{commNo}
 	</delete>
+	
+	<!-- 커뮤니티 게시글 조회수 증가 -->
+	<update id="updateViewCount">
+	    UPDATE COMMUNITY
+	    SET COMM_INQIRE_CNT = COMM_INQIRE_CNT + 1
+	    WHERE COMM_NO = #{commNo}
+	</update>
 
+	<!-- 커뮤니티 게시글 좋아요 여부 확인 -->
+	<select id="selectLikeCount" resultType="int">
+	    SELECT COUNT(*)
+	    FROM COMMUNITY_LIKE
+	    WHERE CLKE_COMM_NO = #{commNo}
+	      AND CLKE_MBR_ID = #{mbrId}
+	</select>
+	
+	<!-- 커뮤니티 게시글 좋아요 추가 -->
+	<insert id="insertCommunityLike">
+	    INSERT INTO COMMUNITY_LIKE (
+	        CLKE_COMM_NO,
+	        CLKE_MBR_ID
+	    )
+	    VALUES (
+	        #{commNo},
+	        #{mbrId}
+	    )
+	</insert>
+	
+	<!-- 커뮤니티 게시글 좋아요 삭제 -->
+	<delete id="deleteCommunityLike">
+	    DELETE FROM COMMUNITY_LIKE
+	    WHERE CLKE_COMM_NO = #{commNo}
+	      AND CLKE_MBR_ID = #{mbrId}
+	</delete>
+	
+	<!-- 커뮤니티 게시글 좋아요 수 증가 -->
+	<update id="increaseLikeCount">
+	    UPDATE COMMUNITY
+	    SET COMM_LIKE_CNT = COMM_LIKE_CNT + 1
+	    WHERE COMM_NO = #{commNo}
+	</update>
+	
+	<!-- 커뮤니티 게시글 좋아요 수 감소 -->
+	<update id="decreaseLikeCount">
+	    UPDATE COMMUNITY
+	    SET COMM_LIKE_CNT = GREATEST(COMM_LIKE_CNT - 1, 0)
+	    WHERE COMM_NO = #{commNo}
+	</update>
+	
+	<!-- 해시태그 번호 조회 -->
+	<select id="selectHashtagNo" resultType="long">
+	    SELECT HTAG_NO
+	    FROM HASHTAG
+	    WHERE HTAG_TAG_NAME = #{tagName}
+	</select>
+	
+	<!-- 해시태그 등록 -->
+	<insert id="insertHashtag">
+	    INSERT INTO HASHTAG (
+	        HTAG_TAG_NAME,
+	        HTAG_USE_CNT
+	    )
+	    VALUES (
+	        #{tagName},
+	        0
+	    )
+	</insert>
+	
+	<!-- 게시글 해시태그 연결 -->
+	<insert id="insertCommunityHashtag">
+	    INSERT INTO COMMUNITY_HASHTAG (
+	        CHTG_COMM_NO,
+	        CHTG_HTAG_NO
+	    )
+	    VALUES (
+	        #{commNo},
+	        #{tagNo}
+	    )
+	</insert>
+	
+	<!-- 게시글 해시태그 전체 삭제 -->
+	<delete id="deleteCommunityHashtags">
+	    DELETE FROM COMMUNITY_HASHTAG
+	    WHERE CHTG_COMM_NO = #{commNo}
+	</delete>
 </mapper>

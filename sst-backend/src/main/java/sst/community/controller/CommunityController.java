@@ -33,6 +33,12 @@ public class CommunityController {
         return communityService.getCommunityDetail(commNo);
     }
     
+    // 커뮤니티 게시글 조회수 증가
+    @PutMapping("/api/community/{commNo}/view")
+    public void increaseViewCount(@PathVariable("commNo") Long commNo) {
+        communityService.increaseViewCount(commNo);
+    }
+    
     // 커뮤니티 게시글 등록
     @PostMapping("/api/community")
     public void createCommunity(@RequestBody Community community) {
@@ -57,4 +63,15 @@ public class CommunityController {
 
         communityService.removeCommunity(commNo);
     }
+    
+    // 커뮤니티 게시글 좋아요 처리
+    @PostMapping("/api/community/{commNo}/like")
+    public boolean toggleLike(
+            @PathVariable("commNo") Long commNo,
+            @RequestParam("mbrId") Long mbrId) {
+
+        return communityService.toggleLike(commNo, mbrId);
+    }
+    
+  
 }
