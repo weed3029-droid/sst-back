@@ -1,20 +1,24 @@
 package sst.plan.controller;
 
-import java.util.Map;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import sst.plan.dto.PlaceResponseDto;
+import sst.plan.service.AiPlanService;
+
+import java.util.List;
 
 @RestController
+@RequestMapping("/ai")
 @RequiredArgsConstructor
 public class AiPlanController {
-	
-	@GetMapping("/ai/travel/list")
-	public Map<String,String> AiPlanResponse(@RequestParam("region") String region, @RequestParam("style") String style){
-		System.out.println(region + style);
-		return Map.of("region",region,"Style",style);
-	}
+
+    private final AiPlanService aiPlanService;
+
+    @GetMapping("/travel/list")
+    public List<PlaceResponseDto> AiPlanResponse(
+            @RequestParam("region") String region,
+            @RequestParam("themes") String themes
+    ) {
+        return aiPlanService.getTravelPlaces(region, themes);
+    }
 }
