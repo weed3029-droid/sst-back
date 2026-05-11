@@ -19,7 +19,9 @@ public class SleepResponseDto {
     private String  plcThumImgUrl;
     private String  plcOverview;
     private String  plcFltCd;
-
+    private Double  plcAvgRating;
+    private Integer plcReviewCnt;
+    
     // ── PLACE_SLEEP 전용 필드 ───────────────────
     private String  sleepCheckIn;
     private String  sleepCheckOut;
