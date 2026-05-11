@@ -47,7 +47,7 @@ public class SecurityConfig {
 			        "/api/customersupport/faq",
 			        "/api/comments/**"
                 ).permitAll()
-                // ✅ 볼거리 API 허용
+                // 볼거리 API 허용
                 .requestMatchers("/api/see/**").permitAll()
                 // 홈/메인페이지 카드 조회 API 허용
                 .requestMatchers("/api/home/**").permitAll()

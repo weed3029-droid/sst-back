@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sst.community.mapper.CommunityMapper">
+
+    <select id="selectCommunityList" resultType="sst.community.domain.Community">
+        SELECT
+            C.COMM_NO AS commNo,
+            C.COMM_MBR_ID AS commMbrId,
+            M.MBR_NICKNAME AS mbrNickname,
+            C.COMM_CAT_CD AS commCatCd,
+            C.COMM_AIS_NO AS commAisNo,
+            C.COMM_MAIN_IMG_URL AS commMainImgUrl,
+            C.COMM_TITLE AS commTitle,
+            C.COMM_CONTENT AS commContent,
+            C.COMM_INQIRE_CNT AS commInqireCnt,
+            C.COMM_LIKE_CNT AS commLikeCnt,
+            C.COMM_CMNT_CNT AS commCmntCnt,
+            DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
+            DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
+            C.COMM_USE_YN AS commUseYn
+        FROM COMMUNITY C
+        JOIN MEMBER M
+          ON C.COMM_MBR_ID = M.MBR_ID
+        WHERE C.COMM_USE_YN = 'Y'
+          AND C.COMM_CAT_CD = #{catCd}
+        ORDER BY C.COMM_NO DESC
+    </select>
+    
+    <select id="selectCommunityDetail" resultType="sst.community.domain.Community">
+	    SELECT
+	        C.COMM_NO AS commNo,
+	        C.COMM_MBR_ID AS commMbrId,
+	        M.MBR_NICKNAME AS mbrNickname,
+	        C.COMM_CAT_CD AS commCatCd,
+	        C.COMM_AIS_NO AS commAisNo,
+	        C.COMM_MAIN_IMG_URL AS commMainImgUrl,
+	        C.COMM_TITLE AS commTitle,
+	        C.COMM_CONTENT AS commContent,
+	        C.COMM_INQIRE_CNT AS commInqireCnt,
+	        C.COMM_LIKE_CNT AS commLikeCnt,
+	        C.COMM_CMNT_CNT AS commCmntCnt,
+	        DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
+	        DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
+	        C.COMM_USE_YN AS commUseYn
+	    FROM COMMUNITY C
+	    JOIN MEMBER M
+	      ON C.COMM_MBR_ID = M.MBR_ID
+	    WHERE C.COMM_USE_YN = 'Y'
+	      AND C.COMM_NO = #{commNo}
+	</select>
+
+</mapper>
