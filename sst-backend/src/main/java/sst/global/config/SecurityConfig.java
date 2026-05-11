@@ -51,14 +51,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/see/**").permitAll()
                 // 홈/메인페이지 카드 조회 API 허용
                 .requestMatchers("/api/home/**").permitAll()
+                // 업로드 이미지 접근 허용
+                .requestMatchers("/uploads/**").permitAll()
                 // 먹거리 API 허용
                 .requestMatchers("/api/food/**").permitAll()
                 // 잘거리 API 허용
                 .requestMatchers("/api/sleep/**").permitAll()
                 // 놀거리 API 허용
                 .requestMatchers("/api/play/**").permitAll()
-                    // 관리자 API는 관리자만 허용
-                    .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                // 관리자 API는 관리자만 허용
+                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 // fastAPI 허용
                 .requestMatchers("/ai/travel/**").permitAll()
                 // 리뷰 API 허용 ← 추가
