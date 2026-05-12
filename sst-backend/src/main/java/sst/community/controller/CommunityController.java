@@ -2,17 +2,20 @@ package sst.community.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
+import sst.community.dto.PlaceCategoryDto;
+import sst.community.dto.PlaceDto;
+import sst.community.dto.RegionDto;
 import sst.community.service.CommunityService;
 
 @RestController
@@ -72,5 +75,25 @@ public class CommunityController {
         return communityService.toggleLike(commNo, mbrId);
     }
     
+    // 지역 조회
+    @GetMapping("/api/regions")
+    public List<RegionDto> getRegionList() {
+        return communityService.getRegionList();
+    }
+    
+    // 카테고리 조회
+    @GetMapping("/api/place-categories")
+    public List<PlaceCategoryDto> getPlaceCategoryList() {
+        return communityService.getPlaceCategoryList();
+    }
+    
+    // 구제적인 장소
+    @GetMapping("/api/places")
+    public List<PlaceDto> getPlaceList(
+            @RequestParam("rgnCd") Integer rgnCd,
+            @RequestParam("catCd") String catCd
+    ) {
+        return communityService.getPlaceList(rgnCd, catCd);
+    }
   
 }

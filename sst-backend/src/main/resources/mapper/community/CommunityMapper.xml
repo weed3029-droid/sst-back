@@ -7,28 +7,32 @@
 
 	<!-- 커뮤니티 게시글 목록 조회 -->
     <select id="selectCommunityList" resultType="sst.community.domain.Community">
-        SELECT
-            C.COMM_NO AS commNo,
-            C.COMM_MBR_ID AS commMbrId,
-            M.MBR_NICKNAME AS mbrNickname,
-            C.COMM_CAT_CD AS commCatCd,
-            C.COMM_AIS_NO AS commAisNo,
-            C.COMM_MAIN_IMG_URL AS commMainImgUrl,
-            C.COMM_TITLE AS commTitle,
-            C.COMM_CONTENT AS commContent,
-            C.COMM_INQIRE_CNT AS commInqireCnt,
-            C.COMM_LIKE_CNT AS commLikeCnt,
-            C.COMM_CMNT_CNT AS commCmntCnt,
-            DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
-            DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
-            C.COMM_USE_YN AS commUseYn
-        FROM COMMUNITY C
-        JOIN MEMBER M
-          ON C.COMM_MBR_ID = M.MBR_ID
-        WHERE C.COMM_USE_YN = 'Y'
-          AND C.COMM_CAT_CD = #{catCd}
-        ORDER BY C.COMM_NO DESC
-    </select>
+	    SELECT
+	        C.COMM_NO AS commNo,
+	        C.COMM_MBR_ID AS commMbrId,
+	        M.MBR_NICKNAME AS mbrNickname,
+	        C.COMM_CAT_CD AS commCatCd,
+	        C.COMM_AIS_NO AS commAisNo,
+	        C.COMM_PLC_NO AS commPlcNo,
+	        P.PLC_NAME AS plcName,
+	        C.COMM_MAIN_IMG_URL AS commMainImgUrl,
+	        C.COMM_TITLE AS commTitle,
+	        C.COMM_CONTENT AS commContent,
+	        C.COMM_INQIRE_CNT AS commInqireCnt,
+	        C.COMM_LIKE_CNT AS commLikeCnt,
+	        C.COMM_CMNT_CNT AS commCmntCnt,
+	        DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
+	        DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
+	        C.COMM_USE_YN AS commUseYn
+	    FROM COMMUNITY C
+	    JOIN MEMBER M
+	      ON C.COMM_MBR_ID = M.MBR_ID
+	    LEFT JOIN PLACE P
+	      ON C.COMM_PLC_NO = P.PLC_NO
+	    WHERE C.COMM_USE_YN = 'Y'
+	      AND C.COMM_CAT_CD = #{catCd}
+	    ORDER BY C.COMM_NO DESC
+	</select>
     
     <!-- 커뮤니티 게시글 상세 조회 -->
 	<select id="selectCommunityDetail" resultType="sst.community.domain.Community">
@@ -38,6 +42,14 @@
 	        M.MBR_NICKNAME AS mbrNickname,
 	        C.COMM_CAT_CD AS commCatCd,
 	        C.COMM_AIS_NO AS commAisNo,
+	
+	        C.COMM_PLC_NO AS commPlcNo,
+	        P.PLC_NAME AS plcName,
+	        R.RGN_CD AS rgnCd,
+	        R.RGN_NAME AS rgnName,
+	        CC.CMM_CD AS plcCatCd,
+	        CC.CMM_CD_NAME AS plcCatName,
+	
 	        C.COMM_MAIN_IMG_URL AS commMainImgUrl,
 	        C.COMM_TITLE AS commTitle,
 	        C.COMM_CONTENT AS commContent,
@@ -51,6 +63,14 @@
 	    FROM COMMUNITY C
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
+	
+	    LEFT JOIN PLACE P
+	      ON C.COMM_PLC_NO = P.PLC_NO
+	    LEFT JOIN REGION R
+	      ON P.PLC_RGN_CD = R.RGN_CD
+	    LEFT JOIN CMM_CODE CC
+	      ON P.PLC_CAT_CD = CC.CMM_CD
+	
 	    LEFT JOIN COMMUNITY_HASHTAG CH
 	      ON C.COMM_NO = CH.CHTG_COMM_NO
 	    LEFT JOIN HASHTAG H
@@ -68,6 +88,7 @@
 	    INSERT INTO COMMUNITY (
 	        COMM_MBR_ID,
 	        COMM_CAT_CD,
+	        COMM_PLC_NO,
 	        COMM_TITLE,
 	        COMM_CONTENT,
 	        COMM_MAIN_IMG_URL
@@ -75,6 +96,7 @@
 	    VALUES (
 	        #{commMbrId},
 	        #{commCatCd},
+	        #{commPlcNo},
 	        #{commTitle},
 	        #{commContent},
 	        #{commMainImgUrl}
@@ -88,6 +110,7 @@
 	        COMM_TITLE = #{commTitle},
 	        COMM_CONTENT = #{commContent},
 	        COMM_MAIN_IMG_URL = #{commMainImgUrl},
+	        COMM_PLC_NO = #{commPlcNo},
 	        COMM_UP_DATE = NOW()
 	    WHERE COMM_NO = #{commNo}
 	</update>
@@ -270,4 +293,37 @@
 	    WHERE CFM.CFM_COMM_NO = #{commNo}
 	    ORDER BY CFM.CFM_SORT_ORDR ASC
 	</select>
+	
+	<!-- 지역 목록 조회 -->
+	<select id="selectRegionList" resultType="sst.community.dto.RegionDto">
+	    SELECT
+	        RGN_CD AS rgnCd,
+	        RGN_NAME AS rgnName
+	    FROM REGION
+	    ORDER BY RGN_CD ASC
+	</select>
+	
+	<!-- 카테고리 조회 -->
+	<select id="selectPlaceCategoryList" resultType="sst.community.dto.PlaceCategoryDto">
+	    SELECT
+	        CMM_CD AS cmmCd,
+	        CMM_CD_NAME AS cmmCdName
+	    FROM CMM_CODE
+	    WHERE CMM_GROUP_CD = 'GRP002'
+	      AND CMM_USE_YN = 'Y'
+	    ORDER BY CMM_SORT_ORDR ASC
+	</select>
+	
+	<!-- 구체적인 장소 -->
+	<select id="selectPlaceList" resultType="sst.community.dto.PlaceDto">
+	    SELECT
+	        PLC_NO AS plcNo,
+	        PLC_NAME AS plcName
+	    FROM PLACE
+	    WHERE PLC_RGN_CD = #{rgnCd}
+	      AND PLC_CAT_CD = #{catCd}
+	      AND PLC_USE_YN = 'Y'
+	    ORDER BY PLC_NAME ASC
+	</select>
+
 </mapper>

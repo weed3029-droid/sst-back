@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import sst.community.domain.CommunityFile;
-import sst.community.dto.CommunityFileMapDto;
 
 import sst.community.domain.Community;
+import sst.community.domain.CommunityFile;
+import sst.community.dto.CommunityFileMapDto;
+import sst.community.dto.PlaceCategoryDto;
+import sst.community.dto.PlaceDto;
+import sst.community.dto.RegionDto;
 
 @Mapper
 public interface CommunityMapper {
@@ -83,4 +86,16 @@ public interface CommunityMapper {
 
     // 파일 정보 삭제
     void deleteFiles(@Param("fileNos") List<Long> fileNos);
+    
+    // 지역 조회
+    List<RegionDto> selectRegionList();
+    
+    // 카테고리 조회
+    List<PlaceCategoryDto> selectPlaceCategoryList();
+    
+    // 구제척인 장소 
+    List<PlaceDto> selectPlaceList(
+    	    @Param("rgnCd") Integer rgnCd,
+    	    @Param("catCd") String catCd
+    	);
 }

@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
-import sst.community.mapper.CommunityMapper;
 import sst.community.domain.CommunityFile;
 import sst.community.dto.CommunityFileMapDto;
+import sst.community.dto.PlaceCategoryDto;
+import sst.community.dto.PlaceDto;
+import sst.community.dto.RegionDto;
+import sst.community.mapper.CommunityMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -185,4 +188,18 @@ public class CommunityService {
         return true;
     }
     
+    // 지역 조회
+    public List<RegionDto> getRegionList() {
+        return communityMapper.selectRegionList();
+    }
+    
+    // 카테고리 조회
+    public List<PlaceCategoryDto> getPlaceCategoryList() {
+        return communityMapper.selectPlaceCategoryList();
+    }
+    
+    // 구제척인 장소
+    public List<PlaceDto> getPlaceList(Integer rgnCd, String catCd) {
+        return communityMapper.selectPlaceList(rgnCd, catCd);
+    }
 }

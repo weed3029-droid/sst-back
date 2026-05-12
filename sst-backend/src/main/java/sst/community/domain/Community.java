@@ -30,6 +30,12 @@ public class Community {
     private List<String> images;
     private List<CommunityFile> files;
     
+    private Long commPlcNo;
+    private String plcName;
+    private Integer rgnCd;
+    private String rgnName;
+    private String plcCatCd;
+    private String plcCatName;
     
 }
 
