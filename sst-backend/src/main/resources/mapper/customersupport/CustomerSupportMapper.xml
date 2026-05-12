@@ -44,7 +44,7 @@
 	    FROM CUSTOMER_SUPPORT
 	    WHERE CS_CAT_CD = 'CSS002'
 	      AND CS_USE_YN = 'Y'
-	    ORDER BY CS_REG_DATE DESC
+	    ORDER BY CS_PIN_YN DESC, CS_REG_DATE DESC
 	</select>
 	
 	<!-- 관리자 공지사항 작성 -->
@@ -123,6 +123,7 @@
 	    UPDATE CUSTOMER_SUPPORT
 	       SET CS_TITLE = #{csTitle}
 	         , CS_CONTENT = #{csContent}
+	         , CS_PIN_YN = IFNULL(#{csPinYn}, 'N')
 	         , CS_UP_DATE = NOW()
 	     WHERE CS_NO = #{csNo}
 	       AND CS_CAT_CD = 'CSS002'
