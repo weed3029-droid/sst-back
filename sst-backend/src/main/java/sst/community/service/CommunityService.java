@@ -153,6 +153,8 @@ public class CommunityService {
 	        List<Long> fileNos = communityMapper.selectCommunityFileNos(commNo);
 	        // 좋아요 삭제
 	        communityMapper.deleteCommunityLikes(commNo);
+	        // 댓글 삭제
+	        communityMapper.deleteCommentsByCommunity(commNo);
 	        // 해시태그 연결 삭제
 	        communityMapper.deleteCommunityHashtags(commNo);
 	        // 파일 매핑 삭제

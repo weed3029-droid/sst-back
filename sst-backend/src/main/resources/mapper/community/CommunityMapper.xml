@@ -87,19 +87,21 @@
 	        keyColumn="COMM_NO">
 	    INSERT INTO COMMUNITY (
 	        COMM_MBR_ID,
-	        COMM_CAT_CD,
-	        COMM_PLC_NO,
-	        COMM_TITLE,
-	        COMM_CONTENT,
-	        COMM_MAIN_IMG_URL
-	    )
-	    VALUES (
-	        #{commMbrId},
-	        #{commCatCd},
-	        #{commPlcNo},
-	        #{commTitle},
-	        #{commContent},
-	        #{commMainImgUrl}
+			    COMM_CAT_CD,
+			    COMM_AIS_NO,
+			    COMM_PLC_NO,
+			    COMM_TITLE,
+			    COMM_CONTENT,
+			    COMM_MAIN_IMG_URL
+			)
+			VALUES (
+			    #{commMbrId},
+			    #{commCatCd},
+			    #{commAisNo},
+			    #{commPlcNo},
+			    #{commTitle},
+			    #{commContent},
+			    #{commMainImgUrl}
 	    )
 	</insert>
 	
@@ -260,6 +262,12 @@
 	<delete id="deleteCommunityLikes">
 	    DELETE FROM COMMUNITY_LIKE
 	    WHERE CLKE_COMM_NO = #{commNo}
+	</delete>
+	
+	<!-- 게시글 댓글 전체 삭제 -->
+	<delete id="deleteCommentsByCommunity">
+	    DELETE FROM COMMENT
+	    WHERE CMNT_COMM_NO = #{commNo}
 	</delete>
 	
 	<!-- 게시글 파일 매핑 전체 삭제 -->

@@ -62,6 +62,9 @@ public interface CommunityMapper {
     
     // 게시글 좋아요 전체 삭제
     void deleteCommunityLikes(Long commNo);
+    
+    // 게시글 댓글 전체 삭제
+    void deleteCommentsByCommunity(Long commNo);
 
     // 게시글 파일 매핑 전체 삭제
     void deleteCommunityFileMaps(Long commNo);
