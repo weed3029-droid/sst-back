@@ -62,7 +62,7 @@ public class SecurityConfig {
                 // 관리자 API는 관리자만 허용
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 // fastAPI 허용
-                .requestMatchers("/ai/travel/**").permitAll()
+                .requestMatchers("/api/ai/travel/**").permitAll()
                 // 리뷰 API 허용 ← 추가
                 .requestMatchers("/api/reviews/**").permitAll()
                 .requestMatchers("/api/place/**").permitAll()
