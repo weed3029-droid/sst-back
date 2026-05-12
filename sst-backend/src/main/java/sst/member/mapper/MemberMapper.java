@@ -54,4 +54,20 @@ public interface MemberMapper {
 
     // 🚀 2. 전체 회원 수 조회 (프론트에서 전체 페이지 수를 계산하기 위해 필수!)
     int countAllMembers();
+    
+    int updateMemberByAdmin(Member member);
+    
+    // 🚀 검색 조건을 받을 수 있도록 파라미터 추가
+    List<Member> findAllMembersPaged(
+        @Param("offset") int offset, 
+        @Param("size") int size,
+        @Param("searchType") String searchType,
+        @Param("keyword") String keyword
+    );
+
+    // 🚀 카운트 쿼리도 검색 조건을 받아야 총 페이지 수가 정확히 계산됩니다!
+    int countAllMembers(
+        @Param("searchType") String searchType,
+        @Param("keyword") String keyword
+    );
 }

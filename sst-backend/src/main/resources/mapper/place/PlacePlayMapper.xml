@@ -4,6 +4,42 @@
 
 <mapper namespace="sst.content.mapper.PlacePlayMapper">
 
+
+	<sql id="playSearchCondition">
+        <if test="keyword != null and keyword != ''">
+            AND p.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </sql>
+
+    <select id="findPlayListPaged" resultType="sst.content.dto.PlayResponseDto">
+        SELECT
+            p.PLC_NO            AS plcNo,
+            p.PLC_NAME          AS plcName,
+            p.PLC_ADDR          AS plcAddr,
+            p.PLC_AVG_RATING    AS plcAvgRating
+        FROM PLACE p
+        LEFT JOIN PLACE_PLAY pl ON p.PLC_NO = pl.PLAY_PLC_NO
+        WHERE p.PLC_CAT_CD = 'PLC002'
+          AND p.PLC_USE_YN = 'Y'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        <include refid="playSearchCondition" />
+        ORDER BY p.PLC_NO DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="countPlayListByRegion" resultType="int">
+        SELECT COUNT(*)
+        FROM PLACE p
+        WHERE p.PLC_CAT_CD = 'PLC002'
+          AND p.PLC_USE_YN = 'Y'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        <include refid="playSearchCondition" />
+    </select>
+    
     <select id="findByRegion" resultType="sst.content.dto.PlayResponseDto">
         SELECT
             p.PLC_NO            AS plcNo,

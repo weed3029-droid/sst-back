@@ -1,12 +1,14 @@
 package sst.content.service;
 
-import lombok.RequiredArgsConstructor;
-import sst.content.dto.SeeResponseDto;
-import sst.content.mapper.PlaceSeeMapper;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import sst.content.dto.SeeResponseDto;
+import sst.content.dto.SeeUpdateRequestDto;
+import sst.content.mapper.PlaceSeeMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,12 @@ public class SeeService {
 
     public SeeResponseDto getDetail(Long plcNo) {
         return placeSeeMapper.findById(plcNo);
+    }
+    
+    @Transactional
+    public void updateSee(Long plcNo, SeeUpdateRequestDto dto) {
+        // 🚀 두 개의 쿼리를 트랜잭션으로 묶어 데이터 무결성 보장
+        placeSeeMapper.updatePlace(plcNo, dto);
+        placeSeeMapper.updatePlaceSee(plcNo, dto);
     }
 }
