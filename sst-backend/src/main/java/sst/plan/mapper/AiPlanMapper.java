@@ -6,8 +6,10 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import sst.plan.dto.AiScheduleDayInsertDto;
+import sst.plan.dto.AiScheduleDetailDto;
 import sst.plan.dto.AiScheduleInsertDto;
 import sst.plan.dto.AiSchedulePlaceInsertDto;
+import sst.plan.dto.AiScheduleResponseDto;
 import sst.plan.dto.PlaceResponseDto;
 
 @Mapper
@@ -42,4 +44,17 @@ public interface AiPlanMapper {
 
     // 지역명 -> 지역번호 조회
     Long findRgnNoByRgnName(@Param("rgnName") String rgnName);
+    
+    // 내 일정 목록 조회
+    List<AiScheduleResponseDto> selectMySchedules(@Param("mbrId") Long mbrId);
+    
+    List<AiScheduleDetailDto> selectScheduleDetail(@Param("aisNo") Long aisNo);
+    
+    // 내 일정 수정
+    void updateScheduleName(@Param("aisNo") Long aisNo, @Param("scheduleName") String scheduleName);
+    
+    // 내 일정 삭제
+    void deleteSchedulePlaceByAisNo(@Param("aisNo") Long aisNo);
+    void deleteScheduleDayByAisNo(@Param("aisNo") Long aisNo);
+    void deleteSchedule(@Param("aisNo") Long aisNo);
 }

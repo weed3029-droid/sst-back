@@ -1,16 +1,22 @@
 package sst.plan.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sst.plan.dto.AiScheduleDayInsertDto;
+import sst.plan.dto.AiScheduleDetailDto;
 import sst.plan.dto.AiScheduleInsertDto;
 import sst.plan.dto.AiSchedulePlaceInsertDto;
+import sst.plan.dto.AiScheduleResponseDto;
 import sst.plan.dto.AiScheduleSaveRequestDto;
 import sst.plan.dto.PlaceResponseDto;
 import sst.plan.mapper.AiPlanMapper;
@@ -22,41 +28,31 @@ public class AiPlanService {
     private final AiPlanMapper aiPlanMapper;
 
     public List<PlaceResponseDto> getTravelPlaces(String region, String themes) {
-
-        // 지역명 -> 지역코드 변환
         Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
         if (rgnCd == null) throw new IllegalArgumentException("알 수 없는 지역: " + region);
 
-        // 테마명 -> 테마코드 변환
         List<String> themeNames = Arrays.stream(themes.split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
+                .map(String::trim).collect(Collectors.toList());
 
         List<String> themeCodes = aiPlanMapper.findThemeCodesByNames(themeNames);
         if (themeCodes.isEmpty()) throw new IllegalArgumentException("알 수 없는 테마: " + themes);
 
-        // 장소 조회
         List<PlaceResponseDto> places = aiPlanMapper.findPlacesByRegionAndThemes(rgnCd, themeCodes);
 
-        // 장소별 테마 정보 세팅
         for (PlaceResponseDto place : places) {
             List<String> tagCodes = aiPlanMapper.findThemeCodesByPlcNo(place.getId());
-            List<String> tagNames = tagCodes.isEmpty()
-                    ? List.of()
+            List<String> tagNames = tagCodes.isEmpty() ? List.of()
                     : aiPlanMapper.findThemeNamesByCodes(tagCodes);
             place.setPlaceTheme(tagCodes);
             place.setPlaceThemeName(tagNames);
         }
-
         return places;
     }
-    
-    public void saveSchedule(Long mbrId, AiScheduleSaveRequestDto request) {
 
-        // 지역명 -> 지역번호 조회
+    @Transactional
+    public void saveSchedule(Long mbrId, AiScheduleSaveRequestDto request) {
         Long rgnNo = aiPlanMapper.findRgnNoByRgnName(request.getRgnName());
 
-        // 테마명 -> 테마코드 변환
         List<String> themeNames = request.getThemes();
         List<String> themeCodes = (themeNames == null || themeNames.isEmpty()) ? List.of()
                 : aiPlanMapper.findThemeCodesByNames(themeNames);
@@ -65,7 +61,6 @@ public class AiPlanService {
         String theme2 = themeCodes.size() > 1 ? themeCodes.get(1) : null;
         String theme3 = themeCodes.size() > 2 ? themeCodes.get(2) : null;
 
-        // AI_SCHEDULE 저장
         AiScheduleInsertDto scheduleDto = new AiScheduleInsertDto();
         scheduleDto.setMbrId(mbrId);
         scheduleDto.setScheduleName(request.getScheduleName());
@@ -80,10 +75,7 @@ public class AiPlanService {
         aiPlanMapper.insertAiSchedule(scheduleDto);
         Long aisNo = scheduleDto.getAisNo();
 
-        // AI_SCHEDULE_DAY + AI_SCHEDULE_PLACE 저장
         for (AiScheduleSaveRequestDto.DayDto day : request.getSchedule()) {
-
-            // 날짜 계산 (startDate + day - 1)
             LocalDate travelDate = LocalDate.parse(request.getStartDate())
                     .plusDays(day.getDay() - 1);
 
@@ -95,16 +87,99 @@ public class AiPlanService {
             aiPlanMapper.insertAiScheduleDay(dayDto);
             Long aisdNo = dayDto.getAisdNo();
 
-            // AI_SCHEDULE_PLACE 저장
             int order = 1;
             for (AiScheduleSaveRequestDto.PlanDto plan : day.getPlans()) {
                 AiSchedulePlaceInsertDto placeDto = AiSchedulePlaceInsertDto.builder()
-                        .aisdNo(aisdNo)
-                        .plcNo(plan.getPlaceId())
-                        .visitOrder(order++)
-                        .build();
+                        .aisdNo(aisdNo).plcNo(plan.getPlaceId()).visitOrder(order++).build();
                 aiPlanMapper.insertAiSchedulePlace(placeDto);
             }
         }
+    }
+
+    @Transactional
+    public void updateSchedule(Long aisNo, String scheduleName, AiScheduleSaveRequestDto request) {
+        aiPlanMapper.updateScheduleName(aisNo, scheduleName);
+        aiPlanMapper.deleteSchedulePlaceByAisNo(aisNo);
+        aiPlanMapper.deleteScheduleDayByAisNo(aisNo);
+
+        for (AiScheduleSaveRequestDto.DayDto day : request.getSchedule()) {
+            LocalDate travelDate = LocalDate.parse(request.getStartDate())
+                    .plusDays(day.getDay() - 1);
+
+            AiScheduleDayInsertDto dayDto = new AiScheduleDayInsertDto();
+            dayDto.setAisNo(aisNo);
+            dayDto.setTravelDate(travelDate.toString());
+            dayDto.setDayNo(day.getDay());
+
+            aiPlanMapper.insertAiScheduleDay(dayDto);
+            Long aisdNo = dayDto.getAisdNo();
+
+            int order = 1;
+            for (AiScheduleSaveRequestDto.PlanDto plan : day.getPlans()) {
+                AiSchedulePlaceInsertDto placeDto = AiSchedulePlaceInsertDto.builder()
+                        .aisdNo(aisdNo).plcNo(plan.getPlaceId()).visitOrder(order++).build();
+                aiPlanMapper.insertAiSchedulePlace(placeDto);
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────
+    // 일정 삭제
+    // ─────────────────────────────────────────
+    @Transactional
+    public void deleteSchedule(Long aisNo) {
+        aiPlanMapper.deleteSchedulePlaceByAisNo(aisNo);
+        aiPlanMapper.deleteScheduleDayByAisNo(aisNo);
+        aiPlanMapper.deleteSchedule(aisNo);
+    }
+
+    public List<AiScheduleResponseDto> getMySchedules(Long mbrId) {
+        return aiPlanMapper.selectMySchedules(mbrId);
+    }
+
+    public Map<String, Object> getScheduleDetail(Long aisNo) {
+        List<AiScheduleDetailDto> rows = aiPlanMapper.selectScheduleDetail(aisNo);
+        if (rows.isEmpty()) return Map.of();
+
+        AiScheduleDetailDto first = rows.get(0);
+
+        List<String> themes = new ArrayList<>();
+        if (first.getAisTheme1Cd() != null) themes.add(first.getAisTheme1Cd());
+        if (first.getAisTheme2Cd() != null) themes.add(first.getAisTheme2Cd());
+        if (first.getAisTheme3Cd() != null) themes.add(first.getAisTheme3Cd());
+
+        Map<Integer, Map<String, Object>> dayMap = new LinkedHashMap<>();
+        for (AiScheduleDetailDto row : rows) {
+            dayMap.computeIfAbsent(row.getAisdDayNo(), dayNo -> {
+                Map<String, Object> day = new LinkedHashMap<>();
+                day.put("day",   dayNo);
+                day.put("date",  row.getAisdTravelDate());
+                day.put("plans", new ArrayList<>());
+                return day;
+            });
+
+            Map<String, Object> plan = new LinkedHashMap<>();
+            plan.put("placeId",   row.getAispPlcNo());
+            plan.put("placeName", row.getPlcName());
+            plan.put("category",  row.getPlcCatCd());
+            plan.put("overview",  row.getPlcOverview());
+            plan.put("imgUrl",    row.getPlcMainImgUrl());
+            plan.put("lat",       row.getPlcLat());
+            plan.put("lng",       row.getPlcLot());
+
+            ((List<Object>) dayMap.get(row.getAisdDayNo()).get("plans")).add(plan);
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("aisNo",         first.getAisNo());
+        result.put("aisSchdulName", first.getAisSchdulName());
+        result.put("aisBeginDate",  first.getAisBeginDate());
+        result.put("aisEndDate",    first.getAisEndDate());
+        result.put("aisTotDays",    first.getAisTotDays());
+        result.put("rgnName",       first.getRgnName());
+        result.put("themes",        themes);
+        result.put("schedule",      new ArrayList<>(dayMap.values()));
+
+        return result;
     }
 }

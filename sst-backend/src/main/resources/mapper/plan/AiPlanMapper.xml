@@ -146,4 +146,83 @@
 	    LIMIT 1
 	</select>
 	
+	<!-- 내 일정 목록 조회 -->
+	<select id="selectMySchedules" parameterType="long" resultType="sst.plan.dto.AiScheduleResponseDto">
+	  SELECT
+	    AIS_NO          AS aisNo,
+	    AIS_SCHDUL_NAME AS aisSchdulName,
+	    AIS_BEGIN_DATE  AS aisBeginDate,
+	    AIS_END_DATE    AS aisEndDate,
+	    AIS_TOT_DAYS    AS aisTotDays,
+	    AIS_RLS_YN      AS aisRlsYn,
+	    AIS_REG_DATE    AS aisRegDate
+	  FROM AI_SCHEDULE
+	  WHERE AIS_MBR_ID = #{mbrId}
+	    AND AIS_USE_YN = 'Y'
+	  ORDER BY AIS_REG_DATE DESC
+	</select>
+	
+	<!-- aisNo로 일정 상세 조회 -->
+	<select id="selectScheduleDetail" parameterType="long" resultType="sst.plan.dto.AiScheduleDetailDto">
+	  SELECT
+	    s.AIS_NO            AS aisNo,
+	    s.AIS_SCHDUL_NAME   AS aisSchdulName,
+	    s.AIS_BEGIN_DATE    AS aisBeginDate,
+	    s.AIS_END_DATE      AS aisEndDate,
+	    s.AIS_TOT_DAYS      AS aisTotDays,
+	    s.AIS_RGN_NO        AS aisRgnNo,
+	    s.AIS_THEME1_CD     AS aisTheme1Cd,
+	    s.AIS_THEME2_CD     AS aisTheme2Cd,
+	    s.AIS_THEME3_CD     AS aisTheme3Cd,
+	    d.AISD_NO           AS aisdNo,
+	    d.AISD_DAY_NO       AS aisdDayNo,
+	    d.AISD_TRAVEL_DATE  AS aisdTravelDate,
+	    p.AISP_NO           AS aispNo,
+	    p.AISP_PLC_NO       AS aispPlcNo,
+	    p.AISP_VISIT_ORDR   AS aispVisitOrdr,
+	    pl.PLC_NAME         AS plcName,
+	    pl.PLC_CAT_CD       AS plcCatCd,
+	    pl.PLC_FLT_CD       AS plcFltCd,
+	    pl.PLC_LAT          AS plcLat,
+	    pl.PLC_LOT          AS plcLot,
+	    pl.PLC_OVERVIEW     AS plcOverview,
+	    pl.PLC_MAIN_IMG_URL AS plcMainImgUrl,
+	    r.RGN_NAME          AS rgnName
+	  FROM AI_SCHEDULE s
+	  JOIN AI_SCHEDULE_DAY d   ON s.AIS_NO      = d.AISD_AIS_NO
+	  JOIN AI_SCHEDULE_PLACE p ON d.AISD_NO     = p.AISP_AISD_NO
+	  JOIN PLACE pl             ON p.AISP_PLC_NO = pl.PLC_NO
+	  JOIN REGION r             ON s.AIS_RGN_NO  = r.RGN_NO
+	  WHERE s.AIS_NO = #{aisNo}
+	  ORDER BY d.AISD_DAY_NO, p.AISP_VISIT_ORDR
+	</select>
+	
+	<!-- 일정 수정 -->
+	<update id="updateScheduleName" parameterType="map">
+	  UPDATE AI_SCHEDULE
+	  SET
+	    AIS_SCHDUL_NAME = #{scheduleName},
+	    AIS_UP_DATE     = NOW()
+	  WHERE AIS_NO = #{aisNo}
+	</update>
+	
+	<!-- 기존 일정 장소 삭제 후 재저장 -->
+	<delete id="deleteSchedulePlaceByAisNo" parameterType="long">
+	  DELETE FROM AI_SCHEDULE_PLACE
+	  WHERE AISP_AISD_NO IN (
+	    SELECT AISD_NO FROM AI_SCHEDULE_DAY WHERE AISD_AIS_NO = #{aisNo}
+	  )
+	</delete>
+	
+	<delete id="deleteScheduleDayByAisNo" parameterType="long">
+	  DELETE FROM AI_SCHEDULE_DAY
+	  WHERE AISD_AIS_NO = #{aisNo}
+	</delete>
+	
+	<!-- 일정 삭제 -->
+	<delete id="deleteSchedule" parameterType="long">
+	  DELETE FROM AI_SCHEDULE
+	  WHERE AIS_NO = #{aisNo}
+	</delete>
+	
 </mapper>

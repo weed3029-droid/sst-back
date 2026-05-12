@@ -63,11 +63,14 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 // fastAPI 허용
                 .requestMatchers("/api/ai/travel/**").permitAll()
-                // 리뷰 API 허용 ← 추가
+                // AI 일정 허용 
+                .requestMatchers("/api/ai/schedule/**").permitAll()
+                // 리뷰 API 허용 
                 .requestMatchers("/api/reviews/**").permitAll()
                 .requestMatchers("/api/place/**").permitAll()
                 .requestMatchers("/api/wishlist/**").permitAll()
                 .requestMatchers("/api/search/**").permitAll()
+                .requestMatchers("/api/ai/schedule/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
