@@ -9,4 +9,13 @@ import sst.content.dto.PlayResponseDto;
 public interface PlacePlayMapper {
     List<PlayResponseDto> findByRegion(@Param("rgnCd") Integer rgnCd);
     PlayResponseDto findById(@Param("plcNo") Long plcNo);
+    
+    int countPlayListByRegion(@Param("rgnCd") Integer rgnCd, @Param("keyword") String keyword);
+    
+    List<PlayResponseDto> findPlayListPaged(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("keyword") String keyword
+    );
 }

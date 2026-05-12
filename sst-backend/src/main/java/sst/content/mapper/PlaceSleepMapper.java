@@ -9,14 +9,18 @@ import sst.content.dto.SleepResponseDto;
 public interface PlaceSleepMapper {
     List<SleepResponseDto> findByRegion(@Param("rgnCd") Integer rgnCd);
     
-    // 🚀 1. 조건에 맞는 전체 데이터 개수 조회
-    int countSleepListByRegion(@Param("rgnCd") Integer rgnCd);
+    // 🚀 1. 검색어(keyword) 파라미터 추가
+    int countSleepListByRegion(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("keyword") String keyword
+    );
 
-    // 🚀 2. 조건에 맞고 페이징(LIMIT)이 적용된 데이터 목록 조회
+    // 🚀 2. 검색어(keyword) 파라미터 추가
     List<SleepResponseDto> findSleepListPaged(
             @Param("rgnCd") Integer rgnCd, 
             @Param("offset") int offset, 
-            @Param("size") int size
+            @Param("size") int size,
+            @Param("keyword") String keyword
     );
 
     SleepResponseDto findById(@Param("plcNo") Long plcNo);

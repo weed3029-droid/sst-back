@@ -5,6 +5,75 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <mapper namespace="sst.report.mapper.ReportMapper">
 
+	<!-- 🚀 2. 목록 페이징 조회 쿼리 업데이트 -->
+	<select id="findAllReportsPaged" resultType="sst.report.dto.AdminReportResponseDto">
+	    SELECT 
+	        R.RPT_NO AS rptNo,
+	        R.RPT_TYPE_CD AS rptTypeCd,
+	        R.RPT_REASON_CD AS rptReasonCd,
+	        R.RPT_REASON_CONTENT AS rptReasonContent,
+	        R.RPT_STATUS_CD AS rptStatusCd,
+	        R.RPT_REG_DATE AS rptRegDate,
+	        M.MBR_NICKNAME AS reporterName,
+	        COALESCE(R.RPT_REVIEW_NO, R.RPT_COMM_NO, R.RPT_CMNT_NO) AS targetId,
+	        
+	        <!-- 🚀 추가: 프론트 라우터 주소 분기를 위한 커뮤니티 카테고리 코드 -->
+	        C.COMM_CAT_CD AS reportedCategory,
+	        
+	        C.COMM_TITLE AS reportedTitle,
+	        COALESCE(RV.RVW_CONTENT, C.COMM_CONTENT, CM.CMNT_CONTENT) AS reportedContent
+	        
+	    FROM REPORT R
+	    JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
+	    LEFT JOIN REVIEW RV ON R.RPT_REVIEW_NO = RV.RVW_NO
+	    LEFT JOIN COMMUNITY C ON R.RPT_COMM_NO = C.COMM_NO
+	    LEFT JOIN COMMENT CM ON R.RPT_CMNT_NO = CM.CMNT_NO
+	    WHERE 1=1
+	    <!-- 기존 검색 조건 생략 -->
+	    ORDER BY R.RPT_REG_DATE DESC
+	    LIMIT #{offset}, #{size}
+	</select>
+
+
+	<sql id="reportSearchCondition">
+	    <!-- 상태 필터 (접수 대기, 완료 등) -->
+	    <if test="statusCd != null and statusCd != ''">
+	        AND R.RPT_STATUS_CD = #{statusCd}
+	    </if>
+	    <!-- 🚀 대상 유형 필터 (리뷰, 커뮤니티, 댓글) -->
+	    <if test="rptTypeCd != null and rptTypeCd != ''">
+	        AND R.RPT_TYPE_CD = #{rptTypeCd}
+	    </if>
+	    <!-- 🚀 검색어 필터 -->
+	    <if test="keyword != null and keyword != ''">
+	        <choose>
+	            <when test="searchType == 'reporter'">
+	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	            <when test="searchType == 'content'">
+	                AND R.RPT_REASON_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	        </choose>
+	    </if>
+	</sql>
+	
+	<select id="countAllReports" resultType="int">
+    SELECT COUNT(*) 
+    FROM REPORT R
+    JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
+    WHERE 1=1
+    <include refid="reportSearchCondition"/>
+	</select>
+	
+	<!-- 🚀 3. 신고 상태 변경 (처리자 정보 필수 기록) -->
+	<update id="updateReportStatus">
+	    UPDATE REPORT
+	    SET RPT_STATUS_CD = #{statusCd},
+	        RPT_PROSSR_NO = #{adminId},
+	        RPT_PROSR_DATE = NOW()
+	    WHERE RPT_NO = #{rptNo}
+	</update>
+
     <!-- 신고 등록 -->
     <insert id="insertReport"
         parameterType="sst.report.domain.Report">

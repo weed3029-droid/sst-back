@@ -1,5 +1,7 @@
 package sst.content.dto;
 
+import java.util.List;
+
 import lombok.Data;
 
 /**
@@ -30,4 +32,5 @@ public class SeeResponseDto {
     private String  seeUsetime;
     private Double  plcAvgRating;   // ← 추가
     private Integer plcReviewCnt;   // ← 추가
+    private List<String> tagCodes;
 }

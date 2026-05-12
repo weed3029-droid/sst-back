@@ -92,6 +92,52 @@
         WHERE p.PLC_NO = #{plcNo}
     </select>
 
+	<!-- 🚀 1. 장소명 검색 조건 공통 조각 -->
+    <sql id="placeSearchCondition">
+        <if test="keyword != null and keyword != ''">
+            AND p.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </sql>
 
+    <!-- 기존 findByRegion 쿼리 유지 (생략) ... -->
+
+    <!-- 🚀 2. 페이징 적용된 잘거리 목록 조회 -->
+    <select id="findSleepListPaged" resultType="sst.content.dto.SleepResponseDto">
+        SELECT
+            p.PLC_NO              AS plcNo,
+            p.PLC_ID              AS plcId,
+            p.PLC_RGN_CD          AS plcRgnCd,
+            p.PLC_NAME            AS plcName,
+            p.PLC_ADDR            AS plcAddr,
+            p.PLC_FLT_CD          AS plcFltCd,
+            p.PLC_AVG_RATING      AS plcAvgRating,
+            p.PLC_REVIEW_CNT      AS plcReviewCnt,
+            s.SLEEP_CHECK_IN      AS sleepCheckIn,
+            s.SLEEP_CHECK_OUT     AS sleepCheckOut
+        FROM PLACE p
+        LEFT JOIN PLACE_SLEEP s ON p.PLC_NO = s.SLEEP_PLC_NO
+        WHERE p.PLC_CAT_CD = 'PLC004'
+          AND p.PLC_USE_YN = 'Y'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        <!-- 🚀 검색 조건 조각 포함 -->
+        <include refid="placeSearchCondition" />
+        ORDER BY p.PLC_NO DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 🚀 3. 활성 잘거리 총 개수 조회 -->
+    <select id="countSleepListByRegion" resultType="int">
+        SELECT COUNT(*)
+        FROM PLACE p
+        WHERE p.PLC_CAT_CD = 'PLC004'
+          AND p.PLC_USE_YN = 'Y'
+        <if test="rgnCd != null">
+            AND p.PLC_RGN_CD = #{rgnCd}
+        </if>
+        <!-- 🚀 카운트에도 반드시 검색 조건 조각 포함! -->
+        <include refid="placeSearchCondition" />
+    </select>
     
 </mapper>

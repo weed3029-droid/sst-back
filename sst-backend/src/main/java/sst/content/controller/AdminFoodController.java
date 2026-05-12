@@ -3,47 +3,31 @@ package sst.content.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import sst.content.dto.FoodResponseDto;
-import sst.content.service.FoodService;
-
-import java.util.List;
-
-
-/**
- * 먹거리(Food) API 컨트롤러
- * - 클라이언트(React)의 HTTP 요청을 받아 서비스로 전달하고 응답을 반환
- * - Base URL: /api/food
- */
+import sst.content.service.AdminFoodService;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import sst.global.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/admin/food")
 @RequiredArgsConstructor
 public class AdminFoodController {
 
-    private final FoodService foodService;
+    private final AdminFoodService adminFoodService;
 
-    /**
-     * 먹거리 목록 조회
-     * GET /api/food/list?rgnCd=11
-     * @param rgnCd 지역코드 (null이면 전체 조회)
-     */
-    
     @GetMapping("/list")
-    public ResponseEntity<List<FoodResponseDto>> getList(
-            @RequestParam(name = "rgnCd", required = false) Integer rgnCd) {
-        return ResponseEntity.ok(foodService.getListByRegion(rgnCd));
+    public ResponseEntity<ApiResponse<PageResponse<FoodResponseDto>>> getList(
+            @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            PageRequest pageRequest) { 
+        // 🚀 공통 ApiResponse 및 PageResponse 적용
+        PageResponse<FoodResponseDto> result = adminFoodService.getListPageByRegion(rgnCd, pageRequest);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
-    /**
-     * 먹거리 상세 조회
-     * GET /api/food/755
-     * @param plcNo 장소 고유번호 (PLC_NO)
-     */
-    
     @GetMapping("/{plcNo}")
-    public ResponseEntity<FoodResponseDto> getDetail(
+    public ResponseEntity<ApiResponse<FoodResponseDto>> getDetail(
             @PathVariable(name = "plcNo") Long plcNo) {
-        return ResponseEntity.ok(foodService.getDetail(plcNo));
+        return ResponseEntity.ok(ApiResponse.success(adminFoodService.getDetail(plcNo)));
     }
 }

@@ -4,27 +4,28 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sst.content.dto.PlayResponseDto;
-import sst.content.service.PlayService;
-import java.util.List;
+import sst.content.service.AdminPlayService;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import sst.global.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/admin/play")
 @RequiredArgsConstructor
 public class AdminPlayController {
 
-    private final PlayService playService;
+    private final AdminPlayService adminPlayService;
 
-    // GET /api/play/list?rgnCd=11
     @GetMapping("/list")
-    public ResponseEntity<List<PlayResponseDto>> getList(
-            @RequestParam(name = "rgnCd", required = false) Integer rgnCd) {
-        return ResponseEntity.ok(playService.getListByRegion(rgnCd));
+    public ResponseEntity<ApiResponse<PageResponse<PlayResponseDto>>> getList(
+            @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            PageRequest pageRequest) { 
+        PageResponse<PlayResponseDto> result = adminPlayService.getListPageByRegion(rgnCd, pageRequest);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
-    // GET /api/play/755
     @GetMapping("/{plcNo}")
-    public ResponseEntity<PlayResponseDto> getDetail(
-            @PathVariable(name = "plcNo") Long plcNo) {
-        return ResponseEntity.ok(playService.getDetail(plcNo));
+    public ResponseEntity<ApiResponse<PlayResponseDto>> getDetail(@PathVariable(name = "plcNo") Long plcNo) {
+        return ResponseEntity.ok(ApiResponse.success(adminPlayService.getDetail(plcNo)));
     }
 }

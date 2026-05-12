@@ -1,20 +1,24 @@
 package sst.member.controller;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
 import sst.global.response.ApiResponse;
 import sst.member.domain.Member;
+import sst.member.dto.AdminMemberCreateRequest;
+import sst.member.dto.AdminMemberUpdateRequest;
 import sst.member.service.AdminMemberService;
 
 @RestController
@@ -23,21 +27,20 @@ import sst.member.service.AdminMemberService;
 public class AdminMemberController {
 
     private final AdminMemberService adminMemberService;
-
-	/*
-	 * // 'ADMIN' 권한이 있어야만 접근 가능하게
-	 * 
-	 * @PreAuthorize("hasRole('ADMIN')")
-	 * 
-	 * @GetMapping public ResponseEntity<ApiResponse<List<Member>>> getAllMembers()
-	 * { List<Member> members = adminMemberService.getAllMembers(); return
-	 * ResponseEntity.ok(ApiResponse.success(members)); }
-	 */
-    
     
     /**
+     * 🚀 관리자: 회원 목록 조회 (검색 및 페이징)
+     * URL 예시: /api/admin/members?page=1&size=10&searchType=email&keyword=test
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
+    public ResponseEntity<ApiResponse<PageResponse<Member>>> getMembers(PageRequest pageRequest) {
+        PageResponse<Member> result = adminMemberService.getMembersPaged(pageRequest);
+        return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
+    /**
      * 관리자: 회원 강제 탈퇴
-     * 시큐리티를 통해 어드민 권한(ROLE_ADMIN)을 가진 유저만 접근 가능하도록 차단
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{memberId}")
@@ -45,15 +48,35 @@ public class AdminMemberController {
         adminMemberService.withdrawMemberByAdmin(memberId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
-    
+
     /**
-     * 🚀 공통 PageRequest를 파라미터로 직접 받습니다. (?page=1&size=10 이 자동 바인딩 됨)
+     * 관리자: 신규 회원 등록
      */
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<Member>>> getMembers(PageRequest pageRequest) {
-        // Map 대신 명확한 PageResponse<Member> 타입으로 반환합니다.
-        PageResponse<Member> result = adminMemberService.getMembersPaged(pageRequest);
-        return ResponseEntity.ok(ApiResponse.success(result));
+    @PostMapping
+    public ResponseEntity<ApiResponse<Void>> createMember(@Valid @RequestBody AdminMemberCreateRequest request) {
+        adminMemberService.createMemberByAdmin(request);
+        return ResponseEntity.status(201).body(ApiResponse.success(null));
+    }
+
+    /**
+     * 관리자: 기존 회원 수정
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{memberId}")
+    public ResponseEntity<ApiResponse<Void>> updateMember(
+            @PathVariable("memberId") Long memberId,
+            @RequestBody AdminMemberUpdateRequest request) {
+        
+        adminMemberService.updateMemberByAdmin(memberId, request);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+ // 🚀 프론트엔드에서 axios.get(`/api/admin/members/${id}`) 호출을 받을 컨트롤러 엔드포인트 추가
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiResponse<Member>> getMemberDetail(@PathVariable("memberId") Long memberId) {
+        Member member = adminMemberService.getMemberDetail(memberId);
+        return ResponseEntity.ok(ApiResponse.success(member));
     }
 }

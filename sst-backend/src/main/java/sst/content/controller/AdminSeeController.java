@@ -1,50 +1,61 @@
 package sst.content.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import lombok.RequiredArgsConstructor;
 import sst.content.dto.SeeResponseDto;
-import sst.content.service.SeeService;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-/**
- * 볼거리(See) API 컨트롤러
- * - 클라이언트(React)의 HTTP 요청을 받아 서비스로 전달하고 응답을 반환
- * - Base URL: /api/see
- */
+import sst.content.dto.SeeUpdateRequestDto;
+import sst.content.service.AdminSeeService;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import sst.global.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/admin/see")
 @RequiredArgsConstructor
 public class AdminSeeController {
 
-    private final SeeService seeService;
+    private final AdminSeeService adminSeeService;
 
-    /**
-     * 볼거리 목록 조회
-     * GET /api/see/list?rgnCd=11
-     * @param rgnCd 지역코드 (null이면 전체 조회)
-     */
-    
-    // GET /api/see/list?rgnCd=11
     @GetMapping("/list")
-    public ResponseEntity<List<SeeResponseDto>> getList(
-            @RequestParam(name = "rgnCd", required = false) Integer rgnCd) {
-        return ResponseEntity.ok(seeService.getListByRegion(rgnCd));
+    public ResponseEntity<ApiResponse<PageResponse<SeeResponseDto>>> getList(
+            @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            PageRequest pageRequest) { 
+        PageResponse<SeeResponseDto> result = adminSeeService.getListPageByRegion(rgnCd, pageRequest);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
-    /**
-     * 볼거리 상세 조회
-     * GET /api/see/755
-     * @param plcNo 장소 고유번호 (PLC_NO)
-     */
-    
-    // GET /api/see/755
     @GetMapping("/{plcNo}")
-    public ResponseEntity<SeeResponseDto> getDetail(
-            @PathVariable(name = "plcNo") Long plcNo) {
-        return ResponseEntity.ok(seeService.getDetail(plcNo));
+    public ResponseEntity<ApiResponse<SeeResponseDto>> getDetail(@PathVariable(name = "plcNo") Long plcNo) {
+        return ResponseEntity.ok(ApiResponse.success(adminSeeService.getDetail(plcNo)));
     }
+    
+    /**
+     * 볼거리 수정
+     * PUT /api/admin/see/{plcNo}
+     */
+    @PutMapping("/{plcNo}")
+    public ResponseEntity<ApiResponse<Void>> updateDetail(
+            @PathVariable(name = "plcNo") Long plcNo,
+            @RequestBody SeeUpdateRequestDto requestDto) {
+        
+        // 🚀 버그 수정: 주입받은 adminSeeService를 정상적으로 호출하도록 변경
+        adminSeeService.updateSeeDetail(plcNo, requestDto);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+    @DeleteMapping("/{plcNo}")
+    public ResponseEntity<ApiResponse<Void>> deleteDetail(@PathVariable(name = "plcNo") Long plcNo) {
+        adminSeeService.deleteSee(plcNo);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
 }
