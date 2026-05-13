@@ -158,16 +158,15 @@
     </select>
     
     <insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="mbrId">
-	    /* 회원등록 */
 	    INSERT INTO MEMBER (
 	          MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, MBR_TELNO, 
 	          MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, MBR_AUTH_CD, 
-	          MBR_JOIN_DATE, MBR_USE_YN
+	          MBR_USE_YN
 	    ) VALUES (
 	          #{mbrPassword}, #{mbrName}, #{mbrNickname}, #{mbrEmail}, #{mbrTelno}, 
 	          #{mbrZip}, #{mbrAddr}, #{mbrDaddr}, #{mbrProviderCd}, #{mbrAuthCd}, 
-	          NOW(), #{mbrUseYn}  /* 🚀 하드코딩된 'Y'를 동적 변수 #{mbrUseYn}으로 변경 */
-	    );
+	          #{mbrUseYn}
+	    )
 	</insert>
     
     <update id="updateRefreshTokenById">
