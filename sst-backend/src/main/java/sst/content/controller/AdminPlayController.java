@@ -2,6 +2,7 @@ package sst.content.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,9 +28,21 @@ public class AdminPlayController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<PageResponse<PlayResponseDto>>> getList(
             @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            @RequestParam(name = "useYn", required = false, defaultValue = "Y") String useYn, // 🚀 프론트에서 넘어오는 상태 필터값 추가
             PageRequest pageRequest) { 
-        PageResponse<PlayResponseDto> result = adminPlayService.getListPageByRegion(rgnCd, pageRequest);
+        
+        PageResponse<PlayResponseDto> result = adminPlayService.getListPageByRegion(rgnCd, useYn, pageRequest); // 🚀 Service로 전달
         return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
+    // 🚀 추가: 휴지통 이동 및 복구를 처리할 상태 변경(PATCH) API
+    @PatchMapping("/{plcNo}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable("plcNo") Long plcNo,
+            @RequestParam("useYn") String useYn) {
+        
+        adminPlayService.updatePlaceUseYn(plcNo, useYn);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @GetMapping("/{plcNo}")

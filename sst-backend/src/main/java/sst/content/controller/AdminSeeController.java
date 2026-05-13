@@ -3,6 +3,7 @@ package sst.content.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,8 +29,11 @@ public class AdminSeeController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<PageResponse<SeeResponseDto>>> getList(
             @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            @RequestParam(name = "useYn", required = false, defaultValue = "Y") String useYn, // 🚀 파라미터 추가
             PageRequest pageRequest) { 
-        PageResponse<SeeResponseDto> result = adminSeeService.getListPageByRegion(rgnCd, pageRequest);
+        
+        // Service로 useYn 전달
+        PageResponse<SeeResponseDto> result = adminSeeService.getListPageByRegion(rgnCd, useYn, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
@@ -55,6 +59,16 @@ public class AdminSeeController {
     @DeleteMapping("/{plcNo}")
     public ResponseEntity<ApiResponse<Void>> deleteDetail(@PathVariable(name = "plcNo") Long plcNo) {
         adminSeeService.deleteSee(plcNo);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+ // 🚀 3. 복구/삭제 토글을 위한 API 추가
+    @PatchMapping("/{plcNo}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable("plcNo") Long plcNo,
+            @RequestParam("useYn") String useYn) {
+        
+        adminSeeService.updatePlaceUseYn(plcNo, useYn);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
     

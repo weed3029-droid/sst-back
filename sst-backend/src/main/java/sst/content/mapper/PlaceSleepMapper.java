@@ -33,4 +33,20 @@ public interface PlaceSleepMapper {
     
     int updatePlaceSleep(@Param("plcNo") Long plcNo, @Param("dto") SleepUpdateRequestDto dto);
     
+    // 🚀 기존 메서드에 @Param("useYn") 추가
+    int countSleepListByRegion(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn);
+
+    List<SleepResponseDto> findSleepListPaged(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn);
+
+    // 🚀 추가: 상태 변경 업데이트 메서드
+    int updatePlaceUseYn(@Param("plcNo") Long plcNo, @Param("useYn") String useYn);
+    
 }

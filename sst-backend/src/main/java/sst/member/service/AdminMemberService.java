@@ -27,23 +27,27 @@ public class AdminMemberService {
 
     
     /**
-     * 🚀 서버 단 페이징 및 검색 처리 로직
+     * 🚀 서버 단 페이징 및 검색 처리 로직 (상태 및 권한 필터 추가)
      */
     @Transactional(readOnly = true)
-    public PageResponse<Member> getMembersPaged(PageRequest pageRequest) {
+    public PageResponse<Member> getMembersPaged(PageRequest pageRequest, String useYn, String authCd) {
         
-        // 🚀 1. 검색 조건(searchType, keyword)을 포함하여 Mapper 호출
+        // 🚀 1. 검색 조건, 상태 필터, 권한 필터를 모두 포함하여 Mapper 호출
         List<Member> list = memberMapper.findAllMembersPaged(
                 pageRequest.getOffset(), 
                 pageRequest.getSize(),
                 pageRequest.getSearchType(),
-                pageRequest.getKeyword()
+                pageRequest.getKeyword(),
+                useYn,
+                authCd
         );
         
         // 🚀 2. 검색 조건이 반영된 전체 데이터 개수 조회
         int total = memberMapper.countAllMembers(
                 pageRequest.getSearchType(),
-                pageRequest.getKeyword()
+                pageRequest.getKeyword(),
+                useYn,
+                authCd
         );
 
         return new PageResponse<>(list, total, pageRequest);
@@ -108,28 +112,13 @@ public class AdminMemberService {
     @Transactional
     public void updateMemberByAdmin(Long memberId, AdminMemberUpdateRequest request) {
         
-        // 🚀 1. build()로 닫지 않고, 먼저 MemberBuilder 객체를 엽니다.
-        Member.MemberBuilder memberBuilder = Member.builder()
+        // 🚀 3. 비밀번호 암호화 로직이나 불필요한 빌더 체이닝을 모두 제거합니다.
+        // 상태값만 가진 순수 Domain 객체를 생성하여 Mapper로 넘깁니다.
+        Member updateMember = Member.builder()
                 .mbrId(memberId)
-                .mbrName(request.getMbrName())
-                .mbrNickname(request.getMbrNickname())
-                .mbrTelno(request.getMbrTelno())
-                .mbrZip(request.getMbrZip())
-                .mbrAddr(request.getMbrAddr())
-                .mbrDaddr(request.getMbrDaddr())
-                .mbrAuthCd(request.getMbrAuthCd())
-                .mbrUseYn(request.getMbrUseYn());
+                .mbrUseYn(request.getMbrUseYn())
+                .build();
 
-        // 🚀 2. 비밀번호가 넘어왔을 경우에만 Builder에 암호화된 비밀번호를 추가 세팅합니다.
-        // 이렇게 하면 @Setter 없이도 조건부로 필드를 채울 수 있습니다.
-        if (request.getMbrPassword() != null && !request.getMbrPassword().isBlank()) {
-            memberBuilder.mbrPassword(passwordEncoder.encode(request.getMbrPassword()));
-        }
-
-        // 🚀 3. 최종적으로 체이닝을 닫아 순수 Domain 객체를 생성합니다.
-        Member updateMember = memberBuilder.build();
-
-        // 🚀 4. Domain 객체로 업데이트 쿼리 실행
         memberMapper.updateMemberByAdmin(updateMember);
     }
     
@@ -138,6 +127,26 @@ public class AdminMemberService {
     public Member getMemberDetail(Long memberId) {
         return memberMapper.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+    
+    @Transactional(readOnly = true)
+    public PageResponse<Member> getMembersPaged(PageRequest pageRequest, String useYn) { // 🚀 파라미터 추가
+        
+        List<Member> list = memberMapper.findAllMembersPaged(
+                pageRequest.getOffset(), 
+                pageRequest.getSize(),
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword(),
+                useYn // 🚀 Mapper에 전달
+        );
+        
+        int total = memberMapper.countAllMembers(
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword(),
+                useYn // 🚀 Mapper에 전달
+        );
+
+        return new PageResponse<>(list, total, pageRequest);
     }
     
 }
