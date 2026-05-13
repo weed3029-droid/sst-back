@@ -70,4 +70,12 @@ public interface MemberMapper {
         @Param("searchType") String searchType,
         @Param("keyword") String keyword
     );
+    
+    
+    // 프로필 파일 번호만 업데이트하는 메서드
+    // @Param을 사용하면 XML에서 #{mbrId}, #{fileNo}로 직접 접근 가능합니다.
+    void updateMemberProfileFileNo(@Param("mbrId") Long mbrId, @Param("fileNo") Long fileNo);
+    
+    // 나중에 배경 파일도 추가할 예정이라면 미리 만들어둬도 좋습니다.
+    // void updateMemberBackgroundFileNo(@Param("mbrId") Long mbrId, @Param("fileNo") Long fileNo);
 }
