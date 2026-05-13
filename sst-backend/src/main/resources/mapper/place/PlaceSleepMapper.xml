@@ -4,7 +4,44 @@
 
 <mapper namespace="sst.content.mapper.PlaceSleepMapper">
 
-	
+	<!-- 🚀 공통 장소 정보 수정 -->
+    <update id="updatePlace">
+        UPDATE PLACE
+        SET PLC_NAME = #{dto.plcName},
+            PLC_ADDR = #{dto.plcAddr},
+            PLC_DADDR = #{dto.plcDaddr},
+            PLC_TELNO = #{dto.plcTelno},
+            PLC_HOMEPAGE = #{dto.plcHomepage},
+            PLC_OVERVIEW = #{dto.plcOverview},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
+    
+    <!-- 🚀 잘거리 상세 및 부대시설 정보 수정 -->
+    <update id="updatePlaceSleep">
+        UPDATE PLACE_SLEEP
+        SET SLEEP_CHECK_IN = #{dto.sleepCheckIn},
+            SLEEP_CHECK_OUT = #{dto.sleepCheckOut},
+            SLEEP_INFOCENTER = #{dto.sleepInfocenter},
+            SLEEP_PARKING = #{dto.sleepParking},
+            SLEEP_RESERVATION = #{dto.sleepReservation},
+            SLEEP_RESERVATION_URL = #{dto.sleepReservationUrl},
+            SLEEP_SUB_FACILITY = #{dto.sleepSubFacility},
+            SLEEP_BARBECU = #{dto.sleepBarbecu},
+            SLEEP_BEAUTY = #{dto.sleepBeauty},
+            SLEEP_BEVERAGE = #{dto.sleepBeverage},
+            SLEEP_BICYCLE = #{dto.sleepBicycle},
+            SLEEP_CAMPFIRE = #{dto.sleepCampfire},
+            SLEEP_FITNESS = #{dto.sleepFitness},
+            SLEEP_KARAOKE = #{dto.sleepKaraoke},
+            SLEEP_PUBLIC_BATH = #{dto.sleepPublicBath},
+            SLEEP_PUBLIC_PC = #{dto.sleepPublicPc},
+            SLEEP_SAUNA = #{dto.sleepSauna},
+            SLEEP_SEMINAR = #{dto.sleepSeminar},
+            SLEEP_SPORTS = #{dto.sleepSports},
+            SLEEP_UP_DATE = NOW()
+        WHERE SLEEP_PLC_NO = #{plcNo}
+    </update>
 	
     <select id="findByRegion" resultType="sst.content.dto.SleepResponseDto">
         SELECT

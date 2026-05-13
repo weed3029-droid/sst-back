@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sst.content.dto.SleepResponseDto;
+import sst.content.dto.SleepUpdateRequestDto;
 import sst.content.mapper.PlaceSleepMapper;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
@@ -39,4 +40,10 @@ public class AdminSleepService {
         return placeSleepMapper.findById(plcNo);
     }
     
+    // 🚀 트랜잭션 보장
+    @Transactional
+    public void updateSleep(Long plcNo, SleepUpdateRequestDto dto) {
+        placeSleepMapper.updatePlace(plcNo, dto);
+        placeSleepMapper.updatePlaceSleep(plcNo, dto);
+    }
 }

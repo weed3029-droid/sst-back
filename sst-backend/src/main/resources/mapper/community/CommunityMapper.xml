@@ -5,6 +5,48 @@
 
 <mapper namespace="sst.community.mapper.CommunityMapper">
 
+	
+	<!-- 🚀 어드민 뽐낼거리 공통 검색 조건 -->
+    <sql id="adminCommunitySearchCondition">
+        <if test="keyword != null and keyword != ''">
+            AND (
+                C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%') 
+                OR M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </sql>
+
+    <!-- 🚀 어드민: 뽐낼거리 페이징 목록 조회 -->
+    <select id="selectAdminCommunityListPaged" resultType="sst.community.domain.Community">
+        SELECT
+            C.COMM_NO AS commNo,
+            C.COMM_MBR_ID AS commMbrId,
+            M.MBR_NICKNAME AS mbrNickname,
+            C.COMM_CAT_CD AS commCatCd,
+            C.COMM_TITLE AS commTitle,
+            C.COMM_INQIRE_CNT AS commInqireCnt,
+            C.COMM_LIKE_CNT AS commLikeCnt,
+            C.COMM_CMNT_CNT AS commCmntCnt,
+            DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate
+        FROM COMMUNITY C
+        JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
+        WHERE C.COMM_USE_YN = 'Y'
+          AND C.COMM_CAT_CD = #{catCd}
+        <include refid="adminCommunitySearchCondition" />
+        ORDER BY C.COMM_NO DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 🚀 어드민: 뽐낼거리 총 개수 조회 (페이징용) -->
+    <select id="countAdminCommunityList" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY C
+        JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
+        WHERE C.COMM_USE_YN = 'Y'
+          AND C.COMM_CAT_CD = #{catCd}
+        <include refid="adminCommunitySearchCondition" />
+    </select>
+    
 	<!-- 커뮤니티 게시글 목록 조회 -->
     <select id="selectCommunityList" resultType="sst.community.domain.Community">
 	    SELECT
@@ -118,10 +160,12 @@
 	</update>
 	
 	<!-- 커뮤니티 게시글 삭제 -->
-	<delete id="deleteCommunity">
-	    DELETE FROM COMMUNITY
-	    WHERE COMM_NO = #{commNo}
-	</delete>
+	<update id="deleteCommunity">
+        UPDATE COMMUNITY
+        SET COMM_USE_YN = 'N',
+            COMM_UP_DATE = NOW()
+        WHERE COMM_NO = #{commNo}
+    </update>
 	
 	<!-- 커뮤니티 게시글 조회수 증가 -->
 	<update id="updateViewCount">

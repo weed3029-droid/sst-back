@@ -1,9 +1,12 @@
 package sst.content.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
 import sst.content.dto.SleepResponseDto;
+import sst.content.dto.SleepUpdateRequestDto;
 
 @Mapper
 public interface PlaceSleepMapper {
@@ -24,5 +27,10 @@ public interface PlaceSleepMapper {
     );
 
     SleepResponseDto findById(@Param("plcNo") Long plcNo);
+    
+    // 🚀 기존 PlaceSleepMapper에 아래 두 메서드 추가
+    int updatePlace(@Param("plcNo") Long plcNo, @Param("dto") SleepUpdateRequestDto dto);
+    
+    int updatePlaceSleep(@Param("plcNo") Long plcNo, @Param("dto") SleepUpdateRequestDto dto);
     
 }
