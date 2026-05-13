@@ -50,7 +50,7 @@
     </select>
 
     <!-- 🚀 관리자용 뽐낼거리 총 개수 조회 -->
-    <select id="countCommunityList" resultType="int">
+    <select id="countAdminCommunityList" resultType="int">
         SELECT COUNT(*)
         FROM COMMUNITY C
         JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID

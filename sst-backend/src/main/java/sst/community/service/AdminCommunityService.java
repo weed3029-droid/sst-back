@@ -33,7 +33,7 @@ public class AdminCommunityService {
     @Transactional(readOnly = true)
     public PageResponse<Community> getListPageByCategory(String catCd, String useYn, PageRequest pageRequest) {
         
-        int total = communityMapper.countCommunityList(catCd, pageRequest.getKeyword(), useYn);
+    	int total = communityMapper.countCommunityListByUseYn(catCd, pageRequest.getKeyword(), useYn);
         
         List<Community> list = communityMapper.findCommunityListPaged(
                 catCd, pageRequest.getOffset(), pageRequest.getSize(), pageRequest.getKeyword(), useYn
