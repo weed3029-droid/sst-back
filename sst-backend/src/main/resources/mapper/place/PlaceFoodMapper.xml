@@ -5,6 +5,30 @@
 <mapper namespace="sst.content.mapper.PlaceFoodMapper">
 
 
+	<!-- 🚀 공통 장소 정보 수정 -->
+    <update id="updatePlace">
+        UPDATE PLACE
+        SET PLC_NAME = #{dto.plcName},
+            PLC_ADDR = #{dto.plcAddr},
+            PLC_DADDR = #{dto.plcDaddr},
+            PLC_TELNO = #{dto.plcTelno},
+            PLC_HOMEPAGE = #{dto.plcHomepage},
+            PLC_OVERVIEW = #{dto.plcOverview},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
+    
+    <!-- 🚀 먹거리 상세 정보 수정 -->
+    <update id="updatePlaceFood">
+        UPDATE PLACE_FOOD
+        SET FOOD_OPENING_HOURS = #{dto.foodOpeningHours},
+            FOOD_PARKING = #{dto.foodParking},
+            FOOD_RESTDATE = #{dto.foodRestdate},
+            FOOD_MENU = #{dto.foodMenu},
+            FOOD_INFOCENTER = #{dto.foodInfocenter},
+            FOOD_UP_DATE = NOW()
+        WHERE FOOD_PLC_NO = #{plcNo}
+    </update>
 	
 	<!-- 🚀 장소명 검색 조건 공통 조각 -->
     <sql id="foodSearchCondition">
@@ -23,7 +47,17 @@
         FROM PLACE p
         LEFT JOIN PLACE_FOOD f ON p.PLC_NO = f.FOOD_PLC_NO
         WHERE p.PLC_CAT_CD = 'PLC003'
-          AND p.PLC_USE_YN = 'Y'
+          <choose>
+		        <when test="useYn == 'N'.toString()">
+		            AND p.PLC_USE_YN = 'N'
+		        </when>
+		        <when test="useYn == 'ALL'.toString()">
+		            /* 전체 조회 (조건 없음) */
+		        </when>
+		        <otherwise>
+		            AND p.PLC_USE_YN = 'Y'
+		        </otherwise>
+    		</choose>
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
@@ -100,4 +134,11 @@
         WHERE p.PLC_NO = #{plcNo}
     </select>
 
+	<update id="updatePlaceUseYn">
+        UPDATE PLACE
+        SET PLC_USE_YN = #{useYn},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
+    
 </mapper>

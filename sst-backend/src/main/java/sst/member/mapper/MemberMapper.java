@@ -55,8 +55,6 @@ public interface MemberMapper {
     // 🚀 2. 전체 회원 수 조회 (프론트에서 전체 페이지 수를 계산하기 위해 필수!)
     int countAllMembers();
     
-    int updateMemberByAdmin(Member member);
-    
     // 🚀 검색 조건을 받을 수 있도록 파라미터 추가
     List<Member> findAllMembersPaged(
         @Param("offset") int offset, 
@@ -70,4 +68,39 @@ public interface MemberMapper {
         @Param("searchType") String searchType,
         @Param("keyword") String keyword
     );
+    
+    List<Member> findAllMembersPaged(
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn // 🚀 추가
+        );
+
+        int countAllMembers(
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn // 🚀 추가
+        );
+        
+     // 🚀 관리자: 회원 정보 수정
+        int updateMemberByAdmin(Member member);
+        
+        // 🚀 동적 페이징 및 검색 조회 (상태, 권한 파라미터 추가됨)
+        List<Member> findAllMembersPaged(
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn,
+            @Param("authCd") String authCd
+        );
+
+        // 🚀 페이징을 위한 동적 카운트 조회 (상태, 권한 파라미터 추가됨)
+        int countAllMembers(
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn,
+            @Param("authCd") String authCd
+        );
 }
