@@ -1,10 +1,13 @@
 package sst.content.service;
 
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import sst.content.dto.FoodResponseDto;
+import sst.content.dto.FoodUpdateRequestDto;
 import sst.content.mapper.PlaceFoodMapper;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
@@ -32,5 +35,12 @@ public class AdminFoodService {
     @Transactional(readOnly = true)
     public FoodResponseDto getDetail(Long plcNo) {
         return placeFoodMapper.findById(plcNo);
+    }
+    
+    @Transactional
+    public void updateFood(Long plcNo, FoodUpdateRequestDto dto) {
+        // 🚀 두 개의 쿼리를 트랜잭션으로 묶어 데이터 무결성 보장
+        placeFoodMapper.updatePlace(plcNo, dto);
+        placeFoodMapper.updatePlaceFood(plcNo, dto);
     }
 }

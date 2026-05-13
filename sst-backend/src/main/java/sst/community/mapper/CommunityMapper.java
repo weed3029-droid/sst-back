@@ -101,4 +101,14 @@ public interface CommunityMapper {
     	    @Param("rgnCd") Integer rgnCd,
     	    @Param("catCd") String catCd
     	);
+    
+    // 🚀 어드민 전용 메서드 추가
+    List<Community> selectAdminCommunityListPaged(
+        @Param("catCd") String catCd, 
+        @Param("offset") int offset, 
+        @Param("size") int size, 
+        @Param("keyword") String keyword
+    );
+    int countAdminCommunityList(@Param("catCd") String catCd, @Param("keyword") String keyword);
+
 }

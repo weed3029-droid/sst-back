@@ -1,9 +1,12 @@
 package sst.content.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.util.List;
+
 import sst.content.dto.PlayResponseDto;
+import sst.content.dto.PlayUpdateRequestDto;
 
 @Mapper
 public interface PlacePlayMapper {
@@ -18,4 +21,10 @@ public interface PlacePlayMapper {
             @Param("size") int size,
             @Param("keyword") String keyword
     );
+    
+    // 🚀 추가: PLACE 공통 테이블 업데이트
+    int updatePlace(@Param("plcNo") Long plcNo, @Param("dto") PlayUpdateRequestDto dto);
+    
+    // 🚀 추가: PLACE_PLAY 상세 테이블 업데이트
+    int updatePlacePlay(@Param("plcNo") Long plcNo, @Param("dto") PlayUpdateRequestDto dto);
 }
