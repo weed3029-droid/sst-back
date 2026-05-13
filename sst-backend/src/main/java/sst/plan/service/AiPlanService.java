@@ -43,8 +43,7 @@ public class AiPlanService {
             List<String> tagCodes = aiPlanMapper.findThemeCodesByPlcNo(place.getId());
             List<String> tagNames = tagCodes.isEmpty() ? List.of()
                     : aiPlanMapper.findThemeNamesByCodes(tagCodes);
-            place.setPlaceTheme(tagCodes);
-            place.setPlaceThemeName(tagNames);
+            place.setPlaceThemeName(String.join(",", tagNames));
         }
         return places;
     }

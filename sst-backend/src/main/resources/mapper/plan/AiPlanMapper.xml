@@ -28,19 +28,26 @@
     <!-- 지역코드 + 테마코드 목록으로 장소 조회 -->
 	<select id="findPlacesByRegionAndThemes" resultType="sst.plan.dto.PlaceResponseDto">
 	    SELECT DISTINCT
-	        p.PLC_NO            AS id,
-	        p.PLC_NAME          AS name,
-	        p.PLC_RGN_CD        AS regionCode,
-	        r.RGN_NAME          AS regionName,
-	        p.PLC_CAT_CD        AS placeCategory,
-	        cat.CMM_CD_NAME     AS placeCategoryName,
-	        p.PLC_LOT           AS x,
-	        p.PLC_LAT           AS y,
-	        p.PLC_OVERVIEW      AS overview,
-	        p.PLC_FLT_CD        AS placeFilter,
-	        flt.CMM_CD_NAME     AS placeFilterName,
-	        p.PLC_MAIN_IMG_URL  AS imgUrl
-	    FROM PLACE p
+		    p.PLC_NO            AS id,
+		    p.PLC_NAME          AS name,
+		    p.PLC_RGN_CD        AS regionCode,
+		    r.RGN_NAME          AS regionName,
+		    p.PLC_CAT_CD        AS placeCategory,
+		    cat.CMM_CD_NAME     AS placeCategoryName,
+		    p.PLC_LOT           AS x,
+		    p.PLC_LAT           AS y,
+		    p.PLC_OVERVIEW      AS overview,
+		    p.PLC_FLT_CD        AS placeFilter,
+		    flt.CMM_CD_NAME     AS placeFilterName,
+		    p.PLC_MAIN_IMG_URL  AS imgUrl,
+		    (
+		        SELECT GROUP_CONCAT(cc.CMM_CD_NAME)
+		        FROM PLACE_TAG_MAP ptm2
+		        JOIN CMM_CODE cc ON ptm2.PTAG_TAG_CD = cc.CMM_CD
+		        WHERE ptm2.PTAG_PLC_NO = p.PLC_NO
+		        AND cc.CMM_GROUP_CD = 'GRP004'
+		    ) AS placeThemeName
+		FROM PLACE p
 	    JOIN REGION r           ON p.PLC_RGN_CD = r.RGN_CD
 	    JOIN CMM_CODE cat        ON p.PLC_CAT_CD = cat.CMM_CD
 	    JOIN CMM_CODE flt        ON p.PLC_FLT_CD = flt.CMM_CD
