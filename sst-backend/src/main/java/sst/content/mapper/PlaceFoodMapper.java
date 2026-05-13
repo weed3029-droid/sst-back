@@ -28,4 +28,19 @@ public interface PlaceFoodMapper {
     // 🚀 추가: PLACE_FOOD 상세 테이블 업데이트
     int updatePlaceFood(@Param("plcNo") Long plcNo, @Param("dto") FoodUpdateRequestDto dto);
     
+    // 🚀 PlaceFoodMapper, PlaceSleepMapper, PlacePlayMapper 모두 동일하게 적용
+    int countFoodListByRegion(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn); // 🚀 추가
+
+    List<FoodResponseDto> findFoodListPaged(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn); // 🚀 추가
+
+    // 🚀 추가: 상태 변경 쿼리 매핑
+    int updatePlaceUseYn(@Param("plcNo") Long plcNo, @Param("useYn") String useYn);
 }

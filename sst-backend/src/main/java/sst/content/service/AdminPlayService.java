@@ -18,12 +18,24 @@ public class AdminPlayService {
     private final PlacePlayMapper placePlayMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<PlayResponseDto> getListPageByRegion(Integer rgnCd, PageRequest pageRequest) {
-        int total = placePlayMapper.countPlayListByRegion(rgnCd, pageRequest.getKeyword());
+    public PageResponse<PlayResponseDto> getListPageByRegion(Integer rgnCd, String useYn, PageRequest pageRequest) { // 🚀 파라미터 추가
+        
+        // 🚀 카운트 쿼리와 리스트 쿼리 모두에 useYn 전달
+        int total = placePlayMapper.countPlayListByRegion(rgnCd, pageRequest.getKeyword(), useYn);
+        
         List<PlayResponseDto> list = placePlayMapper.findPlayListPaged(
-                rgnCd, pageRequest.getOffset(), pageRequest.getSize(), pageRequest.getKeyword()
+                rgnCd, pageRequest.getOffset(), pageRequest.getSize(), pageRequest.getKeyword(), useYn
         );
         return new PageResponse<>(list, total, pageRequest);
+    }
+
+    // 🚀 추가: 상태(useYn) 변경 비즈니스 로직
+    @Transactional
+    public void updatePlaceUseYn(Long plcNo, String useYn) {
+        int result = placePlayMapper.updatePlaceUseYn(plcNo, useYn);
+        if (result == 0) {
+            throw new RuntimeException("해당 놀거리 장소를 찾을 수 없거나 상태 변경에 실패했습니다."); 
+        }
     }
 
     @Transactional(readOnly = true)

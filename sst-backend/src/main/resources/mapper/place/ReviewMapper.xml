@@ -4,6 +4,63 @@
 
 <mapper namespace="sst.content.mapper.ReviewMapper">
 
+
+	<!-- 관리자용 검색 조건 -->
+    <sql id="adminReviewSearch">
+        <if test="keyword != null and keyword != ''">
+            AND (R.RVW_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+                 OR M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+                 OR P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </sql>
+
+    <!-- 관리자용 리뷰 페이징 목록 -->
+    <select id="findAdminReviewListPaged" resultType="sst.content.dto.ReviewResponseDto">
+        SELECT 
+            R.RVW_NO AS rvwNo, R.RVW_PLC_NO AS rvwPlcNo, R.RVW_RATING AS rvwRating,
+            R.RVW_CONTENT AS rvwContent, DATE_FORMAT(R.RVW_REG_DATE, '%Y-%m-%d') AS rvwRegDate, 
+            R.RVW_USE_YN AS rvwUseYn, M.MBR_NICKNAME AS nickname, P.PLC_NAME AS plcName
+        FROM REVIEW R
+        JOIN MEMBER M ON R.RVW_MBR_ID = M.MBR_ID
+        JOIN PLACE P ON R.RVW_PLC_NO = P.PLC_NO
+        <where>
+            <choose>
+                <when test="useYn == 'N'.toString()"> R.RVW_USE_YN = 'N' </when>
+                <when test="useYn == 'ALL'.toString()"> 1=1 </when>
+                <otherwise> R.RVW_USE_YN = 'Y' </otherwise>
+            </choose>
+            <include refid="adminReviewSearch"/>
+        </where>
+        ORDER BY R.RVW_NO DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 관리자용 리뷰 총 개수 -->
+    <select id="countAdminReviewList" resultType="int">
+        SELECT COUNT(*)
+        FROM REVIEW R
+        JOIN MEMBER M ON R.RVW_MBR_ID = M.MBR_ID
+        JOIN PLACE P ON R.RVW_PLC_NO = P.PLC_NO
+        <where>
+            <choose>
+                <when test="useYn == 'N'.toString()"> R.RVW_USE_YN = 'N' </when>
+                <when test="useYn == 'ALL'.toString()"> 1=1 </when>
+                <otherwise> R.RVW_USE_YN = 'Y' </otherwise>
+            </choose>
+            <include refid="adminReviewSearch"/>
+        </where>
+    </select>
+
+    <!-- 🚀 상태 변경 쿼리 -->
+    <update id="updateReviewUseYn">
+        UPDATE REVIEW SET RVW_USE_YN = #{useYn}, RVW_UP_DATE = NOW() WHERE RVW_NO = #{rvwNo}
+    </update>
+    
+    <!-- 🚀 상태 변경 후 장소 캐시 동기화를 위해 장소번호 찾기 -->
+    <select id="findPlcNoByRvwNo" resultType="long">
+        SELECT RVW_PLC_NO FROM REVIEW WHERE RVW_NO = #{rvwNo}
+    </select>
+    
   <!-- ─────────────────────────────────────────
     리뷰 등록
   ───────────────────────────────────────── -->

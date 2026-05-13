@@ -1,9 +1,12 @@
 package sst.content.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import sst.content.dto.ReviewRequestDto;
 import sst.content.dto.ReviewResponseDto;
-import java.util.List;
 
 @Mapper
 public interface ReviewMapper {
@@ -22,4 +25,9 @@ public interface ReviewMapper {
 
     /** 평점 캐시 동기화 */
     int syncRatingCache(Long plcNo);
+    
+    List<ReviewResponseDto> findAdminReviewListPaged(@Param("offset") int offset, @Param("size") int size, @Param("keyword") String keyword, @Param("useYn") String useYn);
+    int countAdminReviewList(@Param("keyword") String keyword, @Param("useYn") String useYn);
+    int updateReviewUseYn(@Param("rvwNo") Long rvwNo, @Param("useYn") String useYn);
+    Long findPlcNoByRvwNo(Long rvwNo);
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -30,12 +31,16 @@ public class AdminMemberController {
     
     /**
      * 🚀 관리자: 회원 목록 조회 (검색 및 페이징)
-     * URL 예시: /api/admin/members?page=1&size=10&searchType=email&keyword=test
+     * URL 예시: /api/admin/members?page=1&size=10&searchType=email&keyword=test&authCd=ROLE_ADMIN
      */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<Member>>> getMembers(PageRequest pageRequest) {
-        PageResponse<Member> result = adminMemberService.getMembersPaged(pageRequest);
+    public ResponseEntity<ApiResponse<PageResponse<Member>>> getMembers(
+            PageRequest pageRequest,
+            @RequestParam(value = "useYn", required = false) String useYn,
+            @RequestParam(value = "authCd", required = false) String authCd) { // 🚀 1. authCd 파라미터 추가
+        
+        PageResponse<Member> result = adminMemberService.getMembersPaged(pageRequest, useYn, authCd);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 

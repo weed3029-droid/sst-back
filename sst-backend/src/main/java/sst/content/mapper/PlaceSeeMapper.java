@@ -44,8 +44,18 @@ public interface PlaceSeeMapper {
 
     // 🚀 태그 다중 삽입[cite: 3]
     int insertTags(@Param("plcNo") Long plcNo, @Param("tagCodes") List<String> tagCodes);
+    
+    int countSeeListByRegion(@Param("rgnCd") Integer rgnCd, @Param("keyword") String keyword, @Param("useYn") String useYn);
+    
+    List<SeeResponseDto> findSeeListPaged(
+            @Param("rgnCd") Integer rgnCd, 
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn
+    );
 
-    // 🚀 장소 소프트 삭제[cite: 1]
+    // 🚀 3. 상태 업데이트 Mapper 선언 (XML에서 이 아이디로 쿼리 작성 필요)
     int updatePlaceUseYn(@Param("plcNo") Long plcNo, @Param("useYn") String useYn);
     
 }

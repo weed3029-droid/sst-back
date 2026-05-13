@@ -4,7 +4,6 @@
 
 <mapper namespace="sst.member.mapper.MemberMapper">
 
-
 	<update id="updateMemberByAdmin" parameterType="sst.member.domain.Member">
         /* 🚀 관리자 전용: 권한(AuthCd) 및 계정 상태(UseYn)까지 수정 가능 */
         UPDATE MEMBER
@@ -24,8 +23,23 @@
         WHERE MBR_ID = #{mbrId}
     </update>
     
-	<!-- 🚀 1. 검색 조건을 재사용하기 위한 SQL 조각 -->
+	<!-- 🚀 1. 검색 조건을 재사용하기 위한 동적 SQL 조각 -->
     <sql id="memberSearchCondition">
+        <!-- 🚀 2. 권한 조건 분기: 프론트에서 authCd를 넘기면 관리자만, 안 넘기면 일반 유저만 조회 -->
+        <choose>
+            <when test="authCd == 'ROLE_ADMIN'">
+                AND MBR_AUTH_CD = 'ROLE_ADMIN'
+            </when>
+            <otherwise>
+                AND MBR_AUTH_CD != 'ROLE_ADMIN'
+            </otherwise>
+        </choose>
+
+        <!-- 🚀 3. 상태 조건: 전체보기일 경우 useYn 파라미터가 없으므로 생략됨 -->
+        <if test="useYn != null and useYn != ''">
+            AND MBR_USE_YN = #{useYn}
+        </if>
+
         <if test="keyword != null and keyword != ''">
             <choose>
                 <when test="searchType == 'email'">
@@ -41,26 +55,24 @@
         </if>
     </sql>
 
-    <!-- 🚀 2. 페이징 적용된 회원 목록 조회 -->
+    <!-- 🚀 4. 페이징 적용된 동적 목록 조회 (WHERE 1=1을 주어 AND로 이어붙이게 설계) -->
 	<select id="findAllMembersPaged" resultMap="memberResultMap">
         SELECT *
         FROM MEMBER
-        WHERE MBR_USE_YN = 'Y'
+        WHERE 1=1
         <include refid="memberSearchCondition" />
         ORDER BY MBR_JOIN_DATE DESC
         LIMIT #{offset}, #{size}
     </select>
 
-    <!-- 🚀 3. 활성 회원 총 개수 조회 (검색 반영) -->
+    <!-- 🚀 5. 동적 총 개수 조회 -->
     <select id="countAllMembers" resultType="int">
         SELECT COUNT(*)
         FROM MEMBER
-        WHERE MBR_USE_YN = 'Y'
+        WHERE 1=1
         <include refid="memberSearchCondition" />
     </select>
     
-
-
 	<select id="findById" resultMap="memberResultMap">
         /* 회원정보 조회 (ID 기준) */
         SELECT *
@@ -69,18 +81,17 @@
     </select>
     
 	<update id="withdrawMember">
-        /* 회원 탈퇴 (소프트 삭제 및 마스킹) */
+        /* 회원 탈퇴 (소프트 삭제 및 마스킹) - 매개변수가 3개인 관리자용 */
         UPDATE MEMBER
         SET MBR_USE_YN = 'N',
             /* 🚀 탈퇴자 이메일 재가입 불가 및 UQ 충돌 방지 마스킹 */
-            MBR_EMAIL = CONCAT('del_', MBR_ID, '_', UNIX_TIMESTAMP(), '@deleted.local'),
+            MBR_EMAIL = #{maskedEmail},
             /* 🚀 닉네임 UQ 충돌 방지 마스킹 */
-            MBR_NICKNAME = CONCAT('del_', MBR_ID, '_', UNIX_TIMESTAMP()),
+            MBR_NICKNAME = #{maskedNickname},
             /* 🚀 리프레시 토큰 무효화 */
             MBR_REFRESH_TOKEN = NULL
         WHERE MBR_ID = #{mbrId}
     </update>
-    
     
 	<select id="findAllMembers" resultMap="memberResultMap">
         /* 관리자: 전체 회원 목록 조회 */
@@ -126,7 +137,6 @@
           AND MBR_USE_YN = 'Y'
     </select>
     
-    <!-- DB의 컬럼명과 Member 도메인 객체의 필드명을 정확하게 1:1 매핑 -->
     <resultMap id="memberResultMap" type="sst.member.domain.Member">
         <id     column="MBR_ID"            property="mbrId"/>
         <result column="MBR_PASSWORD"      property="mbrPassword"/>
@@ -186,16 +196,15 @@
     </select>
     
     <insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="mbrId">
-	    /* 회원등록 */
 	    INSERT INTO MEMBER (
 	          MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, MBR_TELNO, 
 	          MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, MBR_AUTH_CD, 
-	          MBR_JOIN_DATE, MBR_USE_YN
+	          MBR_USE_YN
 	    ) VALUES (
 	          #{mbrPassword}, #{mbrName}, #{mbrNickname}, #{mbrEmail}, #{mbrTelno}, 
 	          #{mbrZip}, #{mbrAddr}, #{mbrDaddr}, #{mbrProviderCd}, #{mbrAuthCd}, 
-	          NOW(), #{mbrUseYn}  /* 🚀 하드코딩된 'Y'를 동적 변수 #{mbrUseYn}으로 변경 */
-	    );
+	          #{mbrUseYn}
+	    )
 	</insert>
 	
 	<!-- 프로필 이미지 파일 번호 업데이트 -->
