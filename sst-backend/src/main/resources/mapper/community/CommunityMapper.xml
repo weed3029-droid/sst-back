@@ -161,12 +161,12 @@
 	
 	<!-- 커뮤니티 게시글 삭제 -->
 	<update id="deleteCommunity">
-        UPDATE COMMUNITY
-        SET COMM_USE_YN = 'N',
-            COMM_UP_DATE = NOW()
-        WHERE COMM_NO = #{commNo}
-    </update>
-	
+	    UPDATE COMMUNITY
+	    SET COMM_USE_YN = 'N',
+	        COMM_UP_DATE = NOW()
+	    WHERE COMM_NO = #{commNo}
+	</update>
+
 	<!-- 커뮤니티 게시글 조회수 증가 -->
 	<update id="updateViewCount">
 	    UPDATE COMMUNITY
