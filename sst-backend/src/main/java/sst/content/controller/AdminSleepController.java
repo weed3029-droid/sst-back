@@ -2,6 +2,7 @@ package sst.content.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +28,23 @@ public class AdminSleepController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<PageResponse<SleepResponseDto>>> getList(
             @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            @RequestParam(name = "useYn", required = false, defaultValue = "Y") String useYn, // 🚀 프론트에서 넘어오는 상태 필터값 추가
             PageRequest pageRequest) { 
-        // 🚀 1. ?page=1&size=10 파라미터는 Spring이 PageRequest 객체에 자동으로 바인딩해 줍니다.
-        // 🚀 2. Map을 쓰지 않고 명확한 타입(PageResponse)과 공통 응답(ApiResponse)으로 감싸 반환합니다.
 
-        PageResponse<SleepResponseDto> result = adminSleepService.getListPageByRegion(rgnCd, pageRequest);
+        // 🚀 Service로 useYn 전달
+        PageResponse<SleepResponseDto> result = adminSleepService.getListPageByRegion(rgnCd, useYn, pageRequest);
 
         return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
+    // 🚀 추가: 휴지통 이동 및 복구를 처리할 상태 변경(PATCH) API
+    @PatchMapping("/{plcNo}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable("plcNo") Long plcNo,
+            @RequestParam("useYn") String useYn) {
+        
+    	adminSleepService.updatePlaceUseYn(plcNo, useYn);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @GetMapping("/{plcNo}")

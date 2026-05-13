@@ -2,6 +2,7 @@ package sst.content.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,13 +25,25 @@ public class AdminFoodController {
 
     private final AdminFoodService adminFoodService;
 
+    // 🚀 AdminFoodController, AdminSleepController, AdminPlayController 모두 동일하게 적용
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<PageResponse<FoodResponseDto>>> getList(
             @RequestParam(name = "rgnCd", required = false) Integer rgnCd,
+            @RequestParam(name = "useYn", required = false, defaultValue = "Y") String useYn, // 🚀 추가
             PageRequest pageRequest) { 
-        // 🚀 공통 ApiResponse 및 PageResponse 적용
-        PageResponse<FoodResponseDto> result = adminFoodService.getListPageByRegion(rgnCd, pageRequest);
+        
+        PageResponse<FoodResponseDto> result = adminFoodService.getListPageByRegion(rgnCd, useYn, pageRequest); // 🚀 useYn 전달
         return ResponseEntity.ok(ApiResponse.success(result));
+    }
+
+    // 🚀 추가: 휴지통 ↔ 운영중 토글 API
+    @PatchMapping("/{plcNo}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable("plcNo") Long plcNo,
+            @RequestParam("useYn") String useYn) {
+        
+        adminFoodService.updatePlaceUseYn(plcNo, useYn);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 
     @GetMapping("/{plcNo}")

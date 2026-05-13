@@ -111,4 +111,21 @@ public interface CommunityMapper {
     );
     int countAdminCommunityList(@Param("catCd") String catCd, @Param("keyword") String keyword);
 
+    List<Community> findCommunityListPaged(
+            @Param("catCd") String catCd,
+            @Param("offset") int offset, 
+            @Param("size") int size,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn);
+
+    // 🚀 관리자: 뽐낼거리 전체 개수 카운트
+    int countCommunityList(
+            @Param("catCd") String catCd,
+            @Param("keyword") String keyword,
+            @Param("useYn") String useYn);
+
+    // 🚀 상태 변경 로직
+    int updateCommunityUseYn(
+            @Param("commNo") Long commNo, 
+            @Param("useYn") String useYn);
 }

@@ -138,7 +138,6 @@
 
     <!-- 기존 findByRegion 쿼리 유지 (생략) ... -->
 
-    <!-- 🚀 2. 페이징 적용된 잘거리 목록 조회 -->
     <select id="findSleepListPaged" resultType="sst.content.dto.SleepResponseDto">
         SELECT
             p.PLC_NO              AS plcNo,
@@ -149,32 +148,64 @@
             p.PLC_FLT_CD          AS plcFltCd,
             p.PLC_AVG_RATING      AS plcAvgRating,
             p.PLC_REVIEW_CNT      AS plcReviewCnt,
+            p.PLC_USE_YN          AS plcUseYn, /* 🚀 상태값 반환 추가 */
             s.SLEEP_CHECK_IN      AS sleepCheckIn,
             s.SLEEP_CHECK_OUT     AS sleepCheckOut
         FROM PLACE p
         LEFT JOIN PLACE_SLEEP s ON p.PLC_NO = s.SLEEP_PLC_NO
         WHERE p.PLC_CAT_CD = 'PLC004'
-          AND p.PLC_USE_YN = 'Y'
+        
+        <!-- 🚀 기존 AND p.PLC_USE_YN = 'Y'를 지우고 아래 choose 구문 삽입 -->
+        <choose>
+            <when test="useYn == 'N'.toString()">
+                AND p.PLC_USE_YN = 'N'
+            </when>
+            <when test="useYn == 'ALL'.toString()">
+                /* 전체 조회 */
+            </when>
+            <otherwise>
+                AND p.PLC_USE_YN = 'Y'
+            </otherwise>
+        </choose>
+
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
-        <!-- 🚀 검색 조건 조각 포함 -->
         <include refid="placeSearchCondition" />
         ORDER BY p.PLC_NO DESC
         LIMIT #{offset}, #{size}
     </select>
 
-    <!-- 🚀 3. 활성 잘거리 총 개수 조회 -->
+    <!-- 2. countSleepListByRegion 쿼리 수정 -->
     <select id="countSleepListByRegion" resultType="int">
         SELECT COUNT(*)
         FROM PLACE p
         WHERE p.PLC_CAT_CD = 'PLC004'
-          AND p.PLC_USE_YN = 'Y'
+        
+        <!-- 🚀 리스트 쿼리와 똑같이 상태 조건 추가 -->
+        <choose>
+            <when test="useYn == 'N'.toString()">
+                AND p.PLC_USE_YN = 'N'
+            </when>
+            <when test="useYn == 'ALL'.toString()">
+            </when>
+            <otherwise>
+                AND p.PLC_USE_YN = 'Y'
+            </otherwise>
+        </choose>
+
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
-        <!-- 🚀 카운트에도 반드시 검색 조건 조각 포함! -->
         <include refid="placeSearchCondition" />
     </select>
+
+    <!-- 3. 🚀 맨 아래에 상태 업데이트 쿼리 추가 -->
+    <update id="updatePlaceUseYn">
+        UPDATE PLACE
+        SET PLC_USE_YN = #{useYn},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
     
 </mapper>

@@ -42,11 +42,25 @@
             p.PLC_NO            AS plcNo,
             p.PLC_NAME          AS plcName,
             p.PLC_ADDR          AS plcAddr,
-            p.PLC_AVG_RATING    AS plcAvgRating
+            p.PLC_AVG_RATING    AS plcAvgRating,
+            p.PLC_USE_YN        AS plcUseYn /* 🚀 혹시 모르니 데이터에 상태값 포함 */
         FROM PLACE p
         LEFT JOIN PLACE_PLAY pl ON p.PLC_NO = pl.PLAY_PLC_NO
         WHERE p.PLC_CAT_CD = 'PLC002'
-          AND p.PLC_USE_YN = 'Y'
+        
+        <!-- 🚀 기존 AND p.PLC_USE_YN = 'Y'를 지우고 아래 choose 구문 삽입 -->
+        <choose>
+            <when test="useYn == 'N'.toString()">
+                AND p.PLC_USE_YN = 'N'
+            </when>
+            <when test="useYn == 'ALL'.toString()">
+                /* 전체 조회 */
+            </when>
+            <otherwise>
+                AND p.PLC_USE_YN = 'Y'
+            </otherwise>
+        </choose>
+
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
@@ -55,16 +69,37 @@
         LIMIT #{offset}, #{size}
     </select>
 
+    <!-- 2. countPlayListByRegion 쿼리 수정 -->
     <select id="countPlayListByRegion" resultType="int">
         SELECT COUNT(*)
         FROM PLACE p
         WHERE p.PLC_CAT_CD = 'PLC002'
-          AND p.PLC_USE_YN = 'Y'
+        
+        <!-- 🚀 리스트 쿼리와 똑같이 상태 조건 추가 -->
+        <choose>
+            <when test="useYn == 'N'.toString()">
+                AND p.PLC_USE_YN = 'N'
+            </when>
+            <when test="useYn == 'ALL'.toString()">
+            </when>
+            <otherwise>
+                AND p.PLC_USE_YN = 'Y'
+            </otherwise>
+        </choose>
+
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
         <include refid="playSearchCondition" />
     </select>
+
+    <!-- 3. 🚀 맨 아래에 상태 업데이트 쿼리 추가 -->
+    <update id="updatePlaceUseYn">
+        UPDATE PLACE
+        SET PLC_USE_YN = #{useYn},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
     
     <select id="findByRegion" resultType="sst.content.dto.PlayResponseDto">
         SELECT
