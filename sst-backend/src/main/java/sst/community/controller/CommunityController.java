@@ -24,6 +24,9 @@ import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
 import sst.community.service.CommunityService;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,8 +36,11 @@ public class CommunityController {
 
     // 사용자가 선택한 카테고리에 맞는 게시판 목록 조회
     @GetMapping("/api/community")
-    public List<Community> communityList(@RequestParam("catCd") String catCd) {
-        return communityService.getCommunityList(catCd);
+    public PageResponse<Community> communityList(
+            @RequestParam("catCd") String catCd,
+            PageRequest pageRequest
+    ) {
+        return communityService.getCommunityList(catCd, pageRequest);
     }
     
     // 커뮤니티 게시글 상세 조회
@@ -43,10 +49,18 @@ public class CommunityController {
         return communityService.getCommunityDetail(commNo);
     }
     
-    // 커뮤니티 게시글 조회수 증가
+    // 커뮤니티 게시글 조회수 증가 - 세션 기준 중복 방지
     @PutMapping("/api/community/{commNo}/view")
-    public void increaseViewCount(@PathVariable("commNo") Long commNo) {
-        communityService.increaseViewCount(commNo);
+    public void increaseViewCount(
+            @PathVariable("commNo") Long commNo,
+            HttpSession session
+    ) {
+        String viewKey = "VIEWED_COMMUNITY_" + commNo;
+
+        if (session.getAttribute(viewKey) == null) {
+            communityService.increaseViewCount(commNo);
+            session.setAttribute(viewKey, true);
+        }
     }
     
     // 커뮤니티 게시글 등록

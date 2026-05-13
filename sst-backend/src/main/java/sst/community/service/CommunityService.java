@@ -12,6 +12,8 @@ import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
 import sst.community.mapper.CommunityMapper;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +22,26 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
 
     // 커뮤니티 게시글 목록 조회
-    public List<Community> getCommunityList(String catCd) {
-        return communityMapper.selectCommunityList(catCd);
+    public PageResponse<Community> getCommunityList(
+            String catCd,
+            PageRequest pageRequest
+    ) {
+        List<Community> list = communityMapper.selectCommunityList(
+                catCd,
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword(),
+                pageRequest.getSortType(),
+                pageRequest.getOffset(),
+                pageRequest.getSize()
+        );
+
+        int totalCount = communityMapper.countCommunityList(
+                catCd,
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword()
+        );
+
+        return new PageResponse<>(list, totalCount, pageRequest);
     }
     
     // 커뮤니티 게시글 상세 조회

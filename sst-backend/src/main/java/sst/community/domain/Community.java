@@ -37,5 +37,9 @@ public class Community {
     private String plcCatCd;
     private String plcCatName;
     
+    private String theme1Name;
+    private String theme2Name;
+    private String theme3Name;
+    
 }
 
