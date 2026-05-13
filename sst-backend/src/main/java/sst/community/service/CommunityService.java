@@ -138,34 +138,27 @@ public class CommunityService {
     }
     
     public void removeCommunity(Long commNo) {
-    	 // 게시글 대표 이미지 경로 조회
-	        String imageUrl = communityMapper.selectCommunityImageUrl(commNo);
-	        // 실제 파일 삭제
-	        if (imageUrl != null && !imageUrl.isBlank()) {
-	            String filePath = imageUrl.replace("/uploads/", "");
-	            java.io.File file = new java.io.File("uploads/" + filePath);
-	            if (file.exists()) {
-	                file.delete();
-	            }
-	        }
-	
-	        // FILE 테이블 삭제용 파일 번호 조회
-	        List<Long> fileNos = communityMapper.selectCommunityFileNos(commNo);
-	        // 좋아요 삭제
-	        communityMapper.deleteCommunityLikes(commNo);
-	        // 댓글 삭제
-	        communityMapper.deleteCommentsByCommunity(commNo);
-	        // 해시태그 연결 삭제
-	        communityMapper.deleteCommunityHashtags(commNo);
-	        // 파일 매핑 삭제
-	        communityMapper.deleteCommunityFileMaps(commNo);
-	        // FILE 테이블 삭제
-	        if (fileNos != null && !fileNos.isEmpty()) {
-	            communityMapper.deleteFiles(fileNos);
-	        }
-	        // 게시글 삭제
-	        communityMapper.deleteCommunity(commNo);
-	    }
+
+        // FILE 테이블 삭제용 파일 번호 목록 조회
+        List<Long> fileNos = communityMapper.selectCommunityFileNos(commNo);
+
+        // 좋아요 삭제
+        communityMapper.deleteCommunityLikes(commNo);
+
+        // 해시태그 연결 삭제
+        communityMapper.deleteCommunityHashtags(commNo);
+
+        // 파일 매핑 삭제
+        communityMapper.deleteCommunityFileMaps(commNo);
+
+        // FILE 테이블 삭제
+        if (fileNos != null && !fileNos.isEmpty()) {
+            communityMapper.deleteFiles(fileNos);
+        }
+
+        // 게시글은 실제 삭제하지 않고 COMM_USE_YN = 'N' 처리
+        communityMapper.deleteCommunity(commNo);
+    }
     
     // 커뮤니티 게시글 조회수 증가
     public void increaseViewCount(Long commNo) {
