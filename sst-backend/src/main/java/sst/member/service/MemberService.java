@@ -14,6 +14,8 @@ import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
 import sst.member.mapper.MemberMapper;
+import sst.uploads.domain.FileDomain;
+import sst.uploads.service.FileService;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	
 	private final CookieUtil cookieUtil;
+	private final FileService fileService;
 	
 	@Transactional
 	public Member getMemberInfoByEmail(String email) {
@@ -31,19 +34,31 @@ public class MemberService {
     }
 	
 	@Transactional
-    public void updateMemberInfo(Long mbrId, MemberUpdateRequest request) {
-        Member updateParam = Member.builder()
-                .mbrId(mbrId)
-                .mbrName(request.getMbrName())
-                .mbrNickname(request.getMbrNickname())
-                .mbrTelno(request.getMbrTelno())
-                .mbrZip(request.getMbrZip())
-                .mbrAddr(request.getMbrAddr())
-                .mbrDaddr(request.getMbrDaddr())
-                .build();
-                
-        memberMapper.updateMemberInfo(updateParam);
-    }
+	public void updateMemberInfo(Long mbrId, MemberUpdateRequest request) {
+	    // 1. 일반 회원 정보(텍스트) 먼저 업데이트
+	    Member updateParam = Member.builder()
+	            .mbrId(mbrId)
+	            .mbrName(request.getMbrName())
+	            .mbrNickname(request.getMbrNickname())
+	            .mbrTelno(request.getMbrTelno())
+	            .mbrZip(request.getMbrZip())
+	            .mbrAddr(request.getMbrAddr())
+	            .mbrDaddr(request.getMbrDaddr())
+	            .build();
+	            
+	    memberMapper.updateMemberInfo(updateParam);
+
+	    // 2. 프로필 이미지 처리
+	    if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
+	        // 파일 데이터 저장 및 DB 등록 완료
+	        FileDomain savedFile = fileService.saveFile(request.getProfileImage(), "member", "profile");
+
+	        // 3. 회원 정보에 파일 번호 최종 연결
+	        memberMapper.updateMemberProfileFileNo(mbrId, savedFile.getFileNo());
+	    }
+	    
+	    // 나중에 배경 파일 추가 시에도 동일한 패턴으로 아래에 추가하면 됩니다.
+	}
 	
 	@Transactional
 	public void changePassword(String email, PasswordChangeRequest request) {
