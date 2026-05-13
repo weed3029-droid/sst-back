@@ -47,7 +47,17 @@
         FROM PLACE p
         LEFT JOIN PLACE_FOOD f ON p.PLC_NO = f.FOOD_PLC_NO
         WHERE p.PLC_CAT_CD = 'PLC003'
-          AND p.PLC_USE_YN = 'Y'
+          <choose>
+		        <when test="useYn == 'N'.toString()">
+		            AND p.PLC_USE_YN = 'N'
+		        </when>
+		        <when test="useYn == 'ALL'.toString()">
+		            /* 전체 조회 (조건 없음) */
+		        </when>
+		        <otherwise>
+		            AND p.PLC_USE_YN = 'Y'
+		        </otherwise>
+    		</choose>
         <if test="rgnCd != null">
             AND p.PLC_RGN_CD = #{rgnCd}
         </if>
@@ -124,4 +134,11 @@
         WHERE p.PLC_NO = #{plcNo}
     </select>
 
+	<update id="updatePlaceUseYn">
+        UPDATE PLACE
+        SET PLC_USE_YN = #{useYn},
+            PLC_UP_DATE = NOW()
+        WHERE PLC_NO = #{plcNo}
+    </update>
+    
 </mapper>
