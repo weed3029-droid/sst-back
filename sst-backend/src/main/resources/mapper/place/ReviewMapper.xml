@@ -7,24 +7,26 @@
   <sql id="adminReviewSearchCondition">
       <if test="keyword != null and keyword != ''">
           <choose>
-              <when test="searchType == 'content'"> AND r.RVW_CONTENT LIKE CONCAT('%', #{keyword}, '%') </when>
-              <when test="searchType == 'reporter'"> AND m.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%') </when>
-              <when test="searchType == 'place'"> AND p.PLC_NAME LIKE CONCAT('%', #{keyword}, '%') </when>
+              <when test='searchType == "content"'> AND r.RVW_CONTENT LIKE CONCAT('%', #{keyword}, '%') </when>
+              <when test='searchType == "reporter"'> AND m.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%') </when>
+              <when test='searchType == "place"'> AND p.PLC_NAME LIKE CONCAT('%', #{keyword}, '%') </when>
           </choose>
       </if>
       <choose>
-          <when test="useYn != null and useYn.equals('Y')"> AND r.RVW_USE_YN = 'Y' </when>
-          <when test="useYn != null and useYn.equals('N')">
+          <when test='useYn != null and useYn == "Y"'> 
+              AND r.RVW_USE_YN = 'Y' 
+          </when>
+          <when test='useYn != null and useYn == "N"'>
               AND r.RVW_USE_YN = 'N'
               AND (SELECT COUNT(*) FROM REPORT Rpt WHERE Rpt.RPT_REVIEW_NO = r.RVW_NO AND Rpt.RPT_STATUS_CD != 'RST004') &lt; 5
           </when>
-          <when test="useYn != null and useYn.equals('B')">
+          <when test='useYn != null and useYn == "B"'>
               AND r.RVW_USE_YN = 'N'
               AND (SELECT COUNT(*) FROM REPORT Rpt WHERE Rpt.RPT_REVIEW_NO = r.RVW_NO AND Rpt.RPT_STATUS_CD != 'RST004') &gt;= 5
           </when>
       </choose>
   </sql>
-
+  
   <select id="adminFindReviewListPaged" resultType="sst.content.dto.ReviewResponseDto">
       SELECT
           r.RVW_NO AS rvwNo, r.RVW_PLC_NO AS rvwPlcNo, r.RVW_MBR_ID AS rvwMbrId,

@@ -32,42 +32,24 @@ public interface CommentMapper {
     // 댓글 수 감소
     int decreaseCommentCount(Long commNo);
     
-    List<AdminCommentResponseDto> findAdminCommentListPaged(
+    // ==========================================
+    // 🚀 관리자용 메서드 (admin 접두사 추가)
+    // ==========================================
+    
+    List<AdminCommentResponseDto> adminFindCommentListPaged(
             @Param("offset") int offset, 
             @Param("size") int size, 
             @Param("keyword") String keyword, 
-            @Param("useYn") String useYn);
-
-    // 🚀 관리자: 전체 댓글 수 조회 (페이징용)
-    int countAdminCommentList(
+            @Param("useYn") String useYn,
+            @Param("searchType") String searchType);
+            
+    int adminCountCommentList(
             @Param("keyword") String keyword, 
+            @Param("useYn") String useYn,
+            @Param("searchType") String searchType);
+            
+    int adminUpdateCommentUseYn(
+            @Param("cmtNo") Long cmtNo, 
             @Param("useYn") String useYn);
 
-    // 🚀 관리자: 상태 변경 (소프트 삭제/복구)
-    int updateCommentUseYn(@Param("cmntNo") Long cmntNo, @Param("useYn") String useYn);
-
-    // 🚀 댓글 번호로 원문 게시글 번호 조회 (카운트 동기화용)
-    Long findCommNoByCmntNo(Long cmntNo);
-
-    // 🚀 커뮤니티 게시글의 실제 댓글 수 동기화
-    int syncCommentCount(Long commNo);
-    
- // 🚀 관리자: 댓글 페이징 목록 조회
-    List<Comment> selectAdminCommentListPaged(
-            @Param("searchType") String searchType, 
-            @Param("keyword") String keyword, 
-            @Param("useYn") String useYn, 
-            @Param("offset") int offset, 
-            @Param("size") int size);
-
-    // 🚀 관리자: 댓글 총 개수
-    int countAdminCommentList(
-            @Param("searchType") String searchType, 
-            @Param("keyword") String keyword, 
-            @Param("useYn") String useYn);
-
-    // 🚀 관리자: 댓글 상태(Y/N) 토글
-    int updateCommentStatus(
-            @Param("cmntNo") Long cmntNo, 
-            @Param("useYn") String useYn);
 }
