@@ -76,29 +76,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 신고 등록 -->
     <insert id="insertReport"
-        parameterType="sst.report.domain.Report">
+    parameterType="sst.report.domain.Report">
 
-        INSERT INTO REPORT (
-            RPT_REPORTER_NO,
-            RPT_TYPE_CD,
-            RPT_REVIEW_NO,
-            RPT_COMM_NO,
-            RPT_CMNT_NO,
-            RPT_REASON_CD,
-            RPT_REASON_CONTENT,
-            RPT_REG_DATE
-        ) VALUES (
-            #{rptReporterNo},
-            #{rptTypeCd},
-            #{rptReviewNo},
-            #{rptCommNo},
-            #{rptCmntNo},
-            #{rptReasonCd},
-            #{rptReasonContent},
-            NOW()
-        )
-
-    </insert>
+	    INSERT INTO REPORT (
+	        RPT_REPORTER_NO,
+	        RPT_TYPE_CD,
+	        RPT_REVIEW_NO,
+	        RPT_COMM_NO,
+	        RPT_CMNT_NO,
+	        RPT_REASON_CD,
+	        RPT_REASON_CONTENT,
+	        RPT_STATUS_CD,
+	        RPT_PROSSR_NO,
+	        RPT_PROSR_DATE,
+	        RPT_REG_DATE
+	    ) VALUES (
+	        #{rptReporterNo},
+	        #{rptTypeCd},
+	        #{rptReviewNo},
+	        #{rptCommNo},
+	        #{rptCmntNo},
+	        #{rptReasonCd},
+	        #{rptReasonContent},
+	        #{rptStatusCd},
+	        #{rptProsrNo},
+	        #{rptProsrDate},
+	        NOW()
+	    )
+	</insert>
 
     <!-- 중복 신고 확인 -->
     <select id="countDuplicateReport"
@@ -121,7 +126,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="rptReviewNo != null">
           AND RPT_REVIEW_NO = #{rptReviewNo}
         </if>
-
     </select>
+    
+    <!-- 대상별 신고 누적 수 조회 -->
+	<select id="countReportsByTarget"
+	        parameterType="sst.report.domain.Report"
+	        resultType="int">
+	    SELECT COUNT(*)
+	    FROM REPORT
+	    WHERE RPT_TYPE_CD = #{rptTypeCd}
+	
+	    <if test="rptCommNo != null">
+	        AND RPT_COMM_NO = #{rptCommNo}
+	    </if>
+	
+	    <if test="rptCmntNo != null">
+	        AND RPT_CMNT_NO = #{rptCmntNo}
+	    </if>
+	
+	    <if test="rptReviewNo != null">
+	        AND RPT_REVIEW_NO = #{rptReviewNo}
+	    </if>
+	</select>
+	
+	<!-- 커뮤니티 블라인드 처리 -->
+	<update id="blindCommunity">
+	    UPDATE COMMUNITY
+	    SET COMM_USE_YN = 'N',
+	        COMM_UP_DATE = NOW()
+	    WHERE COMM_NO = #{commNo}
+	</update>
+	
+	<!-- 댓글 블라인드 처리 -->
+	<update id="blindComment">
+	    UPDATE COMMENT
+	    SET CMNT_USE_YN = 'N'
+	    WHERE CMNT_NO = #{cmntNo}
+	</update>
+	
+	<!-- 리뷰 블라인드 처리 -->
+	<update id="blindReview">
+	    UPDATE REVIEW
+	    SET RVW_USE_YN = 'N'
+	    WHERE RVW_NO = #{reviewNo}
+	</update>
 
 </mapper>
