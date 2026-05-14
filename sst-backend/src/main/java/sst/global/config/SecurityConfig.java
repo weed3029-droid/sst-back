@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/wishlist/**").permitAll()
                 .requestMatchers("/api/search/**").permitAll()
                 .requestMatchers("/api/ai/schedule/**").permitAll()
+                .requestMatchers("/api/community/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
