@@ -309,7 +309,7 @@
 	</select>
 	
 	<!-- 커뮤니티 게시글 등록 -->
-	<insert id="insertCommunity"
+	<insert id="insertCommunity" parameterType="sst.community.dto.CommunityDto"
 	        useGeneratedKeys="true"
 	        keyProperty="commNo"
 	        keyColumn="COMM_NO">
@@ -334,7 +334,7 @@
 	</insert>
 	
 	<!-- 커뮤니티 게시글 수정 -->
-	<update id="updateCommunity">
+	<update id="updateCommunity" parameterType="sst.community.dto.CommunityDto">
 	    UPDATE COMMUNITY
 	    SET
 	        COMM_TITLE = #{commTitle},
@@ -439,7 +439,7 @@
 	</delete>
 	
 	<!-- 파일 정보 등록 -->
-	<insert id="insertFile"
+	<insert id="insertFile" parameterType="sst.community.dto.CommunityFileDto"
 	        useGeneratedKeys="true"
 	        keyProperty="fileNo"
 	        keyColumn="FILE_NO">
