@@ -30,16 +30,17 @@ public class AdminReportController {
         return ResponseEntity.ok(ApiResponse.success(adminReportService.getReportsPaged(statusCd, rptTypeCd, pageRequest)));
     }
 
-    // 🚀 관리자: 신고 처리 상태 업데이트
+    // 🚀 [수정 완료] updateStatus와 updateReportStatus로 중복되어 있던 메서드를 하나로 통합했습니다.
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{rptNo}/status")
     public ResponseEntity<ApiResponse<Void>> updateReportStatus(
-            // 🚀 수정: PathVariable과 RequestParam에도 각각 이름을 명확히 지정해 줍니다.
-            @PathVariable(name = "rptNo") Long rptNo,
-            @RequestParam(name = "statusCd") String statusCd,
+            @PathVariable("rptNo") Long rptNo,
+            @RequestParam("statusCd") String statusCd, // 🚀 쿼리 파라미터명은 프론트와 맞추세요 (예: statusCd)
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         
-        adminReportService.processReport(rptNo, statusCd, userDetails.getMember().getMbrId());
+        // 🚀 처리자(관리자) 번호를 함께 넘겨 처리 상태 무결성을 유지합니다.
+        adminReportService.updateReportStatus(rptNo, statusCd, userDetails.getMember().getMbrId());
+        
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

@@ -51,4 +51,23 @@ public interface CommentMapper {
 
     // 🚀 커뮤니티 게시글의 실제 댓글 수 동기화
     int syncCommentCount(Long commNo);
+    
+ // 🚀 관리자: 댓글 페이징 목록 조회
+    List<Comment> selectAdminCommentListPaged(
+            @Param("searchType") String searchType, 
+            @Param("keyword") String keyword, 
+            @Param("useYn") String useYn, 
+            @Param("offset") int offset, 
+            @Param("size") int size);
+
+    // 🚀 관리자: 댓글 총 개수
+    int countAdminCommentList(
+            @Param("searchType") String searchType, 
+            @Param("keyword") String keyword, 
+            @Param("useYn") String useYn);
+
+    // 🚀 관리자: 댓글 상태(Y/N) 토글
+    int updateCommentStatus(
+            @Param("cmntNo") Long cmntNo, 
+            @Param("useYn") String useYn);
 }

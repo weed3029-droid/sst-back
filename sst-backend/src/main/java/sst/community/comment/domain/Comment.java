@@ -30,4 +30,6 @@ public class Comment {
 
     // 회원 닉네임 (조인용)
     private String mbrNickname;
+    
+    
 }

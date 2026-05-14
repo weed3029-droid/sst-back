@@ -5,123 +5,139 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 <mapper namespace="sst.report.mapper.ReportMapper">
 
-	<!-- 🚀 2. 목록 페이징 조회 쿼리 업데이트 -->
-	<select id="findAllReportsPaged" resultType="sst.report.dto.AdminReportResponseDto">
-	    SELECT 
-	        R.RPT_NO AS rptNo,
-	        R.RPT_TYPE_CD AS rptTypeCd,
-	        R.RPT_REASON_CD AS rptReasonCd,
-	        R.RPT_REASON_CONTENT AS rptReasonContent,
-	        R.RPT_STATUS_CD AS rptStatusCd,
-	        R.RPT_REG_DATE AS rptRegDate,
-	        M.MBR_NICKNAME AS reporterName,
-	        COALESCE(R.RPT_REVIEW_NO, R.RPT_COMM_NO, R.RPT_CMNT_NO) AS targetId,
-	        
-	        <!-- 🚀 추가: 프론트 라우터 주소 분기를 위한 커뮤니티 카테고리 코드 -->
-	        C.COMM_CAT_CD AS reportedCategory,
-	        
-	        C.COMM_TITLE AS reportedTitle,
-	        COALESCE(RV.RVW_CONTENT, C.COMM_CONTENT, CM.CMNT_CONTENT) AS reportedContent
-	        
-	    FROM REPORT R
-	    JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
-	    LEFT JOIN REVIEW RV ON R.RPT_REVIEW_NO = RV.RVW_NO
-	    LEFT JOIN COMMUNITY C ON R.RPT_COMM_NO = C.COMM_NO
-	    LEFT JOIN COMMENT CM ON R.RPT_CMNT_NO = CM.CMNT_NO
-	    WHERE 1=1
-	    <!-- 기존 검색 조건 생략 -->
-	    ORDER BY R.RPT_REG_DATE DESC
-	    LIMIT #{offset}, #{size}
-	</select>
+    <!-- 🚀 1. 공통 검색 조건 (리스트와 카운트 모두 동일하게 적용됨) -->
+    <sql id="reportSearchCondition">
+        <!-- 상태 필터 (접수 대기, 완료 등) -->
+        <if test="statusCd != null and statusCd != ''">
+            AND R.RPT_STATUS_CD = #{statusCd}
+        </if>
+        <!-- 대상 유형 필터 (리뷰, 커뮤니티, 댓글) -->
+        <if test="rptTypeCd != null and rptTypeCd != ''">
+            AND R.RPT_TYPE_CD = #{rptTypeCd}
+        </if>
+        <!-- 검색어 필터 -->
+        <if test="keyword != null and keyword != ''">
+            <choose>
+                <when test="searchType == 'reporter'">
+                    AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+                </when>
+                <when test="searchType == 'content'">
+                    <!-- 🚀 수정: 신고 사유뿐만 아니라, 실제 신고당한 원문 내용과 제목까지 통합 검색 -->
+                    AND (
+                        RV.RVW_CONTENT LIKE CONCAT('%', #{keyword}, '%') OR
+                        C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%') OR
+                        C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%') OR
+                        CM.CMNT_CONTENT LIKE CONCAT('%', #{keyword}, '%') OR
+                        R.RPT_REASON_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+                    )
+                </when>
+            </choose>
+        </if>
+    </sql>
 
-
-	<sql id="reportSearchCondition">
-	    <!-- 상태 필터 (접수 대기, 완료 등) -->
-	    <if test="statusCd != null and statusCd != ''">
-	        AND R.RPT_STATUS_CD = #{statusCd}
-	    </if>
-	    <!-- 🚀 대상 유형 필터 (리뷰, 커뮤니티, 댓글) -->
-	    <if test="rptTypeCd != null and rptTypeCd != ''">
-	        AND R.RPT_TYPE_CD = #{rptTypeCd}
-	    </if>
-	    <!-- 🚀 검색어 필터 -->
-	    <if test="keyword != null and keyword != ''">
-	        <choose>
-	            <when test="searchType == 'reporter'">
-	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	            <when test="searchType == 'content'">
-	                AND R.RPT_REASON_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	        </choose>
-	    </if>
-	</sql>
-	
-	<select id="countAllReports" resultType="int">
-    SELECT COUNT(*) 
-    FROM REPORT R
-    JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
-    WHERE 1=1
-    <include refid="reportSearchCondition"/>
-	</select>
-	
-	<!-- 🚀 3. 신고 상태 변경 (처리자 정보 필수 기록) -->
-	<update id="updateReportStatus">
-	    UPDATE REPORT
-	    SET RPT_STATUS_CD = #{statusCd},
-	        RPT_PROSSR_NO = #{adminId},
-	        RPT_PROSR_DATE = NOW()
-	    WHERE RPT_NO = #{rptNo}
-	</update>
+    <!-- 🚀 2. 목록 페이징 조회 쿼리 -->
+    <select id="findAllReportsPaged" resultType="sst.report.dto.AdminReportResponseDto">
+        SELECT 
+            R.RPT_NO AS rptNo,
+            R.RPT_TYPE_CD AS rptTypeCd,
+            R.RPT_REASON_CD AS rptReasonCd,
+            R.RPT_REASON_CONTENT AS rptReasonContent,
+            R.RPT_STATUS_CD AS rptStatusCd,
+            R.RPT_REG_DATE AS rptRegDate,
+            M.MBR_NICKNAME AS reporterName,
+            COALESCE(R.RPT_REVIEW_NO, R.RPT_COMM_NO, R.RPT_CMNT_NO) AS targetId,
+            C.COMM_CAT_CD AS reportedCategory,
+            C.COMM_TITLE AS reportedTitle,
+            COALESCE(RV.RVW_CONTENT, C.COMM_CONTENT, CM.CMNT_CONTENT) AS reportedContent
+        FROM REPORT R
+        JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
+        <!-- 🚀 다형성 조인: 3개의 타겟 테이블을 모두 LEFT JOIN으로 연결 -->
+        LEFT JOIN REVIEW RV ON R.RPT_REVIEW_NO = RV.RVW_NO
+        LEFT JOIN COMMUNITY C ON R.RPT_COMM_NO = C.COMM_NO
+        LEFT JOIN COMMENT CM ON R.RPT_CMNT_NO = CM.CMNT_NO
+        WHERE 1=1
+        <!-- 🚀 누락되었던 검색 조건 include 추가 -->
+        <include refid="reportSearchCondition"/>
+        ORDER BY R.RPT_REG_DATE DESC
+        LIMIT #{offset}, #{size}
+    </select>
+    
+    <!-- 🚀 3. 전체 개수 조회 (카운트 쿼리) -->
+    <select id="countAllReports" resultType="int">
+        SELECT COUNT(*) 
+        FROM REPORT R
+        JOIN MEMBER M ON R.RPT_REPORTER_NO = M.MBR_ID
+        <!-- 🚀 중요: 리스트 쿼리와 완벽하게 동일한 LEFT JOIN을 유지해야 검색(content) 시 에러가 나지 않습니다. -->
+        LEFT JOIN REVIEW RV ON R.RPT_REVIEW_NO = RV.RVW_NO
+        LEFT JOIN COMMUNITY C ON R.RPT_COMM_NO = C.COMM_NO
+        LEFT JOIN COMMENT CM ON R.RPT_CMNT_NO = CM.CMNT_NO
+        WHERE 1=1
+        <include refid="reportSearchCondition"/>
+    </select>
+    
+    <!-- 🚀 신고 상태 변경 -->
+    <update id="updateReportStatus">
+        UPDATE REPORT
+        SET RPT_STATUS_CD = #{statusCd},
+            RPT_PROSSR_NO = #{adminId},
+            RPT_PROSR_DATE = NOW()
+        WHERE RPT_NO = #{rptNo}
+    </update>
 
     <!-- 신고 등록 -->
-    <insert id="insertReport"
-        parameterType="sst.report.domain.Report">
-
+    <insert id="insertReport" parameterType="sst.report.domain.Report">
         INSERT INTO REPORT (
-            RPT_REPORTER_NO,
-            RPT_TYPE_CD,
-            RPT_REVIEW_NO,
-            RPT_COMM_NO,
-            RPT_CMNT_NO,
-            RPT_REASON_CD,
-            RPT_REASON_CONTENT,
-            RPT_REG_DATE
+            RPT_REPORTER_NO, RPT_TYPE_CD, RPT_REVIEW_NO, RPT_COMM_NO,
+            RPT_CMNT_NO, RPT_REASON_CD, RPT_REASON_CONTENT, RPT_REG_DATE
         ) VALUES (
-            #{rptReporterNo},
-            #{rptTypeCd},
-            #{rptReviewNo},
-            #{rptCommNo},
-            #{rptCmntNo},
-            #{rptReasonCd},
-            #{rptReasonContent},
-            NOW()
+            #{rptReporterNo}, #{rptTypeCd}, #{rptReviewNo}, #{rptCommNo},
+            #{rptCmntNo}, #{rptReasonCd}, #{rptReasonContent}, NOW()
         )
-
     </insert>
 
     <!-- 중복 신고 확인 -->
-    <select id="countDuplicateReport"
-        parameterType="sst.report.domain.Report"
-        resultType="int">
-
+    <select id="countDuplicateReport" parameterType="sst.report.domain.Report" resultType="int">
         SELECT COUNT(*)
         FROM REPORT
         WHERE RPT_REPORTER_NO = #{rptReporterNo}
           AND RPT_TYPE_CD = #{rptTypeCd}
-
         <if test="rptCommNo != null">
           AND RPT_COMM_NO = #{rptCommNo}
         </if>
-
         <if test="rptCmntNo != null">
           AND RPT_CMNT_NO = #{rptCmntNo}
         </if>
-
         <if test="rptReviewNo != null">
           AND RPT_REVIEW_NO = #{rptReviewNo}
         </if>
-
     </select>
 
+	<!-- 🚀 1. 신고 상세 정보 조회 (어떤 대상을 신고했는지 식별하기 위함) -->
+	<select id="findReportById" resultType="sst.report.domain.Report">
+	    SELECT * FROM REPORT WHERE RPT_NO = #{rptNo}
+	</select>
+	
+	<!-- 🚀 2. 타겟별 유효한 누적 신고 수 조회 (반려된 'RST004'는 제외) -->
+	<select id="countValidReportsByTarget" parameterType="sst.report.domain.Report" resultType="int">
+	    SELECT COUNT(*) 
+	    FROM REPORT
+	    WHERE RPT_TYPE_CD = #{rptTypeCd}
+	      AND RPT_STATUS_CD != 'RST004' /* 🚀 반려된 신고는 카운트에서 제외 */
+	    <if test="rptTypeCd == 'RPT001'"> AND RPT_REVIEW_NO = #{rptReviewNo} </if>
+	    <if test="rptTypeCd == 'RPT002'"> AND RPT_COMM_NO = #{rptCommNo} </if>
+	    <if test="rptTypeCd == 'RPT003'"> AND RPT_CMNT_NO = #{rptCmntNo} </if>
+	</select>
+	
+	<!-- 🚀 3. 누적 5회 이상 시 대상 비활성화(블라인드) 쿼리들 -->
+	<update id="blindReview">
+	    UPDATE REVIEW SET RVW_USE_YN = 'N', RVW_UP_DATE = NOW() WHERE RVW_NO = #{id}
+	</update>
+	
+	<update id="blindCommunity">
+	    UPDATE COMMUNITY SET COMM_USE_YN = 'N', COMM_UP_DATE = NOW() WHERE COMM_NO = #{id}
+	</update>
+	
+	<update id="blindComment">
+	    UPDATE COMMENT SET CMNT_USE_YN = 'N', CMNT_UP_DATE = NOW() WHERE CMNT_NO = #{id}
+	</update>
 </mapper>

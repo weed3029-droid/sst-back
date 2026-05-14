@@ -4,25 +4,46 @@
 
 <mapper namespace="sst.member.mapper.MemberMapper">
 
+	<update id="updateMemberStatusByAdmin">
+	    UPDATE MEMBER
+	    SET MBR_USE_YN = #{mbrUseYn}
+	    WHERE MBR_ID = #{mbrId}
+	</update>
 	<update id="updateMemberByAdmin" parameterType="sst.member.domain.Member">
-        /* 🚀 관리자 전용: 권한(AuthCd) 및 계정 상태(UseYn)까지 수정 가능 */
-        UPDATE MEMBER
-        <set>
-            MBR_NAME = #{mbrName},
-            MBR_NICKNAME = #{mbrNickname},
-            MBR_TELNO = #{mbrTelno},
-            MBR_ZIP = #{mbrZip},
-            MBR_ADDR = #{mbrAddr},
-            MBR_DADDR = #{mbrDaddr},
-            MBR_AUTH_CD = #{mbrAuthCd},
-            MBR_USE_YN = #{mbrUseYn},
-            <if test="mbrPassword != null and mbrPassword != ''">
-                MBR_PASSWORD = #{mbrPassword}
-            </if>
-        </set>
-        WHERE MBR_ID = #{mbrId}
-    </update>
-    
+	    /* 🚀 관리자 전용: 들어온(null이 아닌) 데이터만 쏙쏙 골라서 업데이트 (Null Overwrite 완벽 방어) */
+	    UPDATE MEMBER
+	    <set>
+	        <if test="mbrName != null and mbrName != ''">
+	            MBR_NAME = #{mbrName},
+	        </if>
+	        <if test="mbrNickname != null and mbrNickname != ''">
+	            MBR_NICKNAME = #{mbrNickname},
+	        </if>
+	        <if test="mbrTelno != null and mbrTelno != ''">
+	            MBR_TELNO = #{mbrTelno},
+	        </if>
+	        <if test="mbrZip != null and mbrZip != ''">
+	            MBR_ZIP = #{mbrZip},
+	        </if>
+	        <if test="mbrAddr != null and mbrAddr != ''">
+	            MBR_ADDR = #{mbrAddr},
+	        </if>
+	        <if test="mbrDaddr != null">
+	            MBR_DADDR = #{mbrDaddr},
+	        </if>
+	        <if test="mbrAuthCd != null and mbrAuthCd != ''">
+	            MBR_AUTH_CD = #{mbrAuthCd},
+	        </if>
+	        <if test="mbrUseYn != null and mbrUseYn != ''">
+	            MBR_USE_YN = #{mbrUseYn},
+	        </if>
+	        <!-- 🚀 비밀번호는 변경 요청이 있을 때만 암호화해서 넘어온다고 가정 -->
+	        <if test="mbrPassword != null and mbrPassword != ''">
+	            MBR_PASSWORD = #{mbrPassword}
+	        </if>
+	    </set>
+	    WHERE MBR_ID = #{mbrId}
+	</update>
 	<!-- 🚀 1. 검색 조건을 재사용하기 위한 동적 SQL 조각 -->
     <sql id="memberSearchCondition">
         <!-- 🚀 2. 권한 조건 분기: 프론트에서 authCd를 넘기면 관리자만, 안 넘기면 일반 유저만 조회 -->

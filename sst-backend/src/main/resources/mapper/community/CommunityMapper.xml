@@ -408,4 +408,73 @@
 	    ORDER BY PLC_NAME ASC
 	</select>
 
+	<!-- 🚀 [공통] 관리자 검색 및 탭 필터링 조건 -->
+    <sql id="adminSearchCondition">
+        AND C.COMM_CAT_CD = #{catCd}
+        <if test="keyword != null and keyword != ''">
+            AND (C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+                 OR M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        
+        <choose>
+            <!-- 🚀 [수정 완료] OGNL 에러 방지를 위해 바깥쪽을 홑따옴표로, 안쪽을 쌍따옴표로 변경했습니다. -->
+            <when test='useYn == "Y"'>
+                AND C.COMM_USE_YN = 'Y'
+            </when>
+            
+            <when test='useYn == "N"'>
+                AND C.COMM_USE_YN = 'N'
+                AND (
+                    SELECT COUNT(*) FROM REPORT R 
+                    WHERE R.RPT_COMM_NO = C.COMM_NO AND R.RPT_STATUS_CD != 'RST004'
+                ) &lt; 5
+            </when>
+            
+            <when test='useYn == "B"'>
+                AND C.COMM_USE_YN = 'N'
+                AND (
+                    SELECT COUNT(*) FROM REPORT R 
+                    WHERE R.RPT_COMM_NO = C.COMM_NO AND R.RPT_STATUS_CD != 'RST004'
+                ) &gt;= 5
+            </when>
+        </choose>
+    </sql>
+
+    <!-- 🚀 관리자: 커뮤니티 목록 페이징 조회 -->
+    <select id="selectAdminCommunityListPaged" resultType="sst.community.domain.Community">
+        SELECT
+            C.COMM_NO AS commNo,
+            C.COMM_MBR_ID AS commMbrId,
+            M.MBR_NICKNAME AS mbrNickname,
+            C.COMM_CAT_CD AS commCatCd,
+            C.COMM_TITLE AS commTitle,
+            C.COMM_INQIRE_CNT AS commInqireCnt,
+            C.COMM_LIKE_CNT AS commLikeCnt,
+            C.COMM_CMNT_CNT AS commCmntCnt,
+            DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
+            C.COMM_USE_YN AS commUseYn
+        FROM COMMUNITY C
+        JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
+        WHERE 1=1
+        <include refid="adminSearchCondition"/>
+        ORDER BY C.COMM_NO DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 🚀 관리자: 커뮤니티 목록 총 개수 -->
+    <select id="countAdminCommunityList" resultType="int">
+        SELECT COUNT(*)
+        FROM COMMUNITY C
+        JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
+        WHERE 1=1
+        <include refid="adminSearchCondition"/>
+    </select>
+
+    <!-- 🚀 관리자: 게시글 상태 토글 업데이트 -->
+    <update id="updateCommunityStatus">
+        UPDATE COMMUNITY 
+        SET COMM_USE_YN = #{useYn}, 
+            COMM_UP_DATE = NOW() 
+        WHERE COMM_NO = #{commNo}
+    </update>
 </mapper>

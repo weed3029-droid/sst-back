@@ -128,4 +128,23 @@ public interface CommunityMapper {
     int updateCommunityUseYn(
             @Param("commNo") Long commNo, 
             @Param("useYn") String useYn);
+    
+    // 🚀 [추가] 관리자용 커뮤니티 목록 페이징 조회
+    List<Community> selectAdminCommunityListPaged(
+            @Param("catCd") String catCd, 
+            @Param("useYn") String useYn, 
+            @Param("keyword") String keyword, 
+            @Param("offset") int offset, 
+            @Param("size") int size);
+
+    // 🚀 [추가] 관리자용 커뮤니티 총 개수 (페이징용)
+    int countAdminCommunityList(
+            @Param("catCd") String catCd, 
+            @Param("useYn") String useYn, 
+            @Param("keyword") String keyword);
+
+    // 🚀 [추가] 게시글 상태(USE_YN) 변경
+    int updateCommunityStatus(
+            @Param("commNo") Long commNo, 
+            @Param("useYn") String useYn);
 }

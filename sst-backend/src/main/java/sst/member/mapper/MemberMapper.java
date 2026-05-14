@@ -103,4 +103,6 @@ public interface MemberMapper {
             @Param("useYn") String useYn,
             @Param("authCd") String authCd
         );
+        
+        int updateMemberStatusByAdmin(@Param("mbrId") Long mbrId, @Param("mbrUseYn") String mbrUseYn);
 }

@@ -24,36 +24,34 @@ public class AdminCommunityController {
 
     private final AdminCommunityService adminCommunityService;
 
- // 🚀 뽐낼거리 목록 조회 (catCd: CMM001-인생거리, CMM002-핫플레이스)
+    // 🚀 [수정 완료] 기존의 getList와 중복되던 것을 지우고, 탭(Y/N/B) 분류를 지원하는 이 메서드 하나로 통합했습니다.
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<PageResponse<Community>>> getList(
-            @RequestParam(name = "catCd") String catCd,
-            @RequestParam(name = "useYn", required = false, defaultValue = "Y") String useYn,
-            PageRequest pageRequest) { 
+    public ResponseEntity<ApiResponse<PageResponse<Community>>> getAdminCommunityList(
+            @RequestParam("catCd") String catCd,
+            @RequestParam("useYn") String useYn,
+            PageRequest pageRequest) {
         
-        PageResponse<Community> result = adminCommunityService.getListPageByCategory(catCd, useYn, pageRequest);
+        PageResponse<Community> result = adminCommunityService.getAdminCommunityListPaged(catCd, useYn, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
-    // 🚀 휴지통 이동 및 복구를 처리할 상태 변경 API
+    // 🚀 [수정 완료] 기존의 toggleStatus와 중복되던 것을 지우고, 이 메서드 하나로 통합했습니다.
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{commNo}/status")
-    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+    public ResponseEntity<ApiResponse<Void>> updateCommunityStatus(
             @PathVariable("commNo") Long commNo,
             @RequestParam("useYn") String useYn) {
         
-        adminCommunityService.updateCommunityUseYn(commNo, useYn);
+        adminCommunityService.updateCommunityStatus(commNo, useYn);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    // 🚀 어드민 뽐낼거리 단건 삭제 (소프트 딜리트)
+    // 🚀 [유지] 물리적 완전 삭제 등 별도의 DeleteMapping이 필요하다면 기존 로직을 그대로 사용합니다.
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{commNo}")
     public ResponseEntity<ApiResponse<Void>> deleteCommunity(@PathVariable("commNo") Long commNo) {
         adminCommunityService.deleteCommunity(commNo);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
-    
-    
-    
 }

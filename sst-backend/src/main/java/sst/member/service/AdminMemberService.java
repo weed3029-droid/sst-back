@@ -149,4 +149,12 @@ public class AdminMemberService {
         return new PageResponse<>(list, total, pageRequest);
     }
     
+    @Transactional
+    public void updateMemberStatus(Long memberId, String useYn) {
+        // 순수하게 상태값만 변경하는 Mapper 호출
+        int result = memberMapper.updateMemberStatusByAdmin(memberId, useYn);
+        if (result == 0) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+    }
 }

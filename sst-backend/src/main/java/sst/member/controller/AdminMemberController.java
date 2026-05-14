@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -83,5 +84,15 @@ public class AdminMemberController {
     public ResponseEntity<ApiResponse<Member>> getMemberDetail(@PathVariable("memberId") Long memberId) {
         Member member = adminMemberService.getMemberDetail(memberId);
         return ResponseEntity.ok(ApiResponse.success(member));
+    }
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{memberId}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleMemberStatus(
+            @PathVariable("memberId") Long memberId,
+            @RequestParam("useYn") String useYn) {
+        
+        adminMemberService.updateMemberStatus(memberId, useYn);
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
