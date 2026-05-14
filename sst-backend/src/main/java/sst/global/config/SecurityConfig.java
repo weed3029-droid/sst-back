@@ -37,6 +37,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 에러 페이지 포워딩 시 인증 블락(403)을 방지
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                // 업록드 경로에 대한 설정
+                .requestMatchers("/uploads/**").permitAll() 
                 // 로그아웃/내정보는 인증 필요
                 .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated()
                 // 회원가입/로그인 허용

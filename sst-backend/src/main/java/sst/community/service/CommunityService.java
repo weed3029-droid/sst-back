@@ -6,12 +6,15 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
-import sst.community.domain.CommunityFile;
 import sst.community.dto.CommunityFileMapDto;
 import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
 import sst.community.mapper.CommunityMapper;
+import sst.global.dto.PageRequest;
+import sst.global.dto.PageResponse;
+import sst.community.dto.CommunityDto;
+import sst.community.dto.CommunityFileDto;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +23,26 @@ public class CommunityService {
     private final CommunityMapper communityMapper;
 
     // 커뮤니티 게시글 목록 조회
-    public List<Community> getCommunityList(String catCd) {
-        return communityMapper.selectCommunityList(catCd);
+    public PageResponse<Community> getCommunityList(
+            String catCd,
+            PageRequest pageRequest
+    ) {
+        List<Community> list = communityMapper.selectCommunityList(
+                catCd,
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword(),
+                pageRequest.getSortType(),
+                pageRequest.getOffset(),
+                pageRequest.getSize()
+        );
+
+        int totalCount = communityMapper.countCommunityList(
+                catCd,
+                pageRequest.getSearchType(),
+                pageRequest.getKeyword()
+        );
+
+        return new PageResponse<>(list, totalCount, pageRequest);
     }
     
     // 커뮤니티 게시글 상세 조회
@@ -37,51 +58,69 @@ public class CommunityService {
     }
     
  // 커뮤니티 게시글 등록
-    public void createCommunity(Community community) {
+    public void createCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
 
-        communityMapper.insertCommunity(community); // 실제 DB INSERT 실행
+        // 게시글 등록
+        communityMapper.insertCommunity(communityDto);
 
         // 해시태그 등록
-        if (community.getHashtags() != null) {
-            for (String tagName : community.getHashtags()) {
-                Long tagNo = communityMapper.selectHashtagNo(tagName);
+        if (communityDto.getHashtags() != null) {
+
+            for (String tagName : communityDto.getHashtags()) {
+
+                Long tagNo =
+                        communityMapper.selectHashtagNo(tagName);
+
                 if (tagNo == null) {
+
                     communityMapper.insertHashtag(tagName);
-                    tagNo = communityMapper.selectHashtagNo(tagName);
+
+                    tagNo =
+                            communityMapper.selectHashtagNo(tagName);
                 }
-                communityMapper.insertCommunityHashtag(community.getCommNo(), tagNo);
+
+                communityMapper.insertCommunityHashtag(
+                        communityDto.getCommNo(),
+                        tagNo
+                );
             }
         }
-        // 파일 등록 + 커뮤니티 파일 매핑
-        if (community.getFiles() != null) {
-            for (int i = 0; i < community.getFiles().size(); i++) {
-                CommunityFile file = community.getFiles().get(i);
+
+        // 파일 등록 + 파일 매핑
+        if (files != null && !files.isEmpty()) {
+
+            for (int i = 0; i < files.size(); i++) {
+
+                CommunityFileDto file = files.get(i);
+
                 communityMapper.insertFile(file);
-                
-                // 여기서 file.getFileNo() 생성됨
-                CommunityFileMapDto map = new CommunityFileMapDto();
-                map.setCommNo(community.getCommNo());
+
+                CommunityFileMapDto map =
+                        new CommunityFileMapDto();
+
+                map.setCommNo(communityDto.getCommNo());
                 map.setFileNo(file.getFileNo());
                 map.setSortOrdr(i);
+
                 communityMapper.insertCommunityFileMap(map);
             }
         }
     }
     
     // 커뮤니티 게시글 수정
-    public void modifyCommunity(Community community) {
+    public void modifyCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
 
         // 기존 대표 이미지 경로 조회
-        String oldImageUrl = communityMapper.selectCommunityImageUrl(community.getCommNo());
+        String oldImageUrl = communityMapper.selectCommunityImageUrl(communityDto.getCommNo());
 
         // 기존 파일 번호 목록 조회
-        List<Long> oldFileNos = communityMapper.selectCommunityFileNos(community.getCommNo());
+        List<Long> oldFileNos = communityMapper.selectCommunityFileNos(communityDto.getCommNo());
 
         // 기존 이미지와 새 이미지가 다르면 기존 실제 파일 삭제
         if (oldImageUrl != null 
                 && !oldImageUrl.isBlank()
-                && community.getCommMainImgUrl() != null
-                && !oldImageUrl.equals(community.getCommMainImgUrl())) {
+                && communityDto.getCommMainImgUrl() != null
+                && !oldImageUrl.equals(communityDto.getCommMainImgUrl())) {
 
             String filePath = oldImageUrl.replace("/uploads/", "");
             java.io.File file = new java.io.File("uploads/" + filePath);
@@ -92,14 +131,14 @@ public class CommunityService {
         }
 
         // 게시글 제목/내용/대표이미지 수정
-        communityMapper.updateCommunity(community);
+        communityMapper.updateCommunity(communityDto);
 
         // 기존 해시태그 연결 전체 삭제
-        communityMapper.deleteCommunityHashtags(community.getCommNo());
+        communityMapper.deleteCommunityHashtags(communityDto.getCommNo());
 
         // 새 해시태그 다시 연결
-        if (community.getHashtags() != null) {
-            for (String tagName : community.getHashtags()) {
+        if (communityDto.getHashtags() != null) {
+        	for (String tagName : communityDto.getHashtags()) {
 
                 Long tagNo = communityMapper.selectHashtagNo(tagName);
 
@@ -108,12 +147,12 @@ public class CommunityService {
                     tagNo = communityMapper.selectHashtagNo(tagName);
                 }
 
-                communityMapper.insertCommunityHashtag(community.getCommNo(), tagNo);
+                communityMapper.insertCommunityHashtag(communityDto.getCommNo(), tagNo);
             }
         }
 
         // 기존 파일 매핑 삭제
-        communityMapper.deleteCommunityFileMaps(community.getCommNo());
+        communityMapper.deleteCommunityFileMaps(communityDto.getCommNo());
 
         // 기존 FILE 테이블 삭제
         if (oldFileNos != null && !oldFileNos.isEmpty()) {
@@ -121,14 +160,18 @@ public class CommunityService {
         }
 
         // 새 파일 정보 등록 + 매핑
-        if (community.getFiles() != null) {
-            for (int i = 0; i < community.getFiles().size(); i++) {
-                CommunityFile file = community.getFiles().get(i);
+        if (files != null && !files.isEmpty()) {
+
+            for (int i = 0; i < files.size(); i++) {
+
+                CommunityFileDto file = files.get(i);
 
                 communityMapper.insertFile(file);
 
-                CommunityFileMapDto map = new CommunityFileMapDto();
-                map.setCommNo(community.getCommNo());
+                CommunityFileMapDto map =
+                        new CommunityFileMapDto();
+
+                map.setCommNo(communityDto.getCommNo());
                 map.setFileNo(file.getFileNo());
                 map.setSortOrdr(i);
 

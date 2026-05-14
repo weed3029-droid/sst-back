@@ -16,6 +16,9 @@ public class PageRequest {
     // 🚀 검색 조건 추가
     private String searchType; // email, name, phone 등
     private String keyword;    // 검색어
+    
+    // 🚀 정렬 타입 추가
+    private String sortType = "latest";
 
     // MyBatis Mapper에서 #{offset} 으로 바로 꺼내 쓸 수 있도록 자동 계산!
     public int getOffset() {
