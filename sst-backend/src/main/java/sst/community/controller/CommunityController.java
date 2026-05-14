@@ -17,16 +17,17 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
-import sst.community.domain.CommunityFile;
+import sst.community.dto.CommunityDto;
 import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
 import sst.community.service.CommunityService;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
-import jakarta.servlet.http.HttpSession;
+import sst.community.dto.CommunityFileDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,57 +66,54 @@ public class CommunityController {
     
     // 커뮤니티 게시글 등록
     @PostMapping("/api/community")
-    public void createCommunity(@RequestBody Community community) {
-        communityService.createCommunity(community);
+    public void createCommunity(@RequestBody CommunityDto communityDto) {
+    	communityService.createCommunity(communityDto, null);
     }
-
+    
     // 커뮤니티 게시글 등록 + 이미지 업로드
     @PostMapping(value = "/api/community/with-images", consumes = "multipart/form-data")
     public void createCommunityWithImages(
-            @RequestPart("community") Community community,
+            @RequestPart("community") CommunityDto communityDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) throws IOException {
 
-        List<CommunityFile> files = saveCommunityImages(images);
+        List<CommunityFileDto> files = saveCommunityImages(images);
 
         if (!files.isEmpty()) {
-            community.setCommMainImgUrl(files.get(0).getFilePath());
-            community.setFiles(files);
+            communityDto.setCommMainImgUrl(files.get(0).getFilePath());
         }
 
-        communityService.createCommunity(community);
+        communityService.createCommunity(communityDto, files);
     }
     
     // 커뮤니티 게시글 수정
     @PutMapping("/api/community/{commNo}")
     public void modifyCommunity(
             @PathVariable("commNo") Long commNo,
-            @RequestBody Community community) {
-    	
-    	// URL의 게시글 번호를 DTO에 세팅
-        community.setCommNo(commNo);
+            @RequestBody CommunityDto communityDto) {
 
-        communityService.modifyCommunity(community);
+        communityDto.setCommNo(commNo);
+
+        communityService.modifyCommunity(communityDto, null);
     }
 
     // 커뮤니티 게시글 수정 + 이미지 업로드
     @PutMapping(value = "/api/community/{commNo}/with-images", consumes = "multipart/form-data")
     public void modifyCommunityWithImages(
             @PathVariable("commNo") Long commNo,
-            @RequestPart("community") Community community,
+            @RequestPart("community") CommunityDto communityDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) throws IOException {
 
-        community.setCommNo(commNo);
+        communityDto.setCommNo(commNo);
 
-        List<CommunityFile> files = saveCommunityImages(images);
+        List<CommunityFileDto> files = saveCommunityImages(images);
 
         if (!files.isEmpty()) {
-            community.setCommMainImgUrl(files.get(0).getFilePath());
-            community.setFiles(files);
+            communityDto.setCommMainImgUrl(files.get(0).getFilePath());
         }
 
-        communityService.modifyCommunity(community);
+        communityService.modifyCommunity(communityDto, files);
     }
     
     // 커뮤니티 게시글 삭제
@@ -155,35 +153,50 @@ public class CommunityController {
     }
 
     // 커뮤니티 이미지 저장
-    private List<CommunityFile> saveCommunityImages(List<MultipartFile> images) throws IOException {
-        List<CommunityFile> files = new ArrayList<>();
+    private List<CommunityFileDto> saveCommunityImages(
+            List<MultipartFile> images) throws IOException {
+
+        List<CommunityFileDto> files = new ArrayList<>();
 
         if (images == null || images.isEmpty()) {
             return files;
         }
 
-        File uploadDir = new File(System.getProperty("user.dir"), "uploads/community");
+        File uploadDir =
+                new File(System.getProperty("user.dir"),
+                "uploads/community");
 
         if (!uploadDir.exists()) {
             uploadDir.mkdirs();
         }
 
         for (MultipartFile image : images) {
-            if (image == null || image.isEmpty()) continue;
 
-            String originalName = image.getOriginalFilename();
-            String ext = "";
-
-            if (originalName != null && originalName.contains(".")) {
-                ext = originalName.substring(originalName.lastIndexOf(".") + 1);
+            if (image == null || image.isEmpty()) {
+                continue;
             }
 
-            String saveName = UUID.randomUUID().toString() + (ext.isBlank() ? "" : "." + ext);
+            String originalName = image.getOriginalFilename();
+
+            String ext = "";
+
+            if (originalName != null
+                    && originalName.contains(".")) {
+
+                ext = originalName.substring(
+                        originalName.lastIndexOf(".") + 1);
+            }
+
+            String saveName =
+                    UUID.randomUUID().toString()
+                    + (ext.isBlank() ? "" : "." + ext);
 
             File saveFile = new File(uploadDir, saveName);
+
             image.transferTo(saveFile.getAbsoluteFile());
 
-            CommunityFile file = new CommunityFile();
+            CommunityFileDto file = new CommunityFileDto();
+
             file.setFileOrgNm(originalName);
             file.setFileSaveNm(saveName);
             file.setFilePath("/uploads/community/" + saveName);
