@@ -1,4 +1,3 @@
-// 🚀 src/main/java/sst/content/service/AdminReviewService.java (신규 생성)
 package sst.content.service;
 
 import lombok.RequiredArgsConstructor;
@@ -17,17 +16,23 @@ public class AdminReviewService {
 
     @Transactional(readOnly = true)
     public PageResponse<ReviewResponseDto> getReviewsPaged(String useYn, PageRequest pageRequest) {
-        int total = reviewMapper.countAdminReviewList(pageRequest.getKeyword(), useYn);
-        List<ReviewResponseDto> list = reviewMapper.findAdminReviewListPaged(pageRequest.getOffset(), pageRequest.getSize(), pageRequest.getKeyword(), useYn);
+        // 🚀 변경된 admin 접두사 메서드 호출
+        int total = reviewMapper.adminCountReviewList(pageRequest.getKeyword(), useYn, pageRequest.getSearchType());
+        List<ReviewResponseDto> list = reviewMapper.adminFindReviewListPaged(
+                pageRequest.getOffset(), pageRequest.getSize(), pageRequest.getKeyword(), useYn, pageRequest.getSearchType());
+        
         return new PageResponse<>(list, total, pageRequest);
     }
 
     @Transactional
     public void toggleReviewStatus(Long rvwNo, String useYn) {
-        // 1. 상태 변경
-        reviewMapper.updateReviewUseYn(rvwNo, useYn);
-        // 🚀 2. 상태 변경 후 반드시 PLACE 테이블의 평점/리뷰수 동기화!
-        Long plcNo = reviewMapper.findPlcNoByRvwNo(rvwNo);
-        if (plcNo != null) reviewMapper.syncRatingCache(plcNo); 
+        // 1. 관리자 전용 상태 변경 메서드 호출
+        reviewMapper.adminUpdateReviewUseYn(rvwNo, useYn);
+        
+        // 2. 동기화를 위해 장소 번호 조회 후 공통 캐시 동기화 메서드 호출
+        Long plcNo = reviewMapper.adminFindPlcNoByRvwNo(rvwNo);
+        if (plcNo != null) {
+            reviewMapper.syncRatingCache(plcNo); 
+        }
     }
 }
