@@ -57,7 +57,7 @@ public class CommunityService {
         return community;
     }
     
- // 커뮤니티 게시글 등록
+    // 커뮤니티 게시글 등록
     public void createCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
 
         // 게시글 등록
@@ -67,6 +67,12 @@ public class CommunityService {
         if (communityDto.getHashtags() != null) {
 
             for (String tagName : communityDto.getHashtags()) {
+            	
+            	tagName = normalizeTag(tagName);
+
+            	if (tagName.isBlank()) {
+            	    continue;
+            	}
 
                 Long tagNo =
                         communityMapper.selectHashtagNo(tagName);
@@ -139,6 +145,12 @@ public class CommunityService {
         // 새 해시태그 다시 연결
         if (communityDto.getHashtags() != null) {
         	for (String tagName : communityDto.getHashtags()) {
+        		
+        		tagName = normalizeTag(tagName);
+
+        		if (tagName.isBlank()) {
+        		    continue;
+        		}
 
                 Long tagNo = communityMapper.selectHashtagNo(tagName);
 
@@ -226,6 +238,11 @@ public class CommunityService {
         return true;
     }
     
+    // 커뮤니티 게시글 좋아요 여부 조회
+    public boolean isLiked(Long commNo, Long mbrId) {
+        return communityMapper.selectLikeCount(commNo, mbrId) > 0;
+    }
+    
     // 지역 조회
     public List<RegionDto> getRegionList() {
         return communityMapper.selectRegionList();
@@ -239,5 +256,32 @@ public class CommunityService {
     // 구제척인 장소
     public List<PlaceDto> getPlaceList(Integer rgnCd, String catCd) {
         return communityMapper.selectPlaceList(rgnCd, catCd);
+    }
+    
+    // 인기 해시태그 TOP5 조회
+    public List<String> getPopularHashtags(String catCd) {
+        return communityMapper.selectPopularHashtags(catCd);
+    }
+    
+    // 게시글 목록 좋아요 여부 조회
+    public List<Long> getLikedCommunityNos(List<Long> commNos, Long mbrId) {
+
+        if (commNos == null || commNos.isEmpty()) {
+            return List.of();
+        }
+
+        return communityMapper.selectLikedCommunityNos(commNos, mbrId);
+    }
+    
+    // 해시태그 정리
+    private String normalizeTag(String tagName) {
+        if (tagName == null) {
+            return "";
+        }
+
+        return tagName
+                .trim()
+                .replaceFirst("^#", "")
+                .replaceAll("\\s+", "");
     }
 }

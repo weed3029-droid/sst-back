@@ -44,6 +44,14 @@ public class CommunityController {
         return communityService.getCommunityList(catCd, pageRequest);
     }
     
+    // 인기 해시태그 TOP5 조회
+    @GetMapping("/api/community/popular-hashtags")
+    public List<String> getPopularHashtags(
+            @RequestParam("catCd") String catCd
+    ) {
+        return communityService.getPopularHashtags(catCd);
+    }
+    
     // 커뮤니티 게시글 상세 조회
     @GetMapping("/api/community/{commNo}")
     public Community communityDetail(@PathVariable("commNo") Long commNo) {
@@ -62,6 +70,24 @@ public class CommunityController {
             communityService.increaseViewCount(commNo);
             session.setAttribute(viewKey, true);
         }
+    }
+    
+    // 커뮤니티 게시글 좋아요 여부 조회
+    @GetMapping("/api/community/{commNo}/like")
+    public boolean isLiked(
+            @PathVariable("commNo") Long commNo,
+            @RequestParam("mbrId") Long mbrId
+    ) {
+        return communityService.isLiked(commNo, mbrId);
+    }
+    
+    // 게시글 목록 좋아요 여부 조회
+    @GetMapping("/api/community/likes")
+    public List<Long> getLikedCommunityNos(
+            @RequestParam("commNos") List<Long> commNos,
+            @RequestParam("mbrId") Long mbrId
+    ) {
+        return communityService.getLikedCommunityNos(commNos, mbrId);
     }
     
     // 커뮤니티 게시글 등록
