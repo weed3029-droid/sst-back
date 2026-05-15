@@ -82,21 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE RPT_NO = #{rptNo}
     </update>
 
-<<<<<<< HEAD
-    <!-- 신고 등록 -->
-<<<<<<< HEAD
     <insert id="insertReport" parameterType="sst.report.domain.Report">
-        INSERT INTO REPORT (
-            RPT_REPORTER_NO, RPT_TYPE_CD, RPT_REVIEW_NO, RPT_COMM_NO,
-            RPT_CMNT_NO, RPT_REASON_CD, RPT_REASON_CONTENT, RPT_REG_DATE
-        ) VALUES (
-            #{rptReporterNo}, #{rptTypeCd}, #{rptReviewNo}, #{rptCommNo},
-            #{rptCmntNo}, #{rptReasonCd}, #{rptReasonContent}, NOW()
-        )
-    </insert>
-=======
-    <insert id="insertReport"
-    parameterType="sst.report.domain.Report">
 
 	    INSERT INTO REPORT (
 	        RPT_REPORTER_NO,
@@ -124,37 +110,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	        NOW()
 	    )
 	</insert>
->>>>>>> refs/heads/develop
-=======
-    <!-- 🚀 신고 등록 -->
-    <insert id="insertReport" parameterType="sst.report.domain.Report">
-        INSERT INTO REPORT (
-            RPT_REPORTER_NO,
-            RPT_TYPE_CD,
-            RPT_REVIEW_NO,
-            RPT_COMM_NO,
-            RPT_CMNT_NO,
-            RPT_REASON_CD,
-            RPT_REASON_CONTENT,
-            RPT_STATUS_CD,
-            RPT_PROSSR_NO,
-            RPT_PROSR_DATE,
-            RPT_REG_DATE
-        ) VALUES (
-            #{rptReporterNo},
-            #{rptTypeCd},
-            #{rptReviewNo},
-            #{rptCommNo},
-            #{rptCmntNo},
-            #{rptReasonCd},
-            #{rptReasonContent},
-            #{rptStatusCd},
-            #{rptProsrNo},
-            #{rptProsrDate},
-            NOW()
-        )
-    </insert>
->>>>>>> branch 'kim' of https://github.com/mojitt/sst-back.git
+
 
     <!-- 중복 신고 확인 -->
     <select id="countDuplicateReport" parameterType="sst.report.domain.Report" resultType="int">
