@@ -6,11 +6,12 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import sst.community.domain.Community;
-import sst.community.domain.CommunityFile;
 import sst.community.dto.CommunityFileMapDto;
 import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
+import sst.community.dto.CommunityDto;
+import sst.community.dto.CommunityFileDto;
 
 @Mapper
 public interface CommunityMapper {
@@ -36,10 +37,10 @@ public interface CommunityMapper {
     Community selectCommunityDetail(Long commNo);
 
     // 커뮤니티 게시글 등록
-    void insertCommunity(Community community);
+    void insertCommunity(CommunityDto communityDto);
 
     // 게시글 수정
-    int updateCommunity(Community community);
+    int updateCommunity(CommunityDto communityDto);
 
     // 커뮤니티 게시글 삭제
     int deleteCommunity(Long commNo);
@@ -87,7 +88,7 @@ public interface CommunityMapper {
     void deleteCommunityHashtags(Long commNo);
 
     // 파일 정보 등록
-    void insertFile(CommunityFile file);
+    void insertFile(CommunityFileDto file);
 
     // 커뮤니티 파일 매핑 등록
     void insertCommunityFileMap(CommunityFileMapDto map);
@@ -149,5 +150,7 @@ public interface CommunityMapper {
 	         @Param("commNo") Long commNo,
 	         @Param("useYn") String useYn
 	 );
+	 
+	 int updateCommunityByAdmin(Community community);
 
 }

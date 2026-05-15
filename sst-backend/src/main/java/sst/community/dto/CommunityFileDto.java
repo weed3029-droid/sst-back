@@ -1,10 +1,12 @@
-package sst.community.domain;
+package sst.community.dto;
 
 import lombok.Data;
 
 @Data
-public class CommunityFile {
+public class CommunityFileDto {
 	private Long fileNo;
+	private Long commNo;
+
 	private String fileOrgNm;
 	private String fileSaveNm;
 	private String filePath;

@@ -1,13 +1,17 @@
 package sst.community.service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
 import sst.community.mapper.CommunityMapper;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
-import java.util.List;
+import sst.global.exception.CustomException;
+import sst.global.exception.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -17,10 +21,7 @@ public class AdminCommunityService {
 
     @Transactional(readOnly = true)
     public PageResponse<Community> getAdminCommunityListPaged(String catCd, String useYn, PageRequest pageRequest) {
-        // 1. 전체 개수 조회
         int total = communityMapper.countAdminCommunityList(catCd, useYn, pageRequest.getKeyword());
-        
-        // 2. 페이징 데이터 조회
         List<Community> list = communityMapper.selectAdminCommunityListPaged(
                 catCd, 
                 useYn, 
@@ -28,19 +29,31 @@ public class AdminCommunityService {
                 pageRequest.getOffset(), 
                 pageRequest.getSize()
         );
-
         return new PageResponse<>(list, total, pageRequest);
+    }
+
+    // 🚀 [추가] 관리자: 커뮤니티 단건 상세 조회 (수정 폼 데이터 바인딩용)
+    @Transactional(readOnly = true)
+    public Community getCommunityDetail(Long commNo) {
+        return communityMapper.selectCommunityDetail(commNo);
+    }
+
+    @Transactional
+    public void modifyCommunityByAdmin(Community community) {
+        // 🚀 매퍼 호출 시 타입을 Community(Domain)로 정확히 전달합니다.
+        int result = communityMapper.updateCommunityByAdmin(community);
+        if (result == 0) {
+            throw new CustomException(ErrorCode.NOT_FOUND);
+        }
     }
 
     @Transactional
     public void updateCommunityStatus(Long commNo, String useYn) {
-        // 🚀 Mapper 네이밍 규칙 일치
         communityMapper.updateAdminCommunityStatus(commNo, useYn);
     }
 
     @Transactional
     public void deleteCommunity(Long commNo) {
-        // 완전한 삭제가 필요한 경우 기존 deleteCommunity 사용
         communityMapper.deleteCommunity(commNo);
     }
 }

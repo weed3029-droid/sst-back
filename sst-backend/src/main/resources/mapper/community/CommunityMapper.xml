@@ -237,7 +237,7 @@
 	</select>
 	
 	<!-- 커뮤니티 게시글 등록 -->
-	<insert id="insertCommunity"
+	<insert id="insertCommunity" parameterType="sst.community.dto.CommunityDto"
 	        useGeneratedKeys="true"
 	        keyProperty="commNo"
 	        keyColumn="COMM_NO">
@@ -262,7 +262,7 @@
 	</insert>
 	
 	<!-- 커뮤니티 게시글 수정 -->
-	<update id="updateCommunity">
+	<update id="updateCommunity" parameterType="sst.community.dto.CommunityDto">
 	    UPDATE COMMUNITY
 	    SET
 	        COMM_TITLE = #{commTitle},
@@ -367,7 +367,7 @@
 	</delete>
 	
 	<!-- 파일 정보 등록 -->
-	<insert id="insertFile"
+	<insert id="insertFile" parameterType="sst.community.dto.CommunityFileDto"
 	        useGeneratedKeys="true"
 	        keyProperty="fileNo"
 	        keyColumn="FILE_NO">
@@ -523,6 +523,7 @@
         </choose>
     </sql>
 
+    <!-- 🚀 관리자: 뽐낼거리 페이징 목록 조회 -->
     <select id="selectAdminCommunityListPaged" resultType="sst.community.domain.Community">
         SELECT
             C.COMM_NO AS commNo,
@@ -534,7 +535,10 @@
             C.COMM_LIKE_CNT AS commLikeCnt,
             C.COMM_CMNT_CNT AS commCmntCnt,
             DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
-            C.COMM_USE_YN AS commUseYn
+            C.COMM_USE_YN AS commUseYn,
+            /* 🚀 원문에 달린 유효한 누적 신고 수 (반려된 RST004 제외) 계산 */
+            (SELECT COUNT(*) FROM REPORT R 
+             WHERE R.RPT_COMM_NO = C.COMM_NO AND R.RPT_STATUS_CD != 'RST004') AS reportCnt
         FROM COMMUNITY C
         JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
         WHERE 1=1
@@ -557,5 +561,18 @@
             COMM_UP_DATE = NOW() 
         WHERE COMM_NO = #{commNo}
     </update>
+    
+    <update id="updateCommunityByAdmin" parameterType="sst.community.domain.Community">
+    /* 🚀 관리자는 제목, 내용뿐만 아니라 사용여부(상태) 등 모든 필드를 제어할 수 있도록 쿼리를 구성합니다. */
+    UPDATE COMMUNITY
+    <set>
+        <if test="commTitle != null">COMM_TITLE = #{commTitle},</if>
+        <if test="commContent != null">COMM_CONTENT = #{commContent},</if>
+        <if test="commUseYn != null">COMM_USE_YN = #{commUseYn},</if>
+        <if test="commMainImgUrl != null">COMM_MAIN_IMG_URL = #{commMainImgUrl},</if>
+        COMM_UP_DATE = NOW()
+    </set>
+    WHERE COMM_NO = #{commNo}
+</update>
 
 </mapper>

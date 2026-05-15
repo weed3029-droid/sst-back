@@ -33,6 +33,7 @@ public interface ReportMapper {
             @Param("searchType") String searchType, 
             @Param("keyword") String keyword);
     
+
     // 🚀 [추가] 1. 관리자: 신고 처리 상태 업데이트 (RST001 -> RST003 등)
     int updateReportStatus(@Param("rptNo") Long rptNo, 
                            @Param("statusCd") String statusCd, 
@@ -48,5 +49,9 @@ public interface ReportMapper {
     int blindReview(@Param("rvwNo") Long rvwNo);
     int blindCommunity(@Param("commNo") Long commNo);
     int blindComment(@Param("cmntNo") Long cmntNo);
+
+    // 대상별 신고 누적 수 조회
+    int countReportsByTarget(Report report);
+
     
 }
