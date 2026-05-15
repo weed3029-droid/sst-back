@@ -40,4 +40,7 @@ public class Community {
 	private String theme1Name;
 	private String theme2Name;
 	private String theme3Name;
+	
+	// 관리자 페이지 리스트 조회 시 누적 신고 수를 매핑하기 위한 필드
+	private int reportCnt;
 }

@@ -1,15 +1,27 @@
 package sst.global.code.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 import sst.global.code.dto.CommonCodeRequest;
 import sst.global.code.dto.CommonCodeResponse;
 import sst.global.code.dto.CommonCodeSearchRequest;
 import sst.global.code.dto.GroupCodeResponse;
 import sst.global.code.dto.PageResponse;
 import sst.global.code.service.CommonCodeService;
-
-import java.util.List;
+import sst.global.response.ApiResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,5 +83,16 @@ public class CommonCodeController {
             @RequestParam String useYn
     ) {
         commonCodeService.changeUseYn(code, useYn);
+    }
+    
+    // 🚀 그룹코드 선택 시 다음 생성될 코드 반환 API 추가
+    @GetMapping("/next-code")
+    public ResponseEntity<ApiResponse<String>> getNextCommonCode(
+            @RequestParam("groupCode") String groupCode,
+            @RequestParam("prefix") String prefix) {
+        
+        String nextCode = commonCodeService.getNextCommonCode(groupCode, prefix);
+        // 🚀 프로젝트 규칙에 따라 ApiResponse로 감싸서 반환
+        return ResponseEntity.ok(ApiResponse.success(nextCode));
     }
 }

@@ -70,4 +70,24 @@ public class CommonCodeService {
     public void changeUseYn(String code, String useYn) {
         commonCodeMapper.updateUseYn(code, useYn);
     }
+    
+    // 🚀 다음 공통코드 자동 채번 로직 추가
+    public String getNextCommonCode(String groupCode, String prefix) {
+        // 🚀 3. 접두사를 넘겨 필터링된 진짜 최댓값을 가져옴
+        String maxCode = commonCodeMapper.selectMaxCodeByGroup(groupCode, prefix);
+
+        if (maxCode == null || maxCode.isBlank()) {
+            return prefix + "001"; // 최초 등록일 경우
+        }
+
+        // 🚀 4. 에러 원인 차단: 접두사 부분(예: RGN)을 먼저 날려버리고 남은 문자열에서 숫자만 추출
+        String numPart = maxCode.substring(prefix.length()).replaceAll("[^0-9]", ""); 
+        
+        if (numPart.isEmpty()) {
+            return prefix + "001";
+        }
+
+        int nextNum = Integer.parseInt(numPart) + 1;
+        return prefix + String.format("%03d", nextNum);
+    }
 }

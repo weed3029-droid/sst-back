@@ -134,32 +134,32 @@ public interface CommunityMapper {
             @Param("keyword") String keyword
     );
 
-    // 관리자: 뽐낼거리 상태별 목록 조회
-    List<Community> findCommunityListPaged(
-            @Param("catCd") String catCd,
-            @Param("offset") int offset,
-            @Param("size") int size,
-            @Param("keyword") String keyword,
-            @Param("useYn") String useYn
-    );
-
-    // 관리자: 뽐낼거리 전체 개수 카운트
-    int countAdminCommunityList(
-            @Param("catCd") String catCd,
-            @Param("keyword") String keyword
-    );
-
-    // 관리자: 뽐낼거리 상태별 개수 카운트
-    int countCommunityListByUseYn(
-            @Param("catCd") String catCd,
-            @Param("keyword") String keyword,
-            @Param("useYn") String useYn
-    );
-
-    // 관리자: 상태 변경
-    int updateCommunityUseYn(
-            @Param("commNo") Long commNo,
-            @Param("useYn") String useYn
-    );
+    /* =================================================================
+    🚀 [관리자] 뽐낼거리 커뮤니티 관리 (Admin 필수 포함)
+    ================================================================= */
+    
+	 // 관리자: 뽐낼거리 페이징 목록 조회
+	 List<Community> selectAdminCommunityListPaged(
+	         @Param("catCd") String catCd,
+	         @Param("useYn") String useYn,
+	         @Param("keyword") String keyword,
+	         @Param("offset") int offset,
+	         @Param("size") int size
+	 );
+	
+	 // 관리자: 뽐낼거리 페이징 총 개수 카운트
+	 int countAdminCommunityList(
+	         @Param("catCd") String catCd,
+	         @Param("useYn") String useYn,
+	         @Param("keyword") String keyword
+	 );
+	
+	 // 관리자: 상태 변경 (휴지통/복구/블라인드)
+	 int updateAdminCommunityStatus(
+	         @Param("commNo") Long commNo,
+	         @Param("useYn") String useYn
+	 );
+	 
+	 int updateCommunityByAdmin(Community community);
 
 }

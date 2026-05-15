@@ -47,4 +47,7 @@ public interface CommonCodeMapper {
             @Param("code") String code,
             @Param("useYn") String useYn
     );
+    
+    // 🚀 그룹 내 가장 큰 코드값 조회 (추가)
+    String selectMaxCodeByGroup(@Param("groupCode") String groupCode, @Param("prefix") String prefix);
 }

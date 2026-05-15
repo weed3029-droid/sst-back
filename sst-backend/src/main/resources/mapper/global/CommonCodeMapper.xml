@@ -182,5 +182,14 @@
         WHERE CMM_CD = #{code}
 
     </update>
+    
+    <select id="selectMaxCodeByGroup" resultType="string">
+	    SELECT CMM_CD
+	    FROM CMM_CODE
+	    WHERE CMM_GROUP_CD = #{groupCode}
+	      AND CMM_CD LIKE CONCAT(#{prefix}, '%')
+	    ORDER BY CMM_CD DESC
+	    LIMIT 1
+	</select>
 
 </mapper>
