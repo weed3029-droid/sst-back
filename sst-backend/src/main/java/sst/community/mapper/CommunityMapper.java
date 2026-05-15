@@ -6,33 +6,48 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import sst.community.domain.Community;
-import sst.community.domain.CommunityFile;
 import sst.community.dto.CommunityFileMapDto;
 import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
+import sst.community.dto.CommunityDto;
+import sst.community.dto.CommunityFileDto;
 
 @Mapper
 public interface CommunityMapper {
 
-	// 커뮤니티 게시글 목록 조회
-    List<Community> selectCommunityList(@Param("catCd") String catCd);
+    // 커뮤니티 게시글 목록 조회
+    List<Community> selectCommunityList(
+            @Param("catCd") String catCd,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("sortType") String sortType,
+            @Param("offset") int offset,
+            @Param("size") int size
+    );
+
+    // 커뮤니티 게시글 총 개수 조회(일반 사용자 목록 카운트)
+    int countCommunityList(
+            @Param("catCd") String catCd,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword
+    );
 
     // 커뮤니티 게시글 상세 조회
     Community selectCommunityDetail(Long commNo);
 
     // 커뮤니티 게시글 등록
-    void insertCommunity(Community community);
+    void insertCommunity(CommunityDto communityDto);
 
     // 게시글 수정
-    int updateCommunity(Community community);
-    
+    int updateCommunity(CommunityDto communityDto);
+
     // 커뮤니티 게시글 삭제
     int deleteCommunity(Long commNo);
-    
+
     // 커뮤니티 게시글 조회수 증가
     void updateViewCount(Long commNo);
-    
+
     // 커뮤니티 게시글 좋아요 여부 확인
     int selectLikeCount(@Param("commNo") Long commNo, @Param("mbrId") Long mbrId);
 
@@ -47,7 +62,7 @@ public interface CommunityMapper {
 
     // 커뮤니티 게시글 좋아요 수 감소
     int decreaseLikeCount(Long commNo);
-    
+
     // 해시태그 존재 여부 확인
     Long selectHashtagNo(String tagName);
 
@@ -59,10 +74,10 @@ public interface CommunityMapper {
             @Param("commNo") Long commNo,
             @Param("tagNo") Long tagNo
     );
-    
+
     // 게시글 좋아요 전체 삭제
     void deleteCommunityLikes(Long commNo);
-    
+
     // 게시글 댓글 전체 삭제
     void deleteCommentsByCommunity(Long commNo);
 
@@ -71,16 +86,16 @@ public interface CommunityMapper {
 
     // 게시글 해시태그 전체 삭제
     void deleteCommunityHashtags(Long commNo);
-    
+
     // 파일 정보 등록
-    void insertFile(CommunityFile file);
-    
+    void insertFile(CommunityFileDto file);
+
     // 커뮤니티 파일 매핑 등록
     void insertCommunityFileMap(CommunityFileMapDto map);
-    
+
     // 게시글 이미지 목록 조회
     List<String> selectCommunityImages(Long commNo);
-    
+
     // 게시글 대표 이미지 조회
     String selectCommunityImageUrl(Long commNo);
 
@@ -89,43 +104,52 @@ public interface CommunityMapper {
 
     // 파일 정보 삭제
     void deleteFiles(@Param("fileNos") List<Long> fileNos);
-    
+
     // 지역 조회
     List<RegionDto> selectRegionList();
-    
+
     // 카테고리 조회
     List<PlaceCategoryDto> selectPlaceCategoryList();
-    
-    // 구제척인 장소 
-    List<PlaceDto> selectPlaceList(
-    	    @Param("rgnCd") Integer rgnCd,
-    	    @Param("catCd") String catCd
-    	);
-    
-    // 🚀 어드민 전용 메서드 추가
-    List<Community> selectAdminCommunityListPaged(
-        @Param("catCd") String catCd, 
-        @Param("offset") int offset, 
-        @Param("size") int size, 
-        @Param("keyword") String keyword
-    );
-    int countAdminCommunityList(@Param("catCd") String catCd, @Param("keyword") String keyword);
 
+    // 구체적인 장소 조회
+    List<PlaceDto> selectPlaceList(
+            @Param("rgnCd") Integer rgnCd,
+            @Param("catCd") String catCd
+    );
+
+    // 관리자: 뽐낼거리 전체 목록 조회
+    List<Community> selectAdminCommunityListPaged(
+            @Param("catCd") String catCd,
+            @Param("offset") int offset,
+            @Param("size") int size,
+            @Param("keyword") String keyword
+    );
+
+    // 관리자: 뽐낼거리 상태별 목록 조회
     List<Community> findCommunityListPaged(
             @Param("catCd") String catCd,
-            @Param("offset") int offset, 
+            @Param("offset") int offset,
             @Param("size") int size,
             @Param("keyword") String keyword,
-            @Param("useYn") String useYn);
+            @Param("useYn") String useYn
+    );
 
-    // 🚀 관리자: 뽐낼거리 전체 개수 카운트
-    int countCommunityList(
+    // 관리자: 뽐낼거리 전체 개수 카운트
+    int countAdminCommunityList(
+            @Param("catCd") String catCd,
+            @Param("keyword") String keyword
+    );
+
+    // 관리자: 뽐낼거리 상태별 개수 카운트
+    int countCommunityListByUseYn(
             @Param("catCd") String catCd,
             @Param("keyword") String keyword,
-            @Param("useYn") String useYn);
+            @Param("useYn") String useYn
+    );
 
-    // 🚀 상태 변경 로직
+    // 관리자: 상태 변경
     int updateCommunityUseYn(
-            @Param("commNo") Long commNo, 
-            @Param("useYn") String useYn);
+            @Param("commNo") Long commNo,
+            @Param("useYn") String useYn
+    );
 }

@@ -50,7 +50,7 @@
     </select>
 
     <!-- 🚀 관리자용 뽐낼거리 총 개수 조회 -->
-    <select id="countCommunityList" resultType="int">
+    <select id="countAdminCommunityList" resultType="int">
         SELECT COUNT(*)
         FROM COMMUNITY C
         JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
@@ -78,15 +78,19 @@
     </update>
     
 	<!-- 커뮤니티 게시글 목록 조회 -->
-    <select id="selectCommunityList" resultType="sst.community.domain.Community">
+	<select id="selectCommunityList" resultType="sst.community.domain.Community">
 	    SELECT
 	        C.COMM_NO AS commNo,
 	        C.COMM_MBR_ID AS commMbrId,
 	        M.MBR_NICKNAME AS mbrNickname,
 	        C.COMM_CAT_CD AS commCatCd,
 	        C.COMM_AIS_NO AS commAisNo,
+	        TC1.CMM_CD_NAME AS theme1Name,
+	        TC2.CMM_CD_NAME AS theme2Name,
+	        TC3.CMM_CD_NAME AS theme3Name,
 	        C.COMM_PLC_NO AS commPlcNo,
 	        P.PLC_NAME AS plcName,
+	        COALESCE(R.RGN_NAME, AR.RGN_NAME) AS rgnName,
 	        C.COMM_MAIN_IMG_URL AS commMainImgUrl,
 	        C.COMM_TITLE AS commTitle,
 	        C.COMM_CONTENT AS commContent,
@@ -95,15 +99,158 @@
 	        C.COMM_CMNT_CNT AS commCmntCnt,
 	        DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate,
 	        DATE_FORMAT(C.COMM_UP_DATE, '%Y-%m-%d') AS commUpDate,
-	        C.COMM_USE_YN AS commUseYn
+	        C.COMM_USE_YN AS commUseYn,
+	        GROUP_CONCAT(DISTINCT H.HTAG_TAG_NAME) AS hashtagText
+	    FROM COMMUNITY C
+	    JOIN MEMBER M
+	      ON C.COMM_MBR_ID = M.MBR_ID
+	
+	    LEFT JOIN AI_SCHEDULE AIS
+	      ON C.COMM_AIS_NO = AIS.AIS_NO
+	      
+	    LEFT JOIN REGION AR
+  		  ON AIS.AIS_RGN_NO = AR.RGN_NO
+	
+	    LEFT JOIN CMM_CODE TC1
+	      ON AIS.AIS_THEME1_CD = TC1.CMM_CD
+	
+	    LEFT JOIN CMM_CODE TC2
+	      ON AIS.AIS_THEME2_CD = TC2.CMM_CD
+	
+	    LEFT JOIN CMM_CODE TC3
+	      ON AIS.AIS_THEME3_CD = TC3.CMM_CD
+	
+	    LEFT JOIN PLACE P
+	      ON C.COMM_PLC_NO = P.PLC_NO
+	    LEFT JOIN REGION R
+	      ON P.PLC_RGN_CD = R.RGN_CD
+	    LEFT JOIN COMMUNITY_HASHTAG CH
+	      ON C.COMM_NO = CH.CHTG_COMM_NO
+	    LEFT JOIN HASHTAG H
+	      ON CH.CHTG_HTAG_NO = H.HTAG_NO
+	    WHERE C.COMM_USE_YN = 'Y'
+	      AND C.COMM_CAT_CD = #{catCd}
+	
+	    <if test="keyword != null and keyword != ''">
+	        <choose>
+	            <when test="searchType == 'title'">
+	                AND C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'content'">
+	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'author'">
+	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'place'">
+	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'region'">
+	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'hashtag'">
+	                AND H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <otherwise>
+	                AND (
+	                    C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+	                    OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+	                    OR M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR TC1.CMM_CD_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR TC2.CMM_CD_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR TC3.CMM_CD_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                )
+	            </otherwise>
+	        </choose>
+	    </if>
+	
+	    GROUP BY C.COMM_NO
+	
+	    <choose>
+	        <when test="sortType == 'popular'">
+	            ORDER BY (C.COMM_INQIRE_CNT + C.COMM_LIKE_CNT + C.COMM_CMNT_CNT) DESC, C.COMM_NO DESC
+	        </when>
+	        <when test="sortType == 'view'">
+	            ORDER BY C.COMM_INQIRE_CNT DESC, C.COMM_NO DESC
+	        </when>
+	        <when test="sortType == 'wish'">
+	            ORDER BY C.COMM_LIKE_CNT DESC, C.COMM_NO DESC
+	        </when>
+	        <when test="sortType == 'comment'">
+	            ORDER BY C.COMM_CMNT_CNT DESC, C.COMM_NO DESC
+	        </when>
+	        <otherwise>
+	            ORDER BY C.COMM_NO DESC
+	        </otherwise>
+	    </choose>
+	
+	    LIMIT #{offset}, #{size}
+	</select>
+	
+	<!-- 커뮤니티 게시글 총 개수 조회 -->
+	<select id="countCommunityList" resultType="int">
+	    SELECT COUNT(DISTINCT C.COMM_NO)
 	    FROM COMMUNITY C
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
 	    LEFT JOIN PLACE P
 	      ON C.COMM_PLC_NO = P.PLC_NO
+	    LEFT JOIN REGION R
+	      ON P.PLC_RGN_CD = R.RGN_CD
+	    LEFT JOIN COMMUNITY_HASHTAG CH
+	      ON C.COMM_NO = CH.CHTG_COMM_NO
+	    LEFT JOIN HASHTAG H
+	      ON CH.CHTG_HTAG_NO = H.HTAG_NO
 	    WHERE C.COMM_USE_YN = 'Y'
 	      AND C.COMM_CAT_CD = #{catCd}
-	    ORDER BY C.COMM_NO DESC
+	
+	    <if test="keyword != null and keyword != ''">
+	        <choose>
+	            <when test="searchType == 'title'">
+	                AND C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'content'">
+	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'author'">
+	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'place'">
+	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'region'">
+	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <when test="searchType == 'hashtag'">
+	                AND H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+	            </when>
+	
+	            <otherwise>
+	                AND (
+	                    C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+	                    OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+	                    OR M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                    OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+	                )
+	            </otherwise>
+	        </choose>
+	    </if>
 	</select>
     
     <!-- 커뮤니티 게시글 상세 조회 -->
@@ -118,7 +265,7 @@
 	        C.COMM_PLC_NO AS commPlcNo,
 	        P.PLC_NAME AS plcName,
 	        R.RGN_CD AS rgnCd,
-	        R.RGN_NAME AS rgnName,
+	        COALESCE(R.RGN_NAME, AR.RGN_NAME) AS rgnName,
 	        CC.CMM_CD AS plcCatCd,
 	        CC.CMM_CD_NAME AS plcCatName,
 	
@@ -136,15 +283,24 @@
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
 	
+	    LEFT JOIN AI_SCHEDULE AIS
+	      ON C.COMM_AIS_NO = AIS.AIS_NO
+	
+	    LEFT JOIN REGION AR
+	      ON AIS.AIS_RGN_NO = AR.RGN_NO
+	
 	    LEFT JOIN PLACE P
 	      ON C.COMM_PLC_NO = P.PLC_NO
+	
 	    LEFT JOIN REGION R
 	      ON P.PLC_RGN_CD = R.RGN_CD
+	
 	    LEFT JOIN CMM_CODE CC
 	      ON P.PLC_CAT_CD = CC.CMM_CD
 	
 	    LEFT JOIN COMMUNITY_HASHTAG CH
 	      ON C.COMM_NO = CH.CHTG_COMM_NO
+	
 	    LEFT JOIN HASHTAG H
 	      ON CH.CHTG_HTAG_NO = H.HTAG_NO
 	    WHERE C.COMM_USE_YN = 'Y'
@@ -153,7 +309,7 @@
 	</select>
 	
 	<!-- 커뮤니티 게시글 등록 -->
-	<insert id="insertCommunity"
+	<insert id="insertCommunity" parameterType="sst.community.dto.CommunityDto"
 	        useGeneratedKeys="true"
 	        keyProperty="commNo"
 	        keyColumn="COMM_NO">
@@ -178,7 +334,7 @@
 	</insert>
 	
 	<!-- 커뮤니티 게시글 수정 -->
-	<update id="updateCommunity">
+	<update id="updateCommunity" parameterType="sst.community.dto.CommunityDto">
 	    UPDATE COMMUNITY
 	    SET
 	        COMM_TITLE = #{commTitle},
@@ -283,7 +439,7 @@
 	</delete>
 	
 	<!-- 파일 정보 등록 -->
-	<insert id="insertFile"
+	<insert id="insertFile" parameterType="sst.community.dto.CommunityFileDto"
 	        useGeneratedKeys="true"
 	        keyProperty="fileNo"
 	        keyColumn="FILE_NO">

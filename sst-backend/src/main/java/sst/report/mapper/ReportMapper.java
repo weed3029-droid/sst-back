@@ -34,4 +34,16 @@ public interface ReportMapper {
             @Param("searchType") String searchType, 
             @Param("keyword") String keyword);
     
+    // 대상별 신고 누적 수 조회
+    int countReportsByTarget(Report report);
+
+    // 커뮤니티 블라인드 처리
+    int blindCommunity(Long commNo);
+
+    // 댓글 블라인드 처리
+    int blindComment(Long cmntNo);
+
+    // 리뷰 블라인드 처리
+    int blindReview(Long reviewNo);
+    
 }

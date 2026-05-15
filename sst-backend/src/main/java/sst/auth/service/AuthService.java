@@ -96,6 +96,7 @@ public class AuthService {
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd()) 
 			                .mbrProviderCd(member.getMbrProviderCd())
+			                .mbrProfileInfo(member.getProfileFile())
 			                .build();
     }
 	
@@ -187,6 +188,7 @@ public class AuthService {
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd())
 			                .mbrProviderCd(member.getMbrProviderCd())
+			                .mbrProfileInfo(member.getProfileFile())	// 프로필 아이콘 파일 정보
 			                .build();
     }
     
