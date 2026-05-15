@@ -368,6 +368,21 @@
 	      AND CLKE_MBR_ID = #{mbrId}
 	</select>
 	
+	<!-- 게시글 목록 좋아요 여부 조회 -->
+	<select id="selectLikedCommunityNos" resultType="long">
+	    SELECT CLKE_COMM_NO
+	    FROM COMMUNITY_LIKE
+	    WHERE CLKE_MBR_ID = #{mbrId}
+	      AND CLKE_COMM_NO IN
+	      <foreach collection="commNos"
+	               item="commNo"
+	               open="("
+	               separator=","
+	               close=")">
+	          #{commNo}
+	      </foreach>
+	</select>
+	
 	<!-- 커뮤니티 게시글 좋아요 추가 -->
 	<insert id="insertCommunityLike">
 	    INSERT INTO COMMUNITY_LIKE (
@@ -466,6 +481,22 @@
 	        'Y'
 	    )
 	</insert>
+	
+	<!-- 인기 해시태그 TOP5 조회 -->
+	<select id="selectPopularHashtags" resultType="string">
+	    SELECT
+	        H.HTAG_TAG_NAME
+	    FROM HASHTAG H
+	    JOIN COMMUNITY_HASHTAG CH
+	      ON H.HTAG_NO = CH.CHTG_HTAG_NO
+	    JOIN COMMUNITY C
+	      ON CH.CHTG_COMM_NO = C.COMM_NO
+	    WHERE C.COMM_USE_YN = 'Y'
+	      AND C.COMM_CAT_CD = #{catCd}
+	    GROUP BY H.HTAG_NO, H.HTAG_TAG_NAME
+	    ORDER BY COUNT(*) DESC, H.HTAG_NO DESC
+	    LIMIT 5
+	</select>
 	
 	<!-- 커뮤니티 파일 매핑 등록 -->
 	<insert id="insertCommunityFileMap">
