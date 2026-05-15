@@ -57,4 +57,11 @@ public interface AiPlanMapper {
     void deleteSchedulePlaceByAisNo(@Param("aisNo") Long aisNo);
     void deleteScheduleDayByAisNo(@Param("aisNo") Long aisNo);
     void deleteSchedule(@Param("aisNo") Long aisNo);
+    
+    // 일정 복사용 원본 조회
+    AiScheduleInsertDto selectScheduleForCopy(@Param("aisNo") Long aisNo);
+    // 복사용 day 목록 조회
+    List<AiScheduleDayInsertDto> selectScheduleDaysForCopy(@Param("aisNo") Long aisNo);
+    // 복사용 place 목록 조회
+    List<AiSchedulePlaceInsertDto> selectSchedulePlacesForCopy(@Param("aisdNo") Long aisdNo);
 }

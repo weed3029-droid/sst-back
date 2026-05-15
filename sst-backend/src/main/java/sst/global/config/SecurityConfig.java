@@ -65,14 +65,19 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                 // fastAPI 허용
                 .requestMatchers("/api/ai/travel/**").permitAll()
-                // AI 일정 허용 
-                .requestMatchers("/api/ai/schedule/**").permitAll()
-                // 리뷰 API 허용 
+                // AI 일정 허용
+                .requestMatchers("/api/ai/schedule/detail").permitAll()
+                .requestMatchers("/api/ai/schedule/my").permitAll()
+                .requestMatchers("/api/ai/schedule/save").authenticated()
+                .requestMatchers("/api/ai/schedule/update").authenticated()
+                .requestMatchers("/api/ai/schedule/delete").authenticated()
+                .requestMatchers("/api/ai/schedule/copy").authenticated()
+                // 리뷰 API 허용
                 .requestMatchers("/api/reviews/**").permitAll()
                 .requestMatchers("/api/place/**").permitAll()
                 .requestMatchers("/api/wishlist/**").permitAll()
                 .requestMatchers("/api/search/**").permitAll()
-                .requestMatchers("/api/ai/schedule/**").permitAll()
+                .requestMatchers("/api/community/**").permitAll()
                 // 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
