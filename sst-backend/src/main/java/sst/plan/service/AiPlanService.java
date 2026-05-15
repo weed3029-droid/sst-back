@@ -143,9 +143,9 @@ public class AiPlanService {
         AiScheduleDetailDto first = rows.get(0);
 
         List<String> themes = new ArrayList<>();
-        if (first.getAisTheme1Cd() != null) themes.add(first.getAisTheme1Cd());
-        if (first.getAisTheme2Cd() != null) themes.add(first.getAisTheme2Cd());
-        if (first.getAisTheme3Cd() != null) themes.add(first.getAisTheme3Cd());
+        if (first.getAisTheme1Name() != null) themes.add(first.getAisTheme1Name());
+        if (first.getAisTheme2Name() != null) themes.add(first.getAisTheme2Name());
+        if (first.getAisTheme3Name() != null) themes.add(first.getAisTheme3Name());
 
         Map<Integer, Map<String, Object>> dayMap = new LinkedHashMap<>();
         for (AiScheduleDetailDto row : rows) {
@@ -160,7 +160,7 @@ public class AiPlanService {
             Map<String, Object> plan = new LinkedHashMap<>();
             plan.put("placeId",   row.getAispPlcNo());
             plan.put("placeName", row.getPlcName());
-            plan.put("category",  row.getPlcCatCd());
+            plan.put("category",  row.getPlcCatName()); // 코드 → 이름
             plan.put("overview",  row.getPlcOverview());
             plan.put("imgUrl",    row.getPlcMainImgUrl());
             plan.put("lat",       row.getPlcLat());

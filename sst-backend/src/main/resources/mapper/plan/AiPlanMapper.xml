@@ -188,6 +188,9 @@
 	    s.AIS_THEME1_CD     AS aisTheme1Cd,
 	    s.AIS_THEME2_CD     AS aisTheme2Cd,
 	    s.AIS_THEME3_CD     AS aisTheme3Cd,
+	    (SELECT CMM_CD_NAME FROM CMM_CODE WHERE CMM_CD = s.AIS_THEME1_CD AND CMM_USE_YN = 'Y') AS aisTheme1Name,
+	    (SELECT CMM_CD_NAME FROM CMM_CODE WHERE CMM_CD = s.AIS_THEME2_CD AND CMM_USE_YN = 'Y') AS aisTheme2Name,
+	    (SELECT CMM_CD_NAME FROM CMM_CODE WHERE CMM_CD = s.AIS_THEME3_CD AND CMM_USE_YN = 'Y') AS aisTheme3Name,
 	    d.AISD_NO           AS aisdNo,
 	    d.AISD_DAY_NO       AS aisdDayNo,
 	    d.AISD_TRAVEL_DATE  AS aisdTravelDate,
@@ -196,6 +199,7 @@
 	    p.AISP_VISIT_ORDR   AS aispVisitOrdr,
 	    pl.PLC_NAME         AS plcName,
 	    pl.PLC_CAT_CD       AS plcCatCd,
+	    cat.CMM_CD_NAME     AS plcCatName,
 	    pl.PLC_FLT_CD       AS plcFltCd,
 	    pl.PLC_LAT          AS plcLat,
 	    pl.PLC_LOT          AS plcLot,
@@ -206,6 +210,7 @@
 	  JOIN AI_SCHEDULE_DAY d   ON s.AIS_NO      = d.AISD_AIS_NO
 	  JOIN AI_SCHEDULE_PLACE p ON d.AISD_NO     = p.AISP_AISD_NO
 	  JOIN PLACE pl             ON p.AISP_PLC_NO = pl.PLC_NO
+	  JOIN CMM_CODE cat         ON pl.PLC_CAT_CD = cat.CMM_CD
 	  JOIN REGION r             ON s.AIS_RGN_NO  = r.RGN_NO
 	  WHERE s.AIS_NO = #{aisNo}
 	  ORDER BY d.AISD_DAY_NO, p.AISP_VISIT_ORDR
