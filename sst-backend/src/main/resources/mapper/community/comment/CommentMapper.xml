@@ -151,11 +151,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 댓글 수 증가 -->
     <update id="increaseCommentCount">
-
         UPDATE COMMUNITY
         SET COMM_CMNT_CNT = COMM_CMNT_CNT + 1
         WHERE COMM_NO = #{commNo}
-
     </update>
 
     <!-- 댓글 수 감소 -->
