@@ -20,14 +20,12 @@ public class CommentController {
     @GetMapping("/{commNo}")
     public List<Comment> getCommentList(
             @PathVariable("commNo") Long commNo) {
-
         return commentService.getCommentList(commNo);
     }
 
     // 댓글 등록
     @PostMapping
     public int addComment(@RequestBody Comment comment) {
-
         return commentService.addComment(comment);
     }
 

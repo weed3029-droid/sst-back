@@ -43,5 +43,4 @@
     WHERE AISD.AISD_AIS_NO = #{aisNo}
     ORDER BY AISD.AISD_DAY_NO ASC, AISP.AISP_VISIT_ORDR ASC
 	</select>
-
 </mapper>
