@@ -32,4 +32,10 @@ public class AiScheduleDetailDto {
     private String  aisTheme2Cd;
     private String  aisTheme3Cd;
     private String  rgnName;
+    
+    private String aisTheme1Name;
+    private String aisTheme2Name;
+    private String aisTheme3Name;
+    
+    private String plcCatName;  // 카테고리명
 }
