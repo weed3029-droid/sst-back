@@ -50,6 +50,12 @@ public interface CommunityMapper {
 
     // 커뮤니티 게시글 좋아요 여부 확인
     int selectLikeCount(@Param("commNo") Long commNo, @Param("mbrId") Long mbrId);
+    
+    // 게시글 목록 좋아요 여부 조회
+    List<Long> selectLikedCommunityNos(
+            @Param("commNos") List<Long> commNos,
+            @Param("mbrId") Long mbrId
+    );
 
     // 커뮤니티 게시글 좋아요 추가
     int insertCommunityLike(@Param("commNo") Long commNo, @Param("mbrId") Long mbrId);
@@ -74,6 +80,9 @@ public interface CommunityMapper {
             @Param("commNo") Long commNo,
             @Param("tagNo") Long tagNo
     );
+    
+    // 인기 해시태그 TOP5 조회
+    List<String> selectPopularHashtags(@Param("catCd") String catCd);
 
     // 게시글 좋아요 전체 삭제
     void deleteCommunityLikes(Long commNo);
