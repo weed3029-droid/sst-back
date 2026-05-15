@@ -64,12 +64,20 @@ public class AiPlanController {
         return ResponseEntity.ok().build();
     }
 
-    // 일정 삭제
-    // DELETE /api/ai/schedule/delete?aisNo={aisNo}
     @DeleteMapping("/schedule/delete")
     public ResponseEntity<?> deleteSchedule(
             @RequestParam("aisNo") Long aisNo) {
         aiPlanService.deleteSchedule(aisNo);
         return ResponseEntity.noContent().build();
+    }
+
+    // 일정 복사 (내 일정으로 가져오기)
+    @PostMapping("/schedule/copy")
+    public ResponseEntity<?> copySchedule(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("aisNo") Long aisNo) {
+        Long mbrId = userDetails.getMember().getMbrId();
+        aiPlanService.copySchedule(aisNo, mbrId);
+        return ResponseEntity.ok().build();
     }
 }

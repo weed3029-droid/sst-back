@@ -5,7 +5,7 @@
 
 <mapper namespace="sst.community.life.mapper.CommunityLifeMapper">
 
-	<!-- 내 AI 일정 목록 조회 -->
+    <!-- 내 AI 일정 목록 조회 -->
     <select id="selectMyScheduleList"
             resultType="sst.community.life.dto.LifeScheduleDto">
 
@@ -20,28 +20,28 @@
           AND AIS_USE_YN = 'Y'
         ORDER BY AIS_NO DESC
     </select>
-    
+
     <!-- 선택한 AI 일정의 장소 목록 조회 -->
-	<select id="selectSchedulePlaceList"
-	        resultType="sst.community.life.dto.LifePlaceDto">
-	    SELECT
-	        P.PLC_NO AS plcNo,
-	        P.PLC_NAME AS name,
-	        P.PLC_ADDR AS address,
-	        C.CMM_CD_NAME AS type,
-	        P.PLC_THUM_IMG_URL AS image,
-	        AISP.AISP_MEMO_CONTENT AS `desc`,
-	        AISD.AISD_DAY_NO AS dayNo,
-	        AISP.AISP_VISIT_ORDR AS `order`
-	    FROM AI_SCHEDULE_DAY AISD
-	    JOIN AI_SCHEDULE_PLACE AISP
-	      ON AISD.AISD_NO = AISP.AISP_AISD_NO
-	    JOIN PLACE P
-	      ON AISP.AISP_PLC_NO = P.PLC_NO
-	    LEFT JOIN CMM_CODE C
-	      ON P.PLC_CAT_CD = C.CMM_CD
-	    WHERE AISD.AISD_AIS_NO = #{aisNo}
-	    ORDER BY AISD.AISD_DAY_NO ASC, AISP.AISP_VISIT_ORDR ASC
+    <select id="selectSchedulePlaceList"
+        resultType="sst.community.life.dto.LifePlaceDto">
+    SELECT
+        P.PLC_NO AS plcNo,
+        P.PLC_NAME AS name,
+        P.PLC_ADDR AS address,
+        C.CMM_CD_NAME AS type,
+        P.PLC_THUM_IMG_URL AS image,
+        P.PLC_OVERVIEW AS `desc`,
+        AISD.AISD_DAY_NO AS dayNo,
+        AISP.AISP_VISIT_ORDR AS `order`
+    FROM AI_SCHEDULE_DAY AISD
+    JOIN AI_SCHEDULE_PLACE AISP
+      ON AISD.AISD_NO = AISP.AISP_AISD_NO
+    JOIN PLACE P
+      ON AISP.AISP_PLC_NO = P.PLC_NO
+    LEFT JOIN CMM_CODE C
+      ON P.PLC_CAT_CD = C.CMM_CD
+    WHERE AISD.AISD_AIS_NO = #{aisNo}
+    ORDER BY AISD.AISD_DAY_NO ASC, AISP.AISP_VISIT_ORDR ASC
 	</select>
 
 </mapper>
