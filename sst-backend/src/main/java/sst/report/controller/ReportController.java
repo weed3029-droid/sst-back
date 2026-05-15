@@ -19,17 +19,17 @@ public class ReportController {
 
     // 신고 등록
     @PostMapping
-    public ResponseEntity<Integer> addReport(
+    public ResponseEntity<Boolean> addReport(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ReportRequest request) {
 
         Member member = userDetails.getMember();
 
-        int result = reportService.addReport(
+        boolean blinded = reportService.addReport(
                 member.getMbrId(),
                 request
         );
 
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(blinded);
     }
 }

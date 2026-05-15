@@ -43,8 +43,7 @@ public class AiPlanService {
             List<String> tagCodes = aiPlanMapper.findThemeCodesByPlcNo(place.getId());
             List<String> tagNames = tagCodes.isEmpty() ? List.of()
                     : aiPlanMapper.findThemeNamesByCodes(tagCodes);
-            place.setPlaceTheme(tagCodes);
-            place.setPlaceThemeName(tagNames);
+            place.setPlaceThemeName(String.join(",", tagNames));
         }
         return places;
     }
@@ -123,9 +122,6 @@ public class AiPlanService {
         }
     }
 
-    // ─────────────────────────────────────────
-    // 일정 삭제
-    // ─────────────────────────────────────────
     @Transactional
     public void deleteSchedule(Long aisNo) {
         aiPlanMapper.deleteSchedulePlaceByAisNo(aisNo);
@@ -144,9 +140,9 @@ public class AiPlanService {
         AiScheduleDetailDto first = rows.get(0);
 
         List<String> themes = new ArrayList<>();
-        if (first.getAisTheme1Cd() != null) themes.add(first.getAisTheme1Cd());
-        if (first.getAisTheme2Cd() != null) themes.add(first.getAisTheme2Cd());
-        if (first.getAisTheme3Cd() != null) themes.add(first.getAisTheme3Cd());
+        if (first.getAisTheme1Name() != null) themes.add(first.getAisTheme1Name());
+        if (first.getAisTheme2Name() != null) themes.add(first.getAisTheme2Name());
+        if (first.getAisTheme3Name() != null) themes.add(first.getAisTheme3Name());
 
         Map<Integer, Map<String, Object>> dayMap = new LinkedHashMap<>();
         for (AiScheduleDetailDto row : rows) {
@@ -161,7 +157,7 @@ public class AiPlanService {
             Map<String, Object> plan = new LinkedHashMap<>();
             plan.put("placeId",   row.getAispPlcNo());
             plan.put("placeName", row.getPlcName());
-            plan.put("category",  row.getPlcCatCd());
+            plan.put("category",  row.getPlcCatName());
             plan.put("overview",  row.getPlcOverview());
             plan.put("imgUrl",    row.getPlcMainImgUrl());
             plan.put("lat",       row.getPlcLat());
@@ -181,5 +177,49 @@ public class AiPlanService {
         result.put("schedule",      new ArrayList<>(dayMap.values()));
 
         return result;
+    }
+
+    // 일정 복사 (내 일정으로 가져오기)
+    @Transactional
+    public void copySchedule(Long aisNo, Long mbrId) {
+        AiScheduleInsertDto original = aiPlanMapper.selectScheduleForCopy(aisNo);
+        if (original == null) throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+
+        AiScheduleInsertDto copy = new AiScheduleInsertDto();
+        copy.setMbrId(mbrId);
+        copy.setScheduleName(original.getScheduleName() + " (복사)");
+        copy.setStartDate(original.getStartDate());
+        copy.setEndDate(original.getEndDate());
+        copy.setTotalDays(original.getTotalDays());
+        copy.setRgnNo(original.getRgnNo());
+        copy.setTheme1(original.getTheme1());
+        copy.setTheme2(original.getTheme2());
+        copy.setTheme3(original.getTheme3());
+
+        aiPlanMapper.insertAiSchedule(copy);
+        Long newAisNo = copy.getAisNo();
+
+        List<AiScheduleDayInsertDto> days = aiPlanMapper.selectScheduleDaysForCopy(aisNo);
+        for (AiScheduleDayInsertDto day : days) {
+            Long oldAisdNo = day.getAisdNo();
+
+            AiScheduleDayInsertDto newDay = new AiScheduleDayInsertDto();
+            newDay.setAisNo(newAisNo);
+            newDay.setTravelDate(day.getTravelDate());
+            newDay.setDayNo(day.getDayNo());
+
+            aiPlanMapper.insertAiScheduleDay(newDay);
+            Long newAisdNo = newDay.getAisdNo();
+
+            List<AiSchedulePlaceInsertDto> places = aiPlanMapper.selectSchedulePlacesForCopy(oldAisdNo);
+            for (AiSchedulePlaceInsertDto place : places) {
+                AiSchedulePlaceInsertDto newPlace = AiSchedulePlaceInsertDto.builder()
+                        .aisdNo(newAisdNo)
+                        .plcNo(place.getPlcNo())
+                        .visitOrder(place.getVisitOrder())
+                        .build();
+                aiPlanMapper.insertAiSchedulePlace(newPlace);
+            }
+        }
     }
 }

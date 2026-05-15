@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +22,7 @@ import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
 import sst.member.service.MemberService;
+
 /* 수정함 */
 @RestController
 @RequestMapping("/api/member")
@@ -28,6 +30,7 @@ import sst.member.service.MemberService;
 public class MemberController {
 	
 	private final MemberService memberService;
+	
 
 	//@PreAuthorize("hasRole('ADMIN')")
 	@PreAuthorize("hasAnyRole('ADMIN','USER')")
@@ -51,7 +54,7 @@ public class MemberController {
     @PostMapping("/me")
     public ResponseEntity<ApiResponse<Void>> updateMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody MemberUpdateRequest request) {
+            @Valid @ModelAttribute MemberUpdateRequest request) {
 
         memberService.updateMemberInfo(userDetails.getMember().getMbrId(), request);
         return ResponseEntity.ok(ApiResponse.success(null));

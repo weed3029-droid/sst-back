@@ -1,7 +1,5 @@
 package sst.plan.dto;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
@@ -16,9 +14,8 @@ public class PlaceResponseDto {
     private String       x;                 // PLC_LOT
     private String       y;                 // PLC_LAT
     private String       overview;          // PLC_OVERVIEW
-    private List<String> placeTheme;        // PTAG_TAG_CD 목록
-    private List<String> placeThemeName;    // CMM_CD_NAME (테마) 목록
     private String       placeFilter;       // PLC_FLT_CD
     private String       placeFilterName;   // CMM_CD_NAME (필터)
     private String 		 imgUrl;			// PLC_MAIN_IMG_URL
+    private String		 placeThemeName; 	// GROUP_CONCAT으로 받기
 }

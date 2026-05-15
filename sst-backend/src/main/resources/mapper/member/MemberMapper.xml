@@ -175,10 +175,41 @@
         <result column="MBR_JOIN_DATE"     property="mbrJoinDate"/>
         <result column="MBR_LAST_LGN_DATE" property="mbrLastLgnDate"/>
         <result column="MBR_USE_YN"        property="mbrUseYn"/>
+        
+        <!-- profileFile 필드 안에 FileDomain 객체를 생성해서 채움 -->
+	    <association property="profileFile" javaType="sst.uploads.domain.FileDomain">
+	        <id property="fileNo" column="MBR_PROFILE_FILE_NO" /> <!-- M.MBR_PROFILE_FILE_NO 값을 F.FILE_NO로 매핑 -->
+	        <result property="fileOrgNm" column="FILE_ORG_NM" />
+	        <result property="fileSaveNm" column="FILE_SAVE_NM" />
+	        <result property="filePath" column="FILE_PATH" />
+	        <result property="fileExt" column="FILE_EXT" />
+	        <result property="fileSize" column="FILE_SIZE" />
+	        <result property="fileMimeType" column="FILE_MIME_TYPE" />
+	        <result property="fileType" column="FILE_TYPE" />
+	    </association>
+    
     </resultMap>
+    
+    <!-- 회원 아이디로 조회 -->
+    <select id="findMemberById" resultMap="memberResultMap">
+        SELECT 
+	          M.*,
+	          F.FILE_ORG_NM, 
+	          F.FILE_SAVE_NM, 
+	          F.FILE_PATH, 
+	          F.FILE_EXT, 
+	          F.FILE_SIZE, 
+	          F.FILE_MIME_TYPE, 
+	          F.FILE_TYPE
+	    FROM MEMBER M
+	    LEFT JOIN FILE F ON M.MBR_PROFILE_FILE_NO = F.FILE_NO AND F.FILE_USE_YN = 'Y'
+	    WHERE M.MBR_ID = #{mbrId} 
+	      AND M.MBR_USE_YN = 'Y';
+    </select>
+    
 
     <select id="findMemberByEmail" resultMap="memberResultMap">
-        /* 회원정보 조회 */
+        <!--  회원정보 조회 
         SELECT 
               MBR_ID, MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, 
               MBR_TELNO, MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROFILE_FILE_NO, MBR_PROVIDER_CD, 
@@ -186,20 +217,41 @@
         FROM MEMBER
         WHERE MBR_EMAIL = #{email} 
           AND MBR_USE_YN = 'Y';
+         -->
+          
+        SELECT 
+	          M.*,
+	          F.FILE_ORG_NM, 
+	          F.FILE_SAVE_NM, 
+	          F.FILE_PATH, 
+	          F.FILE_EXT, 
+	          F.FILE_SIZE, 
+	          F.FILE_MIME_TYPE, 
+	          F.FILE_TYPE
+	    FROM MEMBER M
+	    LEFT JOIN FILE F ON M.MBR_PROFILE_FILE_NO = F.FILE_NO AND F.FILE_USE_YN = 'Y'
+	    WHERE M.MBR_EMAIL = #{email} 
+	      AND M.MBR_USE_YN = 'Y';
     </select>
     
     <insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="mbrId">
-        /* 회원등록 */
-        INSERT INTO MEMBER (
-              MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, MBR_TELNO, 
-              MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, MBR_AUTH_CD, 
-              MBR_JOIN_DATE, MBR_USE_YN
-        ) VALUES (
-              #{mbrPassword}, #{mbrName}, #{mbrNickname}, #{mbrEmail}, #{mbrTelno}, 
-              #{mbrZip}, #{mbrAddr}, #{mbrDaddr}, #{mbrProviderCd}, #{mbrAuthCd}, 
-              NOW(), 'Y'
-        );
-    </insert>
+	    INSERT INTO MEMBER (
+	          MBR_PASSWORD, MBR_NAME, MBR_NICKNAME, MBR_EMAIL, MBR_TELNO, 
+	          MBR_ZIP, MBR_ADDR, MBR_DADDR, MBR_PROVIDER_CD, MBR_AUTH_CD, 
+	          MBR_USE_YN
+	    ) VALUES (
+	          #{mbrPassword}, #{mbrName}, #{mbrNickname}, #{mbrEmail}, #{mbrTelno}, 
+	          #{mbrZip}, #{mbrAddr}, #{mbrDaddr}, #{mbrProviderCd}, #{mbrAuthCd}, 
+	          #{mbrUseYn}
+	    )
+	</insert>
+	
+	<!-- 프로필 이미지 파일 번호 업데이트 -->
+	<update id="updateMemberProfileFileNo">
+	    UPDATE MEMBER
+	    SET MBR_PROFILE_FILE_NO = #{fileNo}
+	    WHERE MBR_ID = #{mbrId}
+	</update>
     
     <update id="updateRefreshTokenById">
         /* 리프레시토큰 수정 */
