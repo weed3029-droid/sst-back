@@ -59,6 +59,13 @@ public class CommunityService {
     
     // 커뮤니티 게시글 등록
     public void createCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
+    	
+    	// 핫플거리는 대표 이미지 필수
+    	if ("CMM002".equals(communityDto.getCommCatCd())
+    	        && (communityDto.getCommMainImgUrl() == null
+    	        || communityDto.getCommMainImgUrl().isBlank())) {
+    	    throw new IllegalArgumentException("핫플거리는 사진을 1장 이상 등록해야 합니다.");
+    	}
 
         // 게시글 등록
         communityMapper.insertCommunity(communityDto);
@@ -115,6 +122,12 @@ public class CommunityService {
     
     // 커뮤니티 게시글 수정
     public void modifyCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
+    	
+    	// 핫플거리는 수정 시에도 대표 이미지 필수
+    	if (communityDto.getCommMainImgUrl() == null
+    	        || communityDto.getCommMainImgUrl().isBlank()) {
+    	    throw new IllegalArgumentException("핫플거리는 사진을 1장 이상 등록해야 합니다.");
+    	}
 
         // 기존 대표 이미지 경로 조회
         String oldImageUrl = communityMapper.selectCommunityImageUrl(communityDto.getCommNo());

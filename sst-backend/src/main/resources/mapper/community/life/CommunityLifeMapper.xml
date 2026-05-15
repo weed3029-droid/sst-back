@@ -30,7 +30,6 @@
 	        P.PLC_ADDR AS address,
 	        C.CMM_CD_NAME AS type,
 	        P.PLC_THUM_IMG_URL AS image,
-	        AISP.AISP_MEMO_CONTENT AS `desc`,
 	        AISD.AISD_DAY_NO AS dayNo,
 	        AISP.AISP_VISIT_ORDR AS `order`
 	    FROM AI_SCHEDULE_DAY AISD

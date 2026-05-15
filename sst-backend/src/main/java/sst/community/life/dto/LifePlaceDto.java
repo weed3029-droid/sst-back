@@ -9,7 +9,6 @@ public class LifePlaceDto {
     private String address;
     private String type;
     private String image;
-    private String desc;
     private Integer dayNo;
     private Integer order;
 }

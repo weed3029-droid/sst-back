@@ -182,9 +182,6 @@
 	        <when test="sortType == 'view'">
 	            ORDER BY C.COMM_INQIRE_CNT DESC, C.COMM_NO DESC
 	        </when>
-	        <when test="sortType == 'wish'">
-	            ORDER BY C.COMM_LIKE_CNT DESC, C.COMM_NO DESC
-	        </when>
 	        <when test="sortType == 'comment'">
 	            ORDER BY C.COMM_CMNT_CNT DESC, C.COMM_NO DESC
 	        </when>
