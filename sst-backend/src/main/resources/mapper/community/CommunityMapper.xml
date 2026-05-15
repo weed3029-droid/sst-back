@@ -591,5 +591,9 @@
 	      AND PLC_USE_YN = 'Y'
 	    ORDER BY PLC_NAME ASC
 	</select>
+	
+   <!-- 댓글 수 감소 -->
+   <!-- 댓글 수 감소 -->
+   <!-- 댓글 수 감소 -->
 
 </mapper>
