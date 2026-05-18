@@ -31,8 +31,8 @@ public class AiPlanService {
     private final AiPlanMapper aiPlanMapper;
 
     public List<PlaceResponseDto> getTravelPlaces(String region, String themes) {
-    	Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
-    	if (rgnCd == null) throw new CustomException(ErrorCode.NOT_FOUND);
+        Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
+        if (rgnCd == null) throw new CustomException(ErrorCode.NOT_FOUND);
 
         List<String> themeNames = Arrays.stream(themes.split(","))
                 .map(String::trim).collect(Collectors.toList());
@@ -183,7 +183,6 @@ public class AiPlanService {
         return result;
     }
 
-    // 일정 복사 (내 일정으로 가져오기)
     @Transactional
     public void copySchedule(Long aisNo, Long mbrId) {
         AiScheduleInsertDto original = aiPlanMapper.selectScheduleForCopy(aisNo);
@@ -225,5 +224,11 @@ public class AiPlanService {
                 aiPlanMapper.insertAiSchedulePlace(newPlace);
             }
         }
+    }
+
+    // 날짜 수정
+    @Transactional
+    public void updateScheduleDate(Long aisNo, String startDate, String endDate) {
+        aiPlanMapper.updateScheduleDate(aisNo, startDate, endDate);
     }
 }

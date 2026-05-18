@@ -131,6 +131,16 @@
             #{dayNo}
         )
     </insert>
+    
+    <!-- 일정 날짜 수정 -->
+	<update id="updateScheduleDate" parameterType="map">
+	    UPDATE AI_SCHEDULE
+	    SET
+	        AIS_BEGIN_DATE = #{startDate, jdbcType=DATE},
+	        AIS_END_DATE   = #{endDate, jdbcType=DATE},
+	        AIS_UP_DATE    = NOW()
+	    WHERE AIS_NO = #{aisNo}
+	</update>
 
     <!-- AI 일정 장소 저장 -->
     <insert id="insertAiSchedulePlace" parameterType="sst.plan.dto.AiSchedulePlaceInsertDto">
