@@ -42,6 +42,9 @@ public interface AiPlanMapper {
     // AI 일정 장소 저장
     void insertAiSchedulePlace(AiSchedulePlaceInsertDto dto);
 
+    // AI 날짜 수정
+    void updateScheduleDate(@Param("aisNo") Long aisNo, @Param("startDate") String startDate, @Param("endDate") String endDate);
+    
     // 지역명 -> 지역번호 조회
     Long findRgnNoByRgnName(@Param("rgnName") String rgnName);
     
