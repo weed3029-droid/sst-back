@@ -21,6 +21,9 @@ import sst.plan.dto.AiScheduleSaveRequestDto;
 import sst.plan.dto.PlaceResponseDto;
 import sst.plan.mapper.AiPlanMapper;
 
+import sst.global.exception.CustomException;
+import sst.global.exception.ErrorCode;
+
 @Service
 @RequiredArgsConstructor
 public class AiPlanService {
@@ -28,14 +31,14 @@ public class AiPlanService {
     private final AiPlanMapper aiPlanMapper;
 
     public List<PlaceResponseDto> getTravelPlaces(String region, String themes) {
-        Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
-        if (rgnCd == null) throw new IllegalArgumentException("알 수 없는 지역: " + region);
+    	Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
+    	if (rgnCd == null) throw new CustomException(ErrorCode.NOT_FOUND);
 
         List<String> themeNames = Arrays.stream(themes.split(","))
                 .map(String::trim).collect(Collectors.toList());
 
         List<String> themeCodes = aiPlanMapper.findThemeCodesByNames(themeNames);
-        if (themeCodes.isEmpty()) throw new IllegalArgumentException("알 수 없는 테마: " + themes);
+        if (themeCodes.isEmpty()) throw new CustomException(ErrorCode.BAD_REQUEST);
 
         List<PlaceResponseDto> places = aiPlanMapper.findPlacesByRegionAndThemes(rgnCd, themeCodes);
 
@@ -133,6 +136,7 @@ public class AiPlanService {
         return aiPlanMapper.selectMySchedules(mbrId);
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getScheduleDetail(Long aisNo) {
         List<AiScheduleDetailDto> rows = aiPlanMapper.selectScheduleDetail(aisNo);
         if (rows.isEmpty()) return Map.of();
@@ -183,7 +187,7 @@ public class AiPlanService {
     @Transactional
     public void copySchedule(Long aisNo, Long mbrId) {
         AiScheduleInsertDto original = aiPlanMapper.selectScheduleForCopy(aisNo);
-        if (original == null) throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+        if (original == null) throw new CustomException(ErrorCode.SCHEDULE_NOT_FOUND);
 
         AiScheduleInsertDto copy = new AiScheduleInsertDto();
         copy.setMbrId(mbrId);
