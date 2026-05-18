@@ -9,4 +9,5 @@ import lombok.Setter;
 public class AdminMemberUpdateRequest {
 	@NotBlank(message = "계정 상태값은 필수입니다.")
     private String mbrUseYn; // 'Y' (활성) 또는 'N' (정지/비활성)
+	private String reason;
 }

@@ -1,7 +1,10 @@
 package sst.member.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
 import sst.global.response.ApiResponse;
+import sst.global.security.domain.CustomUserDetails;
 import sst.member.domain.Member;
 import sst.member.dto.AdminMemberCreateRequest;
 import sst.member.dto.AdminMemberUpdateRequest;
@@ -90,9 +94,21 @@ public class AdminMemberController {
     @PatchMapping("/{memberId}/status")
     public ResponseEntity<ApiResponse<Void>> toggleMemberStatus(
             @PathVariable("memberId") Long memberId,
-            @RequestParam("useYn") String useYn) {
+            @RequestBody AdminMemberUpdateRequest request, // 🚀 기존 DTO 재활용!
+            @AuthenticationPrincipal CustomUserDetails userDetails) { 
         
-        adminMemberService.updateMemberStatus(memberId, useYn);
+        Long adminId = userDetails.getMember().getMbrId(); 
+        
+        // 🚀 DTO의 필드명에 맞춰 getMbrUseYn(), getReason()으로 꺼내서 서비스로 전달
+        adminMemberService.updateMemberStatus(memberId, request.getMbrUseYn(), request.getReason(), adminId);
+        
         return ResponseEntity.ok(ApiResponse.success(null));
+    }
+    
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{memberId}/reason")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getMemberReason(@PathVariable("memberId") Long memberId) {
+        Map<String, Object> reasonData = adminMemberService.getMemberReason(memberId);
+        return ResponseEntity.ok(ApiResponse.success(reasonData));
     }
 }
