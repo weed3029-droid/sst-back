@@ -165,20 +165,22 @@
     </select>
 
     <!-- 내 일정 목록 조회 -->
-    <select id="selectMySchedules" parameterType="long" resultType="sst.plan.dto.AiScheduleResponseDto">
-        SELECT
-            AIS_NO          AS aisNo,
-            AIS_SCHDUL_NAME AS aisSchdulName,
-            AIS_BEGIN_DATE  AS aisBeginDate,
-            AIS_END_DATE    AS aisEndDate,
-            AIS_TOT_DAYS    AS aisTotDays,
-            AIS_RLS_YN      AS aisRlsYn,
-            AIS_REG_DATE    AS aisRegDate
-        FROM AI_SCHEDULE
-        WHERE AIS_MBR_ID = #{mbrId}
-        AND AIS_USE_YN = 'Y'
-        ORDER BY AIS_REG_DATE DESC
-    </select>
+	<select id="selectMySchedules" parameterType="long" resultType="sst.plan.dto.AiScheduleResponseDto">
+	    SELECT
+	        s.AIS_NO          AS aisNo,
+	        s.AIS_SCHDUL_NAME AS aisSchdulName,
+	        s.AIS_BEGIN_DATE  AS aisBeginDate,
+	        s.AIS_END_DATE    AS aisEndDate,
+	        s.AIS_TOT_DAYS    AS aisTotDays,
+	        s.AIS_RLS_YN      AS aisRlsYn,
+	        s.AIS_REG_DATE    AS aisRegDate,
+	        r.RGN_NAME        AS rgnName
+	    FROM AI_SCHEDULE s
+	    LEFT JOIN REGION r ON s.AIS_RGN_NO = r.RGN_NO
+	    WHERE s.AIS_MBR_ID = #{mbrId}
+	    AND s.AIS_USE_YN = 'Y'
+	    ORDER BY s.AIS_REG_DATE DESC
+	</select>
 
     <!-- aisNo로 일정 상세 조회 -->
     <select id="selectScheduleDetail" parameterType="long" resultType="sst.plan.dto.AiScheduleDetailDto">
