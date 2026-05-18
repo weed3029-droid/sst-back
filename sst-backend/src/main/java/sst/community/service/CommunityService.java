@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import sst.community.domain.Community;
+import sst.community.dto.CommunityDto;
+import sst.community.dto.CommunityFileDto;
 import sst.community.dto.CommunityFileMapDto;
 import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
@@ -13,8 +15,6 @@ import sst.community.dto.RegionDto;
 import sst.community.mapper.CommunityMapper;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
-import sst.community.dto.CommunityDto;
-import sst.community.dto.CommunityFileDto;
 
 @Service
 @RequiredArgsConstructor
@@ -124,8 +124,9 @@ public class CommunityService {
     public void modifyCommunity(CommunityDto communityDto, List<CommunityFileDto> files) {
     	
     	// 핫플거리는 수정 시에도 대표 이미지 필수
-    	if (communityDto.getCommMainImgUrl() == null
-    	        || communityDto.getCommMainImgUrl().isBlank()) {
+    	if ("hotplace".equals(communityDto.getCommCatCd())
+    	        && (communityDto.getCommMainImgUrl() == null
+    	        || communityDto.getCommMainImgUrl().isBlank())) {
     	    throw new IllegalArgumentException("핫플거리는 사진을 1장 이상 등록해야 합니다.");
     	}
 
