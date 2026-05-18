@@ -21,6 +21,7 @@ import sst.global.security.domain.CustomUserDetails;
 import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
+import sst.member.dto.WithdrawalRequest;
 import sst.member.service.MemberService;
 
 /* 수정함 */
@@ -74,16 +75,15 @@ public class MemberController {
     }
     
     /**
-     * 🚀 회원 탈퇴
+     *  회원 탈퇴
      */
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> withdraw(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody WithdrawalRequest request, // 🚀 프론트에서 보내는 탈퇴 사유 수신
             HttpServletResponse response) {
         
-        // SecurityContext에서 현재 로그인한 유저의 PK 추출 후 서비스로 전달
-        memberService.withdrawMember(userDetails.getMember().getMbrId(), response);
-        
+        memberService.withdrawMember(userDetails.getMember().getMbrId(), request, response);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

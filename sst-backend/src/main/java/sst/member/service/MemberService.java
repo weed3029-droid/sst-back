@@ -16,6 +16,7 @@ import sst.global.utils.CookieUtil;
 import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
+import sst.member.dto.WithdrawalRequest;
 import sst.member.mapper.MemberMapper;
 import sst.uploads.domain.FileDomain;
 import sst.uploads.mapper.FileMapper;
@@ -127,15 +128,42 @@ public class MemberService {
 	    memberMapper.updatePassword(member.getMbrId(), encodedNewPassword);
 	}
 	
+	/**
+     *  일반 회원 자진 탈퇴 (탈퇴 사유 수집 및 마스킹)
+     */
 	@Transactional
-    public void withdrawMember(Long mbrId, HttpServletResponse response) {
-        // 1. DB 논리 삭제 및 마스킹 처리
-        memberMapper.withdrawMember(mbrId);
+    public void withdrawMember(Long mbrId, WithdrawalRequest request, HttpServletResponse response) {
+        
+        //  1. 백엔드에서 안전하게 마스킹 데이터 직접 생성 (유닉스 타임스탬프 활용)
+        long unixTime = System.currentTimeMillis();
+        String maskedEmail = "del_" + mbrId + "_" + unixTime + "@deleted.local";
+        String maskedNickname = "del_" + mbrId + "_" + unixTime;
 
-        // 2. 🚀 프론트엔드 브라우저의 HttpOnly 쿠키(액세스/리프레시 토큰) 즉시 만료
+        //  2. DB 논리 삭제 및 마스킹 처리 (DTO가 아닌 위에서 생성한 로컬 변수 사용)
+        memberMapper.withdrawMember(mbrId, maskedEmail, maskedNickname);
+
+        //  3. 탈퇴 이력(사유) INSERT 
+        // 프론트엔드에서 빈 값이 넘어오거나 에러가 발생할 경우를 대비한 방어 로직 추가
+        if (request != null) {
+            memberMapper.insertWithdrawalLog(mbrId, request.getReasonCd(), request.getReasonDesc());
+        }
+
+        //  4. 프론트엔드 브라우저의 HttpOnly 쿠키 즉시 만료 처리
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.deleteAccessTokenCookie().toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.deleteRefreshTokenCookie().toString());
+    }
+	
+	@Transactional // 🚀 상태 업데이트와 로그 저장이 하나의 트랜잭션으로 묶임
+    public void updateMemberStatus(Long memberId, String useYn, String reason, Long adminId) {
+        // 1. 순수하게 상태값만 변경하는 Mapper 호출
+        int result = memberMapper.updateMemberStatusByAdmin(memberId, useYn);
+        if (result == 0) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+        
+        // 🚀 2. 상태 변경 이력 저장 (방금 만든 쿼리 호출)
+        memberMapper.insertMemberStatusLog(memberId, adminId, useYn, reason);
     }
 }
