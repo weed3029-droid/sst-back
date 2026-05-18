@@ -11,7 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
         registry
+        	/* 브라우저 접근 경로 */
             .addResourceHandler("/uploads/**")
+            /* 실제 로컬 파일 저장 경로 */
             .addResourceLocations("file:uploads/");
     }
 }

@@ -105,7 +105,7 @@
 	
 	    <choose>
 	        <when test="sortType == 'popular'">
-	            ORDER BY (C.COMM_INQIRE_CNT + C.COMM_LIKE_CNT + C.COMM_CMNT_CNT) DESC, C.COMM_NO DESC
+	            ORDER BY C.COMM_LIKE_CNT DESC, C.COMM_NO DESC
 	        </when>
 	        <when test="sortType == 'view'">
 	            ORDER BY C.COMM_INQIRE_CNT DESC, C.COMM_NO DESC
