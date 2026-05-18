@@ -13,4 +13,5 @@ public class AiScheduleResponseDto {
     private Integer       aisTotDays;
     private String        aisRlsYn;
     private LocalDateTime aisRegDate;
+    private String 		  rgnName;
 }

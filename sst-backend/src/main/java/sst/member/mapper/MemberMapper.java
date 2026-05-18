@@ -1,6 +1,7 @@
 package sst.member.mapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -41,8 +42,6 @@ public interface MemberMapper {
     // 관리자: 전체 회원 목록 조회
     List<Member> findAllMembers();
     
-    // 회원 탈퇴 (논리 삭제 및 마스킹)
-    int withdrawMember(@Param("mbrId") Long mbrId);
     
     // 관리자 : 회원 단건 조회 (ID 기준)
     Optional<Member> findById(@Param("mbrId") Long mbrId);
@@ -52,13 +51,13 @@ public interface MemberMapper {
                        @Param("maskedEmail") String maskedEmail, 
                        @Param("maskedNickname") String maskedNickname);
     
-    // 🚀 1. 페이징 처리된 회원 목록 조회 (offset: 건너뛸 개수, size: 가져올 개수)
+    // 1. 페이징 처리된 회원 목록 조회 (offset: 건너뛸 개수, size: 가져올 개수)
     List<Member> findAllMembersPaged(@Param("offset") int offset, @Param("size") int size);
 
-    // 🚀 2. 전체 회원 수 조회 (프론트에서 전체 페이지 수를 계산하기 위해 필수!)
+    // 2. 전체 회원 수 조회 (프론트에서 전체 페이지 수를 계산하기 위해 필수!)
     int countAllMembers();
     
-    // 🚀 검색 조건을 받을 수 있도록 파라미터 추가
+    // 검색 조건을 받을 수 있도록 파라미터 추가
     List<Member> findAllMembersPaged(
         @Param("offset") int offset, 
         @Param("size") int size,
@@ -66,7 +65,7 @@ public interface MemberMapper {
         @Param("keyword") String keyword
     );
 
-    // 🚀 카운트 쿼리도 검색 조건을 받아야 총 페이지 수가 정확히 계산됩니다!
+    // 카운트 쿼리도 검색 조건을 받아야 총 페이지 수가 정확히 계산됩니다!
     int countAllMembers(
         @Param("searchType") String searchType,
         @Param("keyword") String keyword
@@ -93,10 +92,17 @@ public interface MemberMapper {
             @Param("useYn") String useYn // 🚀 추가
         );
         
-     // 🚀 관리자: 회원 정보 수정
+        // 🚀 회원 탈퇴 이력 등록 (추가)
+        int insertWithdrawalLog(
+            @Param("mbrId") Long mbrId, 
+            @Param("reasonCd") String reasonCd, 
+            @Param("reasonDesc") String reasonDesc
+        );
+        
+     // 관리자: 회원 정보 수정
         int updateMemberByAdmin(Member member);
         
-        // 🚀 동적 페이징 및 검색 조회 (상태, 권한 파라미터 추가됨)
+        // 동적 페이징 및 검색 조회 (상태, 권한 파라미터 추가됨)
         List<Member> findAllMembersPaged(
             @Param("offset") int offset, 
             @Param("size") int size,
@@ -106,7 +112,7 @@ public interface MemberMapper {
             @Param("authCd") String authCd
         );
 
-        // 🚀 페이징을 위한 동적 카운트 조회 (상태, 권한 파라미터 추가됨)
+        // 페이징을 위한 동적 카운트 조회 (상태, 권한 파라미터 추가됨)
         int countAllMembers(
             @Param("searchType") String searchType,
             @Param("keyword") String keyword,
@@ -115,4 +121,14 @@ public interface MemberMapper {
         );
         
         int updateMemberStatusByAdmin(@Param("mbrId") Long mbrId, @Param("mbrUseYn") String mbrUseYn);
+        
+        int insertMemberStatusLog(
+        	    @Param("mbrId") Long mbrId, 
+        	    @Param("adminId") Long adminId, 
+        	    @Param("targetStatus") String targetStatus, 
+        	    @Param("reason") String reason
+        	);
+        
+        Map<String, Object> findLatestStatusLog(@Param("mbrId") Long mbrId, @Param("targetStatus") String targetStatus);
+        Map<String, Object> findLatestWithdrawalLog(@Param("mbrId") Long mbrId);
 }

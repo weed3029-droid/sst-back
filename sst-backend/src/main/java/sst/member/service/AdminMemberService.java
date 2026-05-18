@@ -1,6 +1,9 @@
 package sst.member.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -150,11 +153,53 @@ public class AdminMemberService {
     }
     
     @Transactional
-    public void updateMemberStatus(Long memberId, String useYn) {
-        // 순수하게 상태값만 변경하는 Mapper 호출
+    public void updateMemberStatus(Long memberId, String useYn, String reason, Long adminId) {
+        
+        // 1. 기존 상태 업데이트 로직
         int result = memberMapper.updateMemberStatusByAdmin(memberId, useYn);
         if (result == 0) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
+        
+        // 🚀 2. 상태 변경 이력 로그 DB 저장 (지난번 추가한 Mapper 메서드 호출)
+        memberMapper.insertMemberStatusLog(memberId, adminId, useYn, reason);
+    }
+    
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMemberReason(Long memberId) {
+        Member member = memberMapper.findById(memberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        // 🚀 이메일이 'del_'로 시작하면 영구 탈퇴 처리된 유저로 판단하여 탈퇴 로그 테이블 조회
+        if (member.getMbrEmail().startsWith("del_")) {
+            Map<String, Object> withdrawalLog = memberMapper.findLatestWithdrawalLog(memberId);
+            result.put("type", "자진/강제 탈퇴");
+            if (withdrawalLog != null) {
+                // 🚀 기타 사유(WDR004)일 경우 상세 텍스트를 우선 노출하고, 아닐 경우 공통코드 매핑명을 사용
+                String reason = (String) withdrawalLog.get("WD_REASON_DESC");
+                if (reason == null || reason.isBlank()) {
+                    reason = (String) withdrawalLog.get("CMM_CD_NAME"); 
+                }
+                result.put("reason", reason);
+                result.put("regDate", withdrawalLog.get("WD_REG_DATE"));
+            } else {
+                result.put("reason", "탈퇴 사유 기록 유실");
+                result.put("regDate", member.getMbrJoinDate());
+            }
+        } else {
+            // 🚀 정상 혹은 정지 상태의 유저일 경우 MEMBER_STATUS_LOG에서 'N'(정지) 이력 탐색
+            Map<String, Object> statusLog = memberMapper.findLatestStatusLog(memberId, "N");
+            result.put("type", "계정 정지");
+            if (statusLog != null) {
+                result.put("reason", statusLog.get("MSL_REASON"));
+                result.put("regDate", statusLog.get("MSL_REG_DATE"));
+            } else {
+                result.put("reason", "정지 사유 기록 없음");
+                result.put("regDate", LocalDateTime.now());
+            }
+        }
+        return result;
     }
 }

@@ -38,7 +38,7 @@ public class Member {
     
     // [예비] 배경 파일 정보도 나중에 이렇게 추가하면 됩니다.
     // private FileDomain backgroundFile;
-    
+    private String suspendReason;
 }
 
 
