@@ -166,6 +166,7 @@ public class AiPlanService {
             plan.put("imgUrl",    row.getPlcMainImgUrl());
             plan.put("lat",       row.getPlcLat());
             plan.put("lng",       row.getPlcLot());
+            plan.put("address", row.getPlcAddr());
 
             ((List<Object>) dayMap.get(row.getAisdDayNo()).get("plans")).add(plan);
         }
