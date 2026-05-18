@@ -18,4 +18,5 @@ public class PlaceResponseDto {
     private String       placeFilterName;   // CMM_CD_NAME (필터)
     private String 		 imgUrl;			// PLC_MAIN_IMG_URL
     private String		 placeThemeName; 	// GROUP_CONCAT으로 받기
+    private String 		 addr; 				// PLC_ADDR
 }

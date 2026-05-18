@@ -21,6 +21,9 @@ import sst.plan.dto.AiScheduleSaveRequestDto;
 import sst.plan.dto.PlaceResponseDto;
 import sst.plan.mapper.AiPlanMapper;
 
+import sst.global.exception.CustomException;
+import sst.global.exception.ErrorCode;
+
 @Service
 @RequiredArgsConstructor
 public class AiPlanService {
@@ -29,13 +32,13 @@ public class AiPlanService {
 
     public List<PlaceResponseDto> getTravelPlaces(String region, String themes) {
         Integer rgnCd = aiPlanMapper.findRgnCdByRgnName(region);
-        if (rgnCd == null) throw new IllegalArgumentException("알 수 없는 지역: " + region);
+        if (rgnCd == null) throw new CustomException(ErrorCode.NOT_FOUND);
 
         List<String> themeNames = Arrays.stream(themes.split(","))
                 .map(String::trim).collect(Collectors.toList());
 
         List<String> themeCodes = aiPlanMapper.findThemeCodesByNames(themeNames);
-        if (themeCodes.isEmpty()) throw new IllegalArgumentException("알 수 없는 테마: " + themes);
+        if (themeCodes.isEmpty()) throw new CustomException(ErrorCode.BAD_REQUEST);
 
         List<PlaceResponseDto> places = aiPlanMapper.findPlacesByRegionAndThemes(rgnCd, themeCodes);
 
@@ -133,6 +136,7 @@ public class AiPlanService {
         return aiPlanMapper.selectMySchedules(mbrId);
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getScheduleDetail(Long aisNo) {
         List<AiScheduleDetailDto> rows = aiPlanMapper.selectScheduleDetail(aisNo);
         if (rows.isEmpty()) return Map.of();
@@ -162,6 +166,7 @@ public class AiPlanService {
             plan.put("imgUrl",    row.getPlcMainImgUrl());
             plan.put("lat",       row.getPlcLat());
             plan.put("lng",       row.getPlcLot());
+            plan.put("address", row.getPlcAddr());
 
             ((List<Object>) dayMap.get(row.getAisdDayNo()).get("plans")).add(plan);
         }
@@ -179,11 +184,10 @@ public class AiPlanService {
         return result;
     }
 
-    // 일정 복사 (내 일정으로 가져오기)
     @Transactional
     public void copySchedule(Long aisNo, Long mbrId) {
         AiScheduleInsertDto original = aiPlanMapper.selectScheduleForCopy(aisNo);
-        if (original == null) throw new IllegalArgumentException("존재하지 않는 일정입니다.");
+        if (original == null) throw new CustomException(ErrorCode.SCHEDULE_NOT_FOUND);
 
         AiScheduleInsertDto copy = new AiScheduleInsertDto();
         copy.setMbrId(mbrId);
@@ -221,5 +225,11 @@ public class AiPlanService {
                 aiPlanMapper.insertAiSchedulePlace(newPlace);
             }
         }
+    }
+
+    // 날짜 수정
+    @Transactional
+    public void updateScheduleDate(Long aisNo, String startDate, String endDate) {
+        aiPlanMapper.updateScheduleDate(aisNo, startDate, endDate);
     }
 }

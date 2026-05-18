@@ -38,4 +38,5 @@ public class AiScheduleDetailDto {
     private String aisTheme3Name;
     
     private String plcCatName;  // 카테고리명
+    private String plcAddr;  	// 주소
 }

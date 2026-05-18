@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -71,13 +71,22 @@ public class AiPlanController {
         return ResponseEntity.noContent().build();
     }
 
-    // 일정 복사 (내 일정으로 가져오기)
     @PostMapping("/schedule/copy")
     public ResponseEntity<?> copySchedule(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("aisNo") Long aisNo) {
         Long mbrId = userDetails.getMember().getMbrId();
         aiPlanService.copySchedule(aisNo, mbrId);
+        return ResponseEntity.ok().build();
+    }
+
+    // 날짜 수정
+    @PutMapping("/schedule/date")
+    public ResponseEntity<?> updateScheduleDate(
+            @RequestParam("aisNo") Long aisNo,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+        aiPlanService.updateScheduleDate(aisNo, startDate, endDate);
         return ResponseEntity.ok().build();
     }
 }
