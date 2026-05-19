@@ -20,8 +20,9 @@ public class SearchController {
     @GetMapping("/communities")
     public ResponseEntity<ApiResponse<PageResponse<Community>>> searchCommunitiesPaged(
             @RequestParam("keyword") String keyword,
+            @RequestParam(value = "region", required = false) String region, // ✅ 추가
             PageRequest pageRequest) {
-        PageResponse<Community> result = searchService.searchCommunitiesPaged(keyword, pageRequest);
+        PageResponse<Community> result = searchService.searchCommunitiesPaged(keyword, region, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
@@ -29,7 +30,7 @@ public class SearchController {
     public ResponseEntity<ApiResponse<PageResponse<PlaceCardDto>>> searchPlacesPaged(
             @RequestParam("keyword") String keyword,
             @RequestParam(value = "category", defaultValue = "ALL") String category,
-            @RequestParam(value = "region", required = false) String region, // ✅ 추가
+            @RequestParam(value = "region", required = false) String region,
             PageRequest pageRequest) {
         PageResponse<PlaceCardDto> result = searchService.searchPlacesPaged(keyword, category, region, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));

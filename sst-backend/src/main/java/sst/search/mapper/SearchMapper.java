@@ -8,11 +8,11 @@ import sst.content.dto.PlaceCardDto;
 
 @Mapper
 public interface SearchMapper {
-    // 장소 검색
+	 // 장소 검색
     int countPlacesByKeyword(@Param("keyword") String keyword, @Param("category") String category, @Param("region") String region);
     List<PlaceCardDto> selectPlacesByKeywordPaged(@Param("keyword") String keyword, @Param("category") String category, @Param("region") String region, @Param("offset") int offset, @Param("size") int size);
 
     // 커뮤니티 검색
-    int countCommunitiesByKeyword(@Param("keyword") String keyword);
-    List<Community> selectCommunitiesByKeywordPaged(@Param("keyword") String keyword, @Param("offset") int offset, @Param("size") int size);
+    int countCommunitiesByKeyword(@Param("keyword") String keyword, @Param("region") String region);
+    List<Community> selectCommunitiesByKeywordPaged(@Param("keyword") String keyword, @Param("region") String region, @Param("offset") int offset, @Param("size") int size);
 }

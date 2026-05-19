@@ -46,46 +46,46 @@
     </select>
 
     <!-- 커뮤니티 검색 count -->
-    <select id="countCommunitiesByKeyword" resultType="int">
-        SELECT COUNT(DISTINCT C.COMM_NO)
-        FROM COMMUNITY C
-        LEFT JOIN COMMUNITY_HASHTAG CH ON C.COMM_NO = CH.CHTG_COMM_NO
-        LEFT JOIN HASHTAG H ON CH.CHTG_HTAG_NO = H.HTAG_NO
-        WHERE C.COMM_USE_YN = 'Y'
-          AND (
-               C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
-               OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-               OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
-              )
-    </select>
+<select id="countCommunitiesByKeyword" resultType="int">
+    SELECT COUNT(DISTINCT C.COMM_NO)
+    FROM COMMUNITY C
+    LEFT JOIN COMMUNITY_HASHTAG CH ON C.COMM_NO = CH.CHTG_COMM_NO
+    LEFT JOIN HASHTAG H ON CH.CHTG_HTAG_NO = H.HTAG_NO
+    WHERE C.COMM_USE_YN = 'Y'
+      AND (
+           C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+           OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+           OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+          )
+</select>
 
-    <!-- 커뮤니티 검색 목록 -->
-    <select id="selectCommunitiesByKeywordPaged" resultType="sst.community.domain.Community">
-        SELECT
-            C.COMM_NO AS commNo,
-            C.COMM_MBR_ID AS commMbrId,
-            M.MBR_NICKNAME AS mbrNickname,
-            C.COMM_CAT_CD AS commCatCd,
-            C.COMM_MAIN_IMG_URL AS commMainImgUrl,
-            C.COMM_TITLE AS commTitle,
-            C.COMM_CONTENT AS commContent,
-            C.COMM_INQIRE_CNT AS commInqireCnt,
-            C.COMM_LIKE_CNT AS commLikeCnt,
-            C.COMM_CMNT_CNT AS commCmntCnt,
-            DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate
-        FROM COMMUNITY C
-        JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
-        LEFT JOIN COMMUNITY_HASHTAG CH ON C.COMM_NO = CH.CHTG_COMM_NO
-        LEFT JOIN HASHTAG H ON CH.CHTG_HTAG_NO = H.HTAG_NO
-        WHERE C.COMM_USE_YN = 'Y'
-          AND (
-               C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
-               OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-               OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
-              )
-        GROUP BY C.COMM_NO
-        ORDER BY C.COMM_NO DESC
-        LIMIT #{offset}, #{size}
-    </select>
+<!-- 커뮤니티 검색 목록 -->
+<select id="selectCommunitiesByKeywordPaged" resultType="sst.community.domain.Community">
+    SELECT
+        C.COMM_NO AS commNo,
+        C.COMM_MBR_ID AS commMbrId,
+        M.MBR_NICKNAME AS mbrNickname,
+        C.COMM_CAT_CD AS commCatCd,
+        C.COMM_MAIN_IMG_URL AS commMainImgUrl,
+        C.COMM_TITLE AS commTitle,
+        C.COMM_CONTENT AS commContent,
+        C.COMM_INQIRE_CNT AS commInqireCnt,
+        C.COMM_LIKE_CNT AS commLikeCnt,
+        C.COMM_CMNT_CNT AS commCmntCnt,
+        DATE_FORMAT(C.COMM_REG_DATE, '%Y-%m-%d') AS commRegDate
+    FROM COMMUNITY C
+    JOIN MEMBER M ON C.COMM_MBR_ID = M.MBR_ID
+    LEFT JOIN COMMUNITY_HASHTAG CH ON C.COMM_NO = CH.CHTG_COMM_NO
+    LEFT JOIN HASHTAG H ON CH.CHTG_HTAG_NO = H.HTAG_NO
+    WHERE C.COMM_USE_YN = 'Y'
+      AND (
+           C.COMM_TITLE LIKE CONCAT('%', #{keyword}, '%')
+           OR C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
+           OR H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
+          )
+    GROUP BY C.COMM_NO
+    ORDER BY C.COMM_NO DESC
+    LIMIT #{offset}, #{size}
+</select>
 
 </mapper>
