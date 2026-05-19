@@ -1,10 +1,10 @@
-package sst.uploads.mapper;
+package sst.global.files.mapper;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import sst.uploads.domain.FileDomain;
+import sst.global.files.domain.FileDomain;
 
 
 @Mapper

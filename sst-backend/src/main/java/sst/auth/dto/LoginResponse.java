@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import sst.uploads.domain.FileDomain;
+import sst.global.files.domain.FileDomain;
 
 @Builder
 @Getter
@@ -21,5 +21,6 @@ public class LoginResponse {
     private String memberRole;
     private String mbrProviderCd;
     private String mbrProfileFileNo; 	// 프로필 아이디 번호
-    private FileDomain mbrProfileInfo;	// 프로필 아이콘 파일 정보
+    private FileDomain mbrProfileIcon;	// 프로필 아이콘 파일 정보
+    private FileDomain mbrProfileBg;	// 프로필 배경 파일 정보
 }

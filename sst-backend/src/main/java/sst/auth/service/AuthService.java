@@ -96,7 +96,8 @@ public class AuthService {
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd()) 
 			                .mbrProviderCd(member.getMbrProviderCd())
-			                .mbrProfileInfo(member.getProfileFile())
+			                //.mbrProfileIcon(member.getMbrProfileIcon())
+			                //.mbrProfileBg(member.getMbrProfileBg())
 			                .build();
     }
 	
@@ -188,7 +189,8 @@ public class AuthService {
 			                .mbrNickname(member.getMbrNickname())
 			                .memberRole(member.getMbrAuthCd())
 			                .mbrProviderCd(member.getMbrProviderCd())
-			                .mbrProfileInfo(member.getProfileFile())	// 프로필 아이콘 파일 정보
+			                .mbrProfileIcon(member.getMbrProfileIcon())	// 프로필 아이콘 파일 정보
+			                .mbrProfileBg(member.getMbrProfileBg())	// 프로필 배경 파일 정보
 			                .build();
     }
     
