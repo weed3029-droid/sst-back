@@ -66,21 +66,17 @@
 	            </when>
 	
 	            <when test="searchType == 'content'">
-	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
+				    AND (
+				        REPLACE(C.COMM_CONTENT, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(P.PLC_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(COALESCE(R.RGN_NAME, AR.RGN_NAME), ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				    )
+				</when>
 	
 	            <when test="searchType == 'author'">
 	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
-	
-	            <when test="searchType == 'place'">
-	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'region'">
-	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
+
 	            <when test="searchType == 'hashtag'">
 	                AND H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
@@ -145,19 +141,15 @@
 	            </when>
 	
 	            <when test="searchType == 'content'">
-	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
+				    AND (
+				        REPLACE(C.COMM_CONTENT, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(P.PLC_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(R.RGN_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				    )
+				</when>
 	
 	            <when test="searchType == 'author'">
 	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'place'">
-	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'region'">
-	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
 	
 	            <when test="searchType == 'hashtag'">
