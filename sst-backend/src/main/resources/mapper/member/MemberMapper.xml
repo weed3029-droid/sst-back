@@ -176,35 +176,60 @@
         <result column="MBR_LAST_LGN_DATE" property="mbrLastLgnDate"/>
         <result column="MBR_USE_YN"        property="mbrUseYn"/>
         
-        <!-- profileFile 필드 안에 FileDomain 객체를 생성해서 채움 -->
-	    <association property="profileFile" javaType="sst.uploads.domain.FileDomain">
-	        <id property="fileNo" column="MBR_PROFILE_FILE_NO" /> <!-- M.MBR_PROFILE_FILE_NO 값을 F.FILE_NO로 매핑 -->
-	        <result property="fileOrgNm" column="FILE_ORG_NM" />
-	        <result property="fileSaveNm" column="FILE_SAVE_NM" />
-	        <result property="filePath" column="FILE_PATH" />
-	        <result property="fileExt" column="FILE_EXT" />
-	        <result property="fileSize" column="FILE_SIZE" />
-	        <result property="fileMimeType" column="FILE_MIME_TYPE" />
-	        <result property="fileType" column="FILE_TYPE" />
+        <!-- 1. 프로필 아이콘 (SQL의 PF_ 별칭과 매핑) -->
+	    <association property="mbrProfileIcon" javaType="sst.global.files.domain.FileDomain">
+	        <id property="fileNo" column="MBR_PROFILE_FILE_NO" />
+	        <result property="fileOrgNm" column="PF_FILE_ORG_NM" />
+	        <result property="fileSaveNm" column="PF_FILE_SAVE_NM" />
+	        <result property="filePath" column="PF_FILE_PATH" />
+	        <result property="fileExt" column="PF_FILE_EXT" />
+	        <result property="fileSize" column="PF_FILE_SIZE" />
+	        <result property="fileMimeType" column="PF_FILE_MIME_TYPE" />
+	        <result property="fileType" column="PF_FILE_TYPE" />
+	    </association>
+	    
+	    <!-- 2. 배경 이미지 (SQL의 BG_ 별칭과 매핑) -->
+	    <association property="mbrProfileBg" javaType="sst.global.files.domain.FileDomain">
+	        <id property="fileNo" column="MBR_PROFILE_BG_FILE_NO" />
+	        <result property="fileOrgNm" column="BG_FILE_ORG_NM" />
+	        <result property="fileSaveNm" column="BG_FILE_SAVE_NM" />
+	        <result property="filePath" column="BG_FILE_PATH" />
+	        <result property="fileExt" column="BG_FILE_EXT" />
+	        <result property="fileSize" column="BG_FILE_SIZE" />
+	        <result property="fileMimeType" column="BG_FILE_MIME_TYPE" />
+	        <result property="fileType" column="BG_FILE_TYPE" />
 	    </association>
     
     </resultMap>
     
     <!-- 회원 아이디로 조회 -->
     <select id="findMemberById" resultMap="memberResultMap">
-        SELECT 
-	          M.*,
-	          F.FILE_ORG_NM, 
-	          F.FILE_SAVE_NM, 
-	          F.FILE_PATH, 
-	          F.FILE_EXT, 
-	          F.FILE_SIZE, 
-	          F.FILE_MIME_TYPE, 
-	          F.FILE_TYPE
-	    FROM MEMBER M
-	    LEFT JOIN FILE F ON M.MBR_PROFILE_FILE_NO = F.FILE_NO AND F.FILE_USE_YN = 'Y'
-	    WHERE M.MBR_ID = #{mbrId} 
-	      AND M.MBR_USE_YN = 'Y';
+       SELECT 
+		    M.*,
+		    -- 프로필 이미지 정보 (별칭: PF_)
+		    PF.FILE_ORG_NM   AS PF_FILE_ORG_NM, 
+		    PF.FILE_SAVE_NM  AS PF_FILE_SAVE_NM, 
+		    PF.FILE_PATH     AS PF_FILE_PATH, 
+		    PF.FILE_EXT      AS PF_FILE_EXT, 
+		    PF.FILE_SIZE     AS PF_FILE_SIZE, 
+		    PF.FILE_MIME_TYPE AS PF_FILE_MIME_TYPE, 
+		    PF.FILE_TYPE     AS PF_FILE_TYPE,
+		    
+		    -- 배경 이미지 정보 (별칭: BG_)
+		    BF.FILE_ORG_NM   AS BG_FILE_ORG_NM, 
+		    BF.FILE_SAVE_NM  AS BG_FILE_SAVE_NM, 
+		    BF.FILE_PATH     AS BG_FILE_PATH, 
+		    BF.FILE_EXT      AS BG_FILE_EXT, 
+		    BF.FILE_SIZE     AS BG_FILE_SIZE, 
+		    BF.FILE_MIME_TYPE AS BG_FILE_MIME_TYPE, 
+		    BF.FILE_TYPE     AS BG_FILE_TYPE
+		FROM MEMBER M
+		-- 프로필 파일 조인
+		LEFT JOIN FILE PF ON M.MBR_PROFILE_FILE_NO = PF.FILE_NO AND PF.FILE_USE_YN = 'Y'
+		-- 배경 파일 조인
+		LEFT JOIN FILE BF ON M.MBR_PROFILE_BG_FILE_NO = BF.FILE_NO AND BF.FILE_USE_YN = 'Y'
+		WHERE M.MBR_ID = #{mbrId} 
+		  AND M.MBR_USE_YN = 'Y';
     </select>
     
 
@@ -220,18 +245,31 @@
          -->
           
         SELECT 
-	          M.*,
-	          F.FILE_ORG_NM, 
-	          F.FILE_SAVE_NM, 
-	          F.FILE_PATH, 
-	          F.FILE_EXT, 
-	          F.FILE_SIZE, 
-	          F.FILE_MIME_TYPE, 
-	          F.FILE_TYPE
-	    FROM MEMBER M
-	    LEFT JOIN FILE F ON M.MBR_PROFILE_FILE_NO = F.FILE_NO AND F.FILE_USE_YN = 'Y'
-	    WHERE M.MBR_EMAIL = #{email} 
-	      AND M.MBR_USE_YN = 'Y';
+		    M.*,
+		    -- 프로필 이미지 정보 (별칭: PF_)
+		    PF.FILE_ORG_NM   AS PF_FILE_ORG_NM, 
+		    PF.FILE_SAVE_NM  AS PF_FILE_SAVE_NM, 
+		    PF.FILE_PATH     AS PF_FILE_PATH, 
+		    PF.FILE_EXT      AS PF_FILE_EXT, 
+		    PF.FILE_SIZE     AS PF_FILE_SIZE, 
+		    PF.FILE_MIME_TYPE AS PF_FILE_MIME_TYPE, 
+		    PF.FILE_TYPE     AS PF_FILE_TYPE,
+		    
+		    -- 배경 이미지 정보 (별칭: BG_)
+		    BF.FILE_ORG_NM   AS BG_FILE_ORG_NM, 
+		    BF.FILE_SAVE_NM  AS BG_FILE_SAVE_NM, 
+		    BF.FILE_PATH     AS BG_FILE_PATH, 
+		    BF.FILE_EXT      AS BG_FILE_EXT, 
+		    BF.FILE_SIZE     AS BG_FILE_SIZE, 
+		    BF.FILE_MIME_TYPE AS BG_FILE_MIME_TYPE, 
+		    BF.FILE_TYPE     AS BG_FILE_TYPE
+		FROM MEMBER M
+		-- 프로필 파일 조인
+		LEFT JOIN FILE PF ON M.MBR_PROFILE_FILE_NO = PF.FILE_NO AND PF.FILE_USE_YN = 'Y'
+		-- 배경 파일 조인
+		LEFT JOIN FILE BF ON M.MBR_PROFILE_BG_FILE_NO = BF.FILE_NO AND BF.FILE_USE_YN = 'Y'
+		WHERE M.MBR_EMAIL = #{email} 
+		  AND M.MBR_USE_YN = 'Y';
     </select>
     
     <insert id="saveMember" parameterType="sst.member.domain.Member" useGeneratedKeys="true" keyProperty="mbrId">
@@ -252,6 +290,15 @@
 	    SET MBR_PROFILE_FILE_NO = #{fileNo}
 	    WHERE MBR_ID = #{mbrId}
 	</update>
+	
+	<!-- 프로필 이미지 배경 번호 업데이트 -->
+	<update id="updateMemberProfileBgFileNo">
+	    UPDATE MEMBER
+	    SET MBR_PROFILE_BG_FILE_NO = #{fileNo}
+	    WHERE MBR_ID = #{mbrId}
+	</update>
+	
+	
     
     <update id="updateRefreshTokenById">
         /* 리프레시토큰 수정 */

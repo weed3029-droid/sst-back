@@ -1,4 +1,4 @@
-package sst.uploads.domain;
+package sst.global.files.domain;
 
 
 import lombok.AllArgsConstructor;

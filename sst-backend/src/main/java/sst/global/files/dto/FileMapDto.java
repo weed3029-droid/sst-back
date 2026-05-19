@@ -1,4 +1,4 @@
-package sst.uploads.dto;
+package sst.global.files.dto;
 
 import lombok.Data;
 
