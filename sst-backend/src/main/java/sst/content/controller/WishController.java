@@ -16,10 +16,6 @@ public class WishController {
 
     private final WishService wishService;
 
-    // ─────────────────────────────────────────
-    // 찜 토글 (추가/해제)
-    // POST /api/wishlist/toggle
-    // ─────────────────────────────────────────
     @PostMapping("/toggle")
     public ResponseEntity<Map<String, Boolean>> toggleWish(
             @RequestBody WishDto dto) {
@@ -27,10 +23,6 @@ public class WishController {
         return ResponseEntity.ok(Map.of("isWished", isWished));
     }
 
-    // ─────────────────────────────────────────
-    // 찜 여부 확인
-    // GET /api/wishlist/check?mbrId={mbrId}&plcNo={plcNo}
-    // ─────────────────────────────────────────
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkWish(
             @RequestParam("mbrId") Long mbrId,
@@ -42,13 +34,17 @@ public class WishController {
         return ResponseEntity.ok(Map.of("isWished", isWished));
     }
 
-    // ─────────────────────────────────────────
-    // 내 찜 목록 조회
-    // GET /api/wishlist?mbrId={mbrId}
-    // ─────────────────────────────────────────
     @GetMapping
     public ResponseEntity<List<WishResponseDto>> getMyWishlist(
             @RequestParam("mbrId") Long mbrId) {
         return ResponseEntity.ok(wishService.getMyWishlist(mbrId));
+    }
+
+    // 여러 장소 찜 상태 한번에 조회
+    @GetMapping("/check-bulk")
+    public ResponseEntity<List<Long>> checkWishBulk(
+            @RequestParam("mbrId") Long mbrId,
+            @RequestParam("plcNos") List<Long> plcNos) {
+        return ResponseEntity.ok(wishService.getWishedPlcNos(mbrId, plcNos));
     }
 }
