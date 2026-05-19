@@ -17,11 +17,11 @@ public class SearchService {
     private final SearchMapper searchMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<Community> searchCommunitiesPaged(String keyword, PageRequest pageRequest) {
+    public PageResponse<Community> searchCommunitiesPaged(String keyword, String region, PageRequest pageRequest) {
         String cleanKeyword = (keyword == null) ? "" : keyword.replace("#", "").trim();
-        int total = searchMapper.countCommunitiesByKeyword(cleanKeyword);
+        int total = searchMapper.countCommunitiesByKeyword(cleanKeyword, region);
         List<Community> list = searchMapper.selectCommunitiesByKeywordPaged(
-                cleanKeyword, pageRequest.getOffset(), pageRequest.getSize());
+                cleanKeyword, region, pageRequest.getOffset(), pageRequest.getSize());
         return new PageResponse<>(list, total, pageRequest);
     }
 
