@@ -1,9 +1,12 @@
 package sst.content.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
 import sst.content.dto.WishDto;
 import sst.content.dto.WishResponseDto;
-import java.util.List;
 
 @Mapper
 public interface WishMapper {
@@ -19,4 +22,7 @@ public interface WishMapper {
 
     /** 내 찜 목록 조회 */
     List<WishResponseDto> selectMyWishlist(Long mbrId);
+
+    /** 여러 장소 찜 상태 한번에 조회 */  // ✅ 이것만 추가
+    List<Long> selectWishedPlcNos(@Param("mbrId") Long mbrId, @Param("plcNos") List<Long> plcNos);
 }

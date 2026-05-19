@@ -1,4 +1,3 @@
-// 🚀 1. SearchController.java
 package sst.search.controller;
 
 import lombok.RequiredArgsConstructor;
@@ -18,23 +17,21 @@ public class SearchController {
 
     private final SearchService searchService;
 
-
-    // 🚀 커뮤니티(뽐낼거리) 검색 (해시태그 포함, 페이징 적용)
     @GetMapping("/communities")
     public ResponseEntity<ApiResponse<PageResponse<Community>>> searchCommunitiesPaged(
             @RequestParam("keyword") String keyword,
             PageRequest pageRequest) {
-        
         PageResponse<Community> result = searchService.searchCommunitiesPaged(keyword, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
-    
+
     @GetMapping("/places")
     public ResponseEntity<ApiResponse<PageResponse<PlaceCardDto>>> searchPlacesPaged(
             @RequestParam("keyword") String keyword,
-            @RequestParam(value = "category", defaultValue = "ALL") String category, // 🚀 카테고리 파라미터 추가
+            @RequestParam(value = "category", defaultValue = "ALL") String category,
+            @RequestParam(value = "region", required = false) String region, // ✅ 추가
             PageRequest pageRequest) {
-        PageResponse<PlaceCardDto> result = searchService.searchPlacesPaged(keyword, category, pageRequest);
+        PageResponse<PlaceCardDto> result = searchService.searchPlacesPaged(keyword, category, region, pageRequest);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 }

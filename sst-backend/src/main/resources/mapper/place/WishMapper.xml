@@ -53,4 +53,15 @@
     ORDER BY w.WISH_REG_DATE DESC
   </select>
 
+	<!-- 내 찜 전체 목록 조회 -->
+	<select id="selectWishedPlcNos" resultType="long">
+    SELECT WISH_PLC_NO
+    FROM PLACE_WISHLIST
+    WHERE WISH_MBR_ID = #{mbrId}
+    AND WISH_PLC_NO IN
+    <foreach item="plcNo" collection="plcNos" open="(" separator="," close=")">
+        #{plcNo}
+    </foreach>
+</select>
+
 </mapper>
