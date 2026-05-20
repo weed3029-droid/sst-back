@@ -1,4 +1,4 @@
-package sst.common.dto;
+package sst.global.files.dto;
 
 import lombok.Builder;
 import lombok.Data;

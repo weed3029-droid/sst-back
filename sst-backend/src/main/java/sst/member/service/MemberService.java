@@ -9,17 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import sst.common.component.FileServiceComponent;
 import sst.global.exception.CustomException;
 import sst.global.exception.ErrorCode;
+import sst.global.files.domain.FileDomain;
+import sst.global.files.mapper.FileMapper;
+import sst.global.files.storage.FileStorage;
 import sst.global.utils.CookieUtil;
 import sst.member.domain.Member;
 import sst.member.dto.MemberUpdateRequest;
 import sst.member.dto.PasswordChangeRequest;
 import sst.member.dto.WithdrawalRequest;
 import sst.member.mapper.MemberMapper;
-import sst.uploads.domain.FileDomain;
-import sst.uploads.mapper.FileMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +31,8 @@ public class MemberService {
 	private final CookieUtil cookieUtil;
 	
 	private final FileMapper fileMapper;
-	private final FileServiceComponent fileProvider;
+	//private final FileServiceComponent fileProvider;
+	private final FileStorage fileStorage;
 	
 	@Transactional
 	public Member getMemberInfoByEmail(String email) {
@@ -39,6 +40,15 @@ public class MemberService {
                            .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 	
+	@Transactional
+	public Member getMemberInfoById(Long mbrId) {
+		return memberMapper.findMemberById(mbrId)
+				.orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+	}
+	
+	/**
+	 * 회원 정보 수정 
+	 */
 	@Transactional
 	public void updateMemberInfo(Long mbrId, MemberUpdateRequest request) {
 		Member currentMember = memberMapper.findMemberById(mbrId)
@@ -56,54 +66,81 @@ public class MemberService {
 	            .build();
 	            
 	    memberMapper.updateMemberInfo(updateParam);
+	    // 아이디 
+	    // 값 -> 맞다면 지우고
 
 	    // 2. 프로필 이미지 처리 (Fluent API 활용)
         if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
             // 기존 파일 경로 가져오기
-            String oldProfilePath = currentMember.getProfileFile() != null 
-                    ? currentMember.getProfileFile().getFilePath() : null;
+            String oldProfilePath = currentMember.getMbrProfileIcon() != null 
+                    ? currentMember.getMbrProfileIcon().getFilePath() : null;
             
-            fileProvider.setup("member")
+            // 실제 지우거나 바꿔도 되는 파일인지 검수 하는 로직이 필요하지 않을까? ㄴ
+            
+            fileStorage.setup("member")
             .subPath("profile")
             .allow(List.of("jpg", "jpeg", "png", "webp")) // 허용 확장자
             .maxSize(10 * 1024 * 1024)                  // 10MB 가드
             .onSuccess(result -> {
-	        	// DB 데이터 Builder
-	        	FileDomain fileDomain = FileDomain.builder()
-                    .fileOrgNm(result.getFileOrgNm())
-                    .fileSaveNm(result.getFileSaveNm())
-                    .filePath(result.getFilePath())
-                    .fileExt(result.getFileExt())
-                    .fileSize(result.getFileSize())
-                    .fileMimeType(result.getContentType())
-                    .fileType("IMAGE")
-                    .build();
-
-                fileMapper.insertFile(fileDomain); // DB에 데이터 추가
-                
-                // insertFile 후에 MyBatis가 fileNo를 채워준다면 바로 사용
-                if(fileDomain.getFileNo() != null) {
-                    memberMapper.updateMemberProfileFileNo(mbrId, fileDomain.getFileNo());
-                }
+            	// DB 데이터 Builder
+            	FileDomain fileDomain = FileDomain.builder()
+            			.fileOrgNm(result.getFileOrgNm())
+            			.fileSaveNm(result.getFileSaveNm())
+            			.filePath(result.getFilePath())
+            			.fileExt(result.getFileExt())
+            			.fileSize(result.getFileSize())
+            			.fileMimeType(result.getContentType())
+            			.fileType("IMAGE")
+            			.build();
+            	
+            	fileMapper.insertFile(fileDomain); // DB에 데이터 추가
+            	
+            	// insertFile 후에 MyBatis가 fileNo를 채워준다면 바로 사용
+            	if(fileDomain.getFileNo() != null) {
+            		memberMapper.updateMemberProfileFileNo(mbrId, fileDomain.getFileNo());
+            	}
+            	return null;
             })
             .replace(request.getProfileImage(), oldProfilePath);	// 데이터 추가
         }
-
-        // 3. 배경 이미지 처리 (추가됨)
-        /*
+        
+        // 3. 배경 이미지 처리 (추가 예정)
         if (request.getBackgroundImage() != null && !request.getBackgroundImage().isEmpty()) {
-            String oldBgPath = currentMember.getMbrProfileBgInfo() != null 
-                    ? currentMember.getMbrProfileBgInfo().getFilePath() : null;
-
-            fileProvider.setup("member")
-                .subPath("background")
-                .allow(List.of("jpg", "jpeg", "png", "webp"))
-                .onSuccess(result -> {
-                    memberMapper.updateMemberBackgroundFileNo(mbrId, result.getFileNo());
-                })
-                .replace(request.getBackgroundImage(), oldBgPath);
+            // 기존 파일 경로 가져오기
+            String oldProfilePath = currentMember.getMbrProfileBg() != null 
+                    ? currentMember.getMbrProfileBg().getFilePath() : null;
+            
+            // 실제 지우거나 바꿔도 되는 파일인지 검수 하는 로직이 필요하지 않을까? ㄴ
+            
+            fileStorage.setup("member")
+            .subPath("profile")
+            .allow(List.of("jpg", "jpeg", "png", "webp")) // 허용 확장자
+            .maxSize(10 * 1024 * 1024)                  // 10MB 가드
+            .onSuccess(result -> {
+            	// DB 데이터 Builder
+            	FileDomain fileDomain = FileDomain.builder()
+            			.fileOrgNm(result.getFileOrgNm())
+            			.fileSaveNm(result.getFileSaveNm())
+            			.filePath(result.getFilePath())
+            			.fileExt(result.getFileExt())
+            			.fileSize(result.getFileSize())
+            			.fileMimeType(result.getContentType())
+            			.fileType("IMAGE")
+            			.build();
+            	
+            	fileMapper.insertFile(fileDomain); // DB에 데이터 추가
+            	
+            	// insertFile 후에 MyBatis가 fileNo를 채워준다면 바로 사용
+            	if(fileDomain.getFileNo() != null) {
+            		memberMapper.updateMemberProfileBgFileNo(mbrId, fileDomain.getFileNo());
+            	}
+            	return null;
+            })
+            .replace(request.getBackgroundImage(), oldProfilePath);	// 데이터 추가
         }
-        */
+        
+        
+        
 	}
 	
 	@Transactional

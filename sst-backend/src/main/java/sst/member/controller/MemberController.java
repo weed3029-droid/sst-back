@@ -39,6 +39,7 @@ public class MemberController {
 	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@PathVariable(value="email") String email){
 		
 		Member member = memberService.getMemberInfoByEmail(email);
+		System.out.println(member);
 		
 		return ResponseEntity.ok(ApiResponse.success(member));
 	}
@@ -53,12 +54,19 @@ public class MemberController {
      * 내 정보 수정
      */
     @PostMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> updateMyInfo(
+    public ResponseEntity<ApiResponse<Member>> updateMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @ModelAttribute MemberUpdateRequest request) {
+    	
+    	// 1. DB 수정 수행
+        Long mbrId = userDetails.getMember().getMbrId();
+        memberService.updateMemberInfo(mbrId, request);
 
-        memberService.updateMemberInfo(userDetails.getMember().getMbrId(), request);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        // 2. 수정된 데이터를 DB에서 다시 읽어옴
+        Member updatedMember = memberService.getMemberInfoById(mbrId); 
+
+        // 3. 최신 데이터를 프론트로 반환
+        return ResponseEntity.ok(ApiResponse.success(updatedMember));
     }
     
     // 비밀번호 변경(인증된 사용자만 접근 가능)
