@@ -8,14 +8,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * 회원 Form Request Data 받아오기 위한 DTO 클래스 
+ * 
+ */
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 public class MemberUpdateRequest {
+	
     @NotBlank(message = "이름은 필수입니다.")
     private String mbrName;
     
+    // 회원 이름
     @NotBlank(message = "닉네임은 필수입니다.")
     private String mbrNickname;
     

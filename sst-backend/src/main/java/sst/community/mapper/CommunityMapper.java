@@ -161,5 +161,17 @@ public interface CommunityMapper {
 	 );
 	 
 	 int updateCommunityByAdmin(Community community);
+	 
+	 // 게시글 유지 이미지들의 파일 번호 조회
+	 List<Long> selectCommunityFileNosByPaths(
+	        @Param("commNo") Long commNo,
+	        @Param("filePaths") List<String> filePaths
+	 );
+
+	// 특정 파일 번호들의 게시글 파일 매핑 삭제
+	void deleteCommunityFileMapsByFileNos(
+	        @Param("commNo") Long commNo,
+	        @Param("fileNos") List<Long> fileNos
+	 );
 
 }

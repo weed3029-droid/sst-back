@@ -3,14 +3,14 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="sst.uploads.mapper.FileMapper">
+<mapper namespace="sst.global.files.mapper.FileMapper">
 	
 	<!-- 파일 테이믈 Insert  -->
 	<insert id="insertFile"
             useGeneratedKeys="true"
             keyProperty="fileNo"
             keyColumn="FILE_NO"
-            parameterType="sst.uploads.domain.FileDomain">
+            parameterType="sst.global.files.domain.FileDomain">
         INSERT INTO FILE (
             FILE_ORG_NM,
             FILE_SAVE_NM,

@@ -25,6 +25,7 @@ public class CommunityDto {
     private String commUseYn;
 
     private List<String> hashtags;
+    private List<String> existingImageUrls;
     private List<String> images;
 
     private String searchType;
