@@ -9,9 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sst.global.exception.CustomException;
 import sst.global.exception.ErrorCode;
 import sst.global.files.domain.FileDomain;
+import sst.global.files.dto.FileUploadResult;
 import sst.global.files.mapper.FileMapper;
 import sst.global.files.storage.FileStorage;
 import sst.global.utils.CookieUtil;
@@ -21,6 +23,7 @@ import sst.member.dto.PasswordChangeRequest;
 import sst.member.dto.WithdrawalRequest;
 import sst.member.mapper.MemberMapper;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -70,74 +73,87 @@ public class MemberService {
 	    // 값 -> 맞다면 지우고
 
 	    // 2. 프로필 이미지 처리 (Fluent API 활용)
-        if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
-            // 기존 파일 경로 가져오기
-            String oldProfilePath = currentMember.getMbrProfileIcon() != null 
-                    ? currentMember.getMbrProfileIcon().getFilePath() : null;
-            
-            // 실제 지우거나 바꿔도 되는 파일인지 검수 하는 로직이 필요하지 않을까? ㄴ
-            
-            fileStorage.setup("member")
-            .subPath("profile")
-            .allow(List.of("jpg", "jpeg", "png", "webp")) // 허용 확장자
-            .maxSize(10 * 1024 * 1024)                  // 10MB 가드
-            .onSuccess(result -> {
-            	// DB 데이터 Builder
-            	FileDomain fileDomain = FileDomain.builder()
-            			.fileOrgNm(result.getFileOrgNm())
-            			.fileSaveNm(result.getFileSaveNm())
-            			.filePath(result.getFilePath())
-            			.fileExt(result.getFileExt())
-            			.fileSize(result.getFileSize())
-            			.fileMimeType(result.getContentType())
-            			.fileType("IMAGE")
-            			.build();
-            	
-            	fileMapper.insertFile(fileDomain); // DB에 데이터 추가
-            	
-            	// insertFile 후에 MyBatis가 fileNo를 채워준다면 바로 사용
-            	if(fileDomain.getFileNo() != null) {
-            		memberMapper.updateMemberProfileFileNo(mbrId, fileDomain.getFileNo());
-            	}
-            	return null;
-            })
-            .replace(request.getProfileImage(), oldProfilePath);	// 데이터 추가
-        }
-        
-        // 3. 배경 이미지 처리 (추가 예정)
-        if (request.getBackgroundImage() != null && !request.getBackgroundImage().isEmpty()) {
-            // 기존 파일 경로 가져오기
-            String oldProfilePath = currentMember.getMbrProfileBg() != null 
-                    ? currentMember.getMbrProfileBg().getFilePath() : null;
-            
-            // 실제 지우거나 바꿔도 되는 파일인지 검수 하는 로직이 필요하지 않을까? ㄴ
-            
-            fileStorage.setup("member")
-            .subPath("profile")
-            .allow(List.of("jpg", "jpeg", "png", "webp")) // 허용 확장자
-            .maxSize(10 * 1024 * 1024)                  // 10MB 가드
-            .onSuccess(result -> {
-            	// DB 데이터 Builder
-            	FileDomain fileDomain = FileDomain.builder()
-            			.fileOrgNm(result.getFileOrgNm())
-            			.fileSaveNm(result.getFileSaveNm())
-            			.filePath(result.getFilePath())
-            			.fileExt(result.getFileExt())
-            			.fileSize(result.getFileSize())
-            			.fileMimeType(result.getContentType())
-            			.fileType("IMAGE")
-            			.build();
-            	
-            	fileMapper.insertFile(fileDomain); // DB에 데이터 추가
-            	
-            	// insertFile 후에 MyBatis가 fileNo를 채워준다면 바로 사용
-            	if(fileDomain.getFileNo() != null) {
-            		memberMapper.updateMemberProfileBgFileNo(mbrId, fileDomain.getFileNo());
-            	}
-            	return null;
-            })
-            .replace(request.getBackgroundImage(), oldProfilePath);	// 데이터 추가
-        }
+	    if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
+	        // 기존 파일 경로 가져오기
+	        String oldProfilePath = currentMember.getMbrProfileIcon() != null 
+	                ? currentMember.getMbrProfileIcon().getFilePath() : null;
+
+	        fileStorage.setup("member")
+	            .subPath("profile")
+	            .allow(List.of("jpg", "jpeg", "png", "webp"))
+	            .maxSize("10MB") // 문자열로 가독성 있게 설정 가능
+	            .onSuccess(context -> {
+	            	// 저장된 파일
+	                FileUploadResult saved = context.getSavedFiles().get(0);
+	                // 삭제된 파일
+	                FileUploadResult removed = context.getDeletedFiles().get(0);
+	                
+	                
+	                FileDomain fileDomain = FileDomain.builder()
+	                        .fileOrgNm(saved.getFileOrgNm())
+	                        .fileSaveNm(saved.getFileSaveNm())
+	                        .filePath(saved.getFilePath())
+	                        .fileExt(saved.getFileExt())
+	                        .fileSize(saved.getFileSize())
+	                        .fileMimeType(saved.getContentType())
+	                        .fileType("IMAGE")
+	                        .build();
+	                
+	                fileMapper.insertFile(fileDomain);
+	                
+	                if(fileDomain.getFileNo() != null) {
+	                    memberMapper.updateMemberProfileFileNo(mbrId, fileDomain.getFileNo());
+	                }
+	            })
+	            .updateFile(request.getProfileImage(), oldProfilePath); // [수정] 메서드명 확인
+	    }
+
+	    // 3. 배경 이미지 처리 (절차적 후처리 방식)
+	    if (request.getBackgroundImage() != null && !request.getBackgroundImage().isEmpty()) {
+	        String oldProfilePath = currentMember.getMbrProfileBg() != null 
+	                ? currentMember.getMbrProfileBg().getFilePath() : null;
+
+	        try {
+	            // [Step 1] 파일 실행 및 결과 리턴
+	            List<FileUploadResult> results = fileStorage.setup("member")
+	                    .subPath("profile/bg")
+	                    .allow(List.of("jpg", "jpeg", "png", "webp"))
+	                    .maxSize("10MB")
+	                    .replaceFile(request.getBackgroundImage(), oldProfilePath);
+
+	            // [Step 2] 성공 시 조건문 처리
+	            if (results != null && !results.isEmpty()) {
+	                FileUploadResult result = results.get(0);
+	                
+	                FileDomain fileDomain = FileDomain.builder()
+	                        .fileOrgNm(result.getFileOrgNm())
+	                        .fileSaveNm(result.getFileSaveNm())
+	                        .filePath(result.getFilePath())
+	                        .fileExt(result.getFileExt())
+	                        .fileSize(result.getFileSize())
+	                        .fileMimeType(result.getContentType())
+	                        .fileType("IMAGE")
+	                        .build();
+	                
+	                // DB 데이터 추가
+	                fileMapper.insertFile(fileDomain);
+	                
+	                // 회원 배경 이미지 정보 업데이트
+	                if (fileDomain.getFileNo() != null) {
+	                    memberMapper.updateMemberProfileBgFileNo(mbrId, fileDomain.getFileNo());
+	                }
+	                
+	                log.info("배경 이미지 업로드 및 DB 갱신 성공: {}", result.getFilePath());
+	            }
+
+	        } catch (Exception e) {
+	            // [Step 3] 실패 시 처리 로직 (onFailure 역할을 수행)
+	            log.error("배경 이미지 처리 중 오류 발생: {}", e.getMessage());
+	            
+	            // 필요 시 사용자 정의 예외를 다시 던져 트랜잭션 롤백 유도
+	            throw new RuntimeException("파일 처리 실패로 인해 작업을 중단합니다.", e);
+	        }
+	    }
         
         
         
