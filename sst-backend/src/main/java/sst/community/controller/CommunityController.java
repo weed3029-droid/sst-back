@@ -1,21 +1,17 @@
 package sst.community.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +23,6 @@ import sst.community.dto.RegionDto;
 import sst.community.service.CommunityService;
 import sst.global.dto.PageRequest;
 import sst.global.dto.PageResponse;
-import sst.community.dto.CommunityFileDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,58 +85,6 @@ public class CommunityController {
         return communityService.getLikedCommunityNos(commNos, mbrId);
     }
     
-    // 커뮤니티 게시글 등록
-    @PostMapping("/api/community")
-    public void createCommunity(@RequestBody CommunityDto communityDto) {
-    	communityService.createCommunity(communityDto, null);
-    }
-    
-    // 커뮤니티 게시글 등록 + 이미지 업로드
-    @PostMapping(value = "/api/community/with-images", consumes = "multipart/form-data")
-    public void createCommunityWithImages(
-            @RequestPart("community") CommunityDto communityDto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) throws IOException {
-
-        List<CommunityFileDto> files = saveCommunityImages(images);
-
-        if (!files.isEmpty()) {
-            communityDto.setCommMainImgUrl(files.get(0).getFilePath());
-        }
-
-        communityService.createCommunity(communityDto, files);
-    }
-    
-    // 커뮤니티 게시글 수정
-    @PutMapping("/api/community/{commNo}")
-    public void modifyCommunity(
-            @PathVariable("commNo") Long commNo,
-            @RequestBody CommunityDto communityDto) {
-
-        communityDto.setCommNo(commNo);
-
-        communityService.modifyCommunity(communityDto, null);
-    }
-
-    // 커뮤니티 게시글 수정 + 이미지 업로드
-    @PutMapping(value = "/api/community/{commNo}/with-images", consumes = "multipart/form-data")
-    public void modifyCommunityWithImages(
-            @PathVariable("commNo") Long commNo,
-            @RequestPart("community") CommunityDto communityDto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images
-    ) throws IOException {
-
-        communityDto.setCommNo(commNo);
-
-        List<CommunityFileDto> files = saveCommunityImages(images);
-
-        if (!files.isEmpty()) {
-            communityDto.setCommMainImgUrl(files.get(0).getFilePath());
-        }
-
-        communityService.modifyCommunity(communityDto, files);
-    }
-    
     // 커뮤니티 게시글 삭제
     @DeleteMapping("/api/community/{commNo}")
     public void removeCommunity(@PathVariable("commNo") Long commNo) {
@@ -178,62 +121,24 @@ public class CommunityController {
         return communityService.getPlaceList(rgnCd, catCd);
     }
 
-    // 커뮤니티 이미지 저장
-    private List<CommunityFileDto> saveCommunityImages(
-            List<MultipartFile> images) throws IOException {
-
-        List<CommunityFileDto> files = new ArrayList<>();
-
-        if (images == null || images.isEmpty()) {
-            return files;
-        }
-
-        File uploadDir =
-                new File(System.getProperty("user.dir"),
-                "uploads/community");
-
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        for (MultipartFile image : images) {
-
-            if (image == null || image.isEmpty()) {
-                continue;
-            }
-
-            String originalName = image.getOriginalFilename();
-
-            String ext = "";
-
-            if (originalName != null
-                    && originalName.contains(".")) {
-
-                ext = originalName.substring(
-                        originalName.lastIndexOf(".") + 1);
-            }
-
-            String saveName =
-                    UUID.randomUUID().toString()
-                    + (ext.isBlank() ? "" : "." + ext);
-
-            File saveFile = new File(uploadDir, saveName);
-
-            image.transferTo(saveFile.getAbsoluteFile());
-
-            CommunityFileDto file = new CommunityFileDto();
-
-            file.setFileOrgNm(originalName);
-            file.setFileSaveNm(saveName);
-            file.setFilePath("/uploads/community/" + saveName);
-            file.setFileExt(ext);
-            file.setFileSize(image.getSize());
-            file.setFileMimeType(image.getContentType());
-            file.setFileType("IMAGE");
-
-            files.add(file);
-        }
-
-        return files;
+    // 등록 multipart
+    @PostMapping(value = "/api/community", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void createCommunity(
+            @RequestPart("community") CommunityDto communityDto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        communityService.createCommunity(communityDto, files);
     }
+    
+    // 수정 multipart
+    @PutMapping(value = "/api/community/{commNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void modifyCommunity(
+            @PathVariable("commNo") Long commNo,
+            @RequestPart("community") CommunityDto communityDto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        communityDto.setCommNo(commNo);
+        communityService.modifyCommunity(communityDto, files);
+    }
+    
 }

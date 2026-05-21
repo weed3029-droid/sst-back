@@ -7,8 +7,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import lombok.RequiredArgsConstructor;
-
-import lombok.RequiredArgsConstructor;
 import sst.global.interceptor.LogInterceptor;
 
 @Configuration
@@ -30,12 +28,12 @@ public class WebConfig implements WebMvcConfigurer {
 	}
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
     	registry
         .addResourceHandler("/attachment/**")
         .addResourceLocations(config.getOSResourceUri())
         .setCachePeriod(3600)
 		.resourceChain(true)
 		.addResolver(new PathResourceResolver());
+
     }
 }

@@ -11,7 +11,6 @@ import sst.community.dto.PlaceCategoryDto;
 import sst.community.dto.PlaceDto;
 import sst.community.dto.RegionDto;
 import sst.community.dto.CommunityDto;
-import sst.community.dto.CommunityFileDto;
 
 @Mapper
 public interface CommunityMapper {
@@ -96,9 +95,6 @@ public interface CommunityMapper {
     // 게시글 해시태그 전체 삭제
     void deleteCommunityHashtags(Long commNo);
 
-    // 파일 정보 등록
-    void insertFile(CommunityFileDto file);
-
     // 커뮤니티 파일 매핑 등록
     void insertCommunityFileMap(CommunityFileMapDto map);
 
@@ -161,5 +157,17 @@ public interface CommunityMapper {
 	 );
 	 
 	 int updateCommunityByAdmin(Community community);
+	 
+	 // 게시글 유지 이미지들의 파일 번호 조회
+	 List<Long> selectCommunityFileNosByPaths(
+	        @Param("commNo") Long commNo,
+	        @Param("filePaths") List<String> filePaths
+	 );
+
+	// 특정 파일 번호들의 게시글 파일 매핑 삭제
+	void deleteCommunityFileMapsByFileNos(
+	        @Param("commNo") Long commNo,
+	        @Param("fileNos") List<Long> fileNos
+	 );
 
 }

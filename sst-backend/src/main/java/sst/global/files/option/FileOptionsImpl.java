@@ -324,7 +324,7 @@ public class FileOptionsImpl implements FileOptions {
         return handleFlexibleInput(fileOrList, pathOrList, true);
     }
 
-    // --- [DELETE] 삭제 전용 ---
+    // --- [DELETE] 삭제 전용 --- 
 
     /**
      * 단일 파일을 시스템에서 물리적으로 삭제합니다.

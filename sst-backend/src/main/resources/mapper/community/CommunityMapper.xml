@@ -66,21 +66,17 @@
 	            </when>
 	
 	            <when test="searchType == 'content'">
-	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
+				    AND (
+				        REPLACE(C.COMM_CONTENT, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(P.PLC_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(COALESCE(R.RGN_NAME, AR.RGN_NAME), ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				    )
+				</when>
 	
 	            <when test="searchType == 'author'">
 	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
-	
-	            <when test="searchType == 'place'">
-	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'region'">
-	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
+
 	            <when test="searchType == 'hashtag'">
 	                AND H.HTAG_TAG_NAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
@@ -105,7 +101,7 @@
 	
 	    <choose>
 	        <when test="sortType == 'popular'">
-	            ORDER BY (C.COMM_INQIRE_CNT + C.COMM_LIKE_CNT + C.COMM_CMNT_CNT) DESC, C.COMM_NO DESC
+	            ORDER BY C.COMM_LIKE_CNT DESC, C.COMM_NO DESC
 	        </when>
 	        <when test="sortType == 'view'">
 	            ORDER BY C.COMM_INQIRE_CNT DESC, C.COMM_NO DESC
@@ -145,19 +141,15 @@
 	            </when>
 	
 	            <when test="searchType == 'content'">
-	                AND C.COMM_CONTENT LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
+				    AND (
+				        REPLACE(C.COMM_CONTENT, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(P.PLC_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				        OR REPLACE(R.RGN_NAME, ' ', '') LIKE CONCAT('%', REPLACE(#{keyword}, ' ', ''), '%')
+				    )
+				</when>
 	
 	            <when test="searchType == 'author'">
 	                AND M.MBR_NICKNAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'place'">
-	                AND P.PLC_NAME LIKE CONCAT('%', #{keyword}, '%')
-	            </when>
-	
-	            <when test="searchType == 'region'">
-	                AND R.RGN_NAME LIKE CONCAT('%', #{keyword}, '%')
 	            </when>
 	
 	            <when test="searchType == 'hashtag'">
@@ -378,35 +370,6 @@
 	    WHERE CHTG_COMM_NO = #{commNo}
 	</delete>
 	
-	<!-- 파일 정보 등록 -->
-	<insert id="insertFile" parameterType="sst.community.dto.CommunityFileDto"
-	        useGeneratedKeys="true"
-	        keyProperty="fileNo"
-	        keyColumn="FILE_NO">
-	    INSERT INTO FILE (
-	        FILE_ORG_NM,
-	        FILE_SAVE_NM,
-	        FILE_PATH,
-	        FILE_EXT,
-	        FILE_SIZE,
-	        FILE_MIME_TYPE,
-	        FILE_TYPE,
-	        FILE_REG_DATE,
-	        FILE_USE_YN
-	    )
-	    VALUES (
-	        #{fileOrgNm},
-	        #{fileSaveNm},
-	        #{filePath},
-	        #{fileExt},
-	        #{fileSize},
-	        #{fileMimeType},
-	        #{fileType},
-	        NOW(),
-	        'Y'
-	    )
-	</insert>
-	
 	<!-- 인기 해시태그 TOP5 조회 -->
 	<select id="selectPopularHashtags" resultType="string">
 	    SELECT
@@ -469,14 +432,15 @@
 	    WHERE CFM_COMM_NO = #{commNo}
 	</select>
 	
-	<!-- 파일 정보 삭제 -->
-	<delete id="deleteFiles">
-	    DELETE FROM FILE
+	<!-- 파일 정보 삭제(논리 삭제) -->
+	<update id="deleteFiles">
+	    UPDATE FILE
+	    SET FILE_USE_YN = 'N'
 	    WHERE FILE_NO IN
 	    <foreach collection="fileNos" item="fileNo" open="(" separator="," close=")">
 	        #{fileNo}
 	    </foreach>
-	</delete>
+	</update>
 	
 	<!-- 게시글 이미지 목록 조회 -->
 	<select id="selectCommunityImages" resultType="string">
@@ -485,8 +449,41 @@
 	    JOIN FILE F
 	      ON CFM.CFM_FILE_NO = F.FILE_NO
 	    WHERE CFM.CFM_COMM_NO = #{commNo}
+	      AND F.FILE_USE_YN = 'Y'
 	    ORDER BY CFM.CFM_SORT_ORDR ASC
 	</select>
+	
+	<!-- 게시글 이미지 경로 목록으로 파일 번호 조회 -->
+	<select id="selectCommunityFileNosByPaths" resultType="long">
+	    SELECT F.FILE_NO
+	    FROM COMMUNITY_FILE_MAP CFM
+	    JOIN FILE F
+	      ON CFM.CFM_FILE_NO = F.FILE_NO
+	    WHERE CFM.CFM_COMM_NO = #{commNo}
+	      AND F.FILE_USE_YN = 'Y'
+	      AND F.FILE_PATH IN
+	      <foreach collection="filePaths"
+	               item="filePath"
+	               open="("
+	               separator=","
+	               close=")">
+	          #{filePath}
+	      </foreach>
+	</select>
+	
+	<!-- 특정 파일 번호들의 게시글 파일 매핑 삭제 -->
+	<delete id="deleteCommunityFileMapsByFileNos">
+	    DELETE FROM COMMUNITY_FILE_MAP
+	    WHERE CFM_COMM_NO = #{commNo}
+	      AND CFM_FILE_NO IN
+	      <foreach collection="fileNos"
+	               item="fileNo"
+	               open="("
+	               separator=","
+	               close=")">
+	          #{fileNo}
+	      </foreach>
+	</delete>
 	
 	<!-- 지역 목록 조회 -->
 	<select id="selectRegionList" resultType="sst.community.dto.RegionDto">
@@ -519,11 +516,6 @@
 	      AND PLC_USE_YN = 'Y'
 	    ORDER BY PLC_NAME ASC
 	</select>
-	
-   <!-- 댓글 수 감소 -->
-   <!-- 댓글 수 감소 -->
-   <!-- 댓글 수 감소 -->
-
     
 	<sql id="adminSearchCondition">
         AND C.COMM_CAT_CD = #{catCd}

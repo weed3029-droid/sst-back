@@ -32,9 +32,9 @@ public class MemberService {
 	private final PasswordEncoder passwordEncoder;
 	
 	private final CookieUtil cookieUtil;
+
 	
 	private final FileMapper fileMapper;
-	//private final FileServiceComponent fileProvider;
 	private final FileStorage fileStorage;
 	
 	@Transactional
