@@ -56,12 +56,6 @@ public class AdminSeeController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
     
-    @DeleteMapping("/{plcNo}")
-    public ResponseEntity<ApiResponse<Void>> deleteDetail(@PathVariable(name = "plcNo") Long plcNo) {
-        adminSeeService.deleteSee(plcNo);
-        return ResponseEntity.ok(ApiResponse.success(null));
-    }
-    
  // 🚀 3. 복구/삭제 토글을 위한 API 추가
     @PatchMapping("/{plcNo}/status")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(

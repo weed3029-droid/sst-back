@@ -24,10 +24,4 @@ public class SeeService {
         return placeSeeMapper.findById(plcNo);
     }
     
-    @Transactional
-    public void updateSee(Long plcNo, SeeUpdateRequestDto dto) {
-        // 🚀 두 개의 쿼리를 트랜잭션으로 묶어 데이터 무결성 보장
-        placeSeeMapper.updatePlace(plcNo, dto);
-        placeSeeMapper.updatePlaceSee(plcNo, dto);
-    }
 }

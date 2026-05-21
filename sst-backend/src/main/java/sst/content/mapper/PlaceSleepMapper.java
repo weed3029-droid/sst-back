@@ -12,6 +12,8 @@ import sst.content.dto.SleepUpdateRequestDto;
 public interface PlaceSleepMapper {
     List<SleepResponseDto> findByRegion(@Param("rgnCd") Integer rgnCd);
     
+    SleepResponseDto findById(@Param("plcNo") Long plcNo);
+    
     // 🚀 1. 검색어(keyword) 파라미터 추가
     int countSleepListByRegion(
             @Param("rgnCd") Integer rgnCd, 
@@ -25,8 +27,6 @@ public interface PlaceSleepMapper {
             @Param("size") int size,
             @Param("keyword") String keyword
     );
-
-    SleepResponseDto findById(@Param("plcNo") Long plcNo);
     
     // 🚀 기존 PlaceSleepMapper에 아래 두 메서드 추가
     int updatePlace(@Param("plcNo") Long plcNo, @Param("dto") SleepUpdateRequestDto dto);
