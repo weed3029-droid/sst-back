@@ -157,7 +157,7 @@ public class CommunityService {
     
     // 커뮤니티 게시글 수정
     @Transactional
-    public void modifyCommunity(CommunityDto communityDto, List<MultipartFile> files) {
+    public void updateCommunity(CommunityDto communityDto, List<MultipartFile> files) {
 
         // 기존 이미지 중 유지할 이미지 경로
     	final List<String> keepImageUrls =

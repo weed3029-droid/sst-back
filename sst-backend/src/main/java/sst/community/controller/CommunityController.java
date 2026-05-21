@@ -132,13 +132,13 @@ public class CommunityController {
     
     // 수정 multipart
     @PutMapping(value = "/api/community/{commNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void modifyCommunity(
+    public void updateCommunity(
             @PathVariable("commNo") Long commNo,
             @RequestPart("community") CommunityDto communityDto,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
         communityDto.setCommNo(commNo);
-        communityService.modifyCommunity(communityDto, files);
+        communityService.updateCommunity(communityDto, files);
     }
     
 }
