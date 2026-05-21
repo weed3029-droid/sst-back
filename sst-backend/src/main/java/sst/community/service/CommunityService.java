@@ -27,15 +27,6 @@ public class CommunityService {
 
     private final CommunityMapper communityMapper;
     
-    /* 파일 업로더 클래스들*/
-    /** MemberService
-	 * FileStorage fileStorage는 건들게 없어요. (잘못건들면 기능 자체가 망가짐) - 파일관련 추가 / 삭제만 관장
-	 * 
-	 * FileMapper fileMapper :
-	 *  fileStorage 가 기능을 처리하고 결과값을 내줌. (파일 정보를 반환)
-	 *  후에 ->  FileMapper fileMapper에서 데이터 처리를 해줘야 함. (FILE TABLE) - 지금은 insert만 해놨음
-	 *  
-	 */
     private final FileMapper fileMapper;
 	private final FileStorage fileStorage;
 
@@ -405,6 +396,17 @@ public class CommunityService {
 }
 
 
+
+/* 파일 업로더 클래스들*/
+/** MemberService
+ * FileStorage fileStorage는 건들게 없어요. (잘못건들면 기능 자체가 망가짐) - 파일관련 추가 / 삭제만 관장
+ * 
+ * FileMapper fileMapper :
+ *  fileStorage 가 기능을 처리하고 결과값을 내줌. (파일 정보를 반환)
+ *  후에 ->  FileMapper fileMapper에서 데이터 처리를 해줘야 함. (FILE TABLE) - 지금은 insert만 해놨음
+ *  
+ */
+
 //사용법 - home/sst/attachment/member/favori/sdfsdf
 // 반환값은 List<FileUploadResult>
 // fileStorage.setup("comunity")
@@ -423,7 +425,6 @@ public class CommunityService {
     List<FileUploadResult> saved = context.getSavedFiles();
     // 삭제된 파일 정보
     FileUploadResult removed = context.getDeletedFiles().get(0);
-    
     
     // DB 구현부
     FileDomain fileDomain = FileDomain.builder()

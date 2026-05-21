@@ -29,10 +29,10 @@
 	    SELECT
 	        c.CMNT_NO AS cmntNo, 
 	        
-	        <!-- 🚀 수정 1: 기존 c.CMNT_COMM_NO AS cmntCommNo 였던 것을 프론트/DTO 기대값인 commNo로 변경 -->
+	        <!-- 수정 1: 기존 c.CMNT_COMM_NO AS cmntCommNo 였던 것을 프론트/DTO 기대값인 commNo로 변경 -->
 	        c.CMNT_COMM_NO AS commNo, 
 	        
-	        <!-- 🚀 추가 1: 관리자가 어떤 게시글인지 알 수 있도록 글 제목 추가 -->
+	        <!-- 추가 1: 관리자가 어떤 게시글인지 알 수 있도록 글 제목 추가 -->
 	        post.COMM_TITLE AS commTitle, 
 	        
 	        c.CMNT_MBR_ID AS cmntMbrId, 
@@ -43,7 +43,7 @@
 	    FROM COMMENT c
 	    JOIN MEMBER m ON c.CMNT_MBR_ID = m.MBR_ID
 	    
-	    <!-- 🚀 추가 2: 커뮤니티(게시글) 테이블 조인 추가 -->
+	    <!-- 추가 2: 커뮤니티(게시글) 테이블 조인 추가 -->
 	    JOIN COMMUNITY post ON c.CMNT_COMM_NO = post.COMM_NO 
 	    
 	    WHERE 1=1
