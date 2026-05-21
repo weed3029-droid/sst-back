@@ -21,14 +21,14 @@ public class AdminDashboardController {
     /**
      * 관리자 대시보드 메인 통계 정보 조회
      */
-    // 🚀 관리자 페이지이므로 반드시 관리자 권한을 가진 유저만 API를 호출할 수 있도록 인가(Authorization) 제어
+    // 관리자 페이지이므로 반드시 관리자 권한을 가진 유저만 API를 호출할 수 있도록 인가(Authorization) 제어
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<DashboardStatsResponse>> getDashboardStats() {
         
         DashboardStatsResponse stats = adminDashboardService.getDashboardStats();
         
-        // 🚀 프로젝트 공통 규격인 ApiResponse.success() 로 감싸서 프론트엔드로 반환
+        // 프로젝트 공통 규격인 ApiResponse.success() 로 감싸서 프론트엔드로 반환
         return ResponseEntity.ok(ApiResponse.success(stats));
     }
 }
