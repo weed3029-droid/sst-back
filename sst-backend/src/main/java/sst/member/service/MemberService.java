@@ -185,7 +185,7 @@ public class MemberService {
      *  일반 회원 자진 탈퇴 (탈퇴 사유 수집 및 마스킹)
      */
 	@Transactional
-    public void withdrawMember(Long mbrId, WithdrawalRequest request, HttpServletResponse response) {
+    public void deleteMember(Long mbrId, WithdrawalRequest request, HttpServletResponse response) {
         
         //  1. 백엔드에서 안전하게 마스킹 데이터 직접 생성 (유닉스 타임스탬프 활용)
         long unixTime = System.currentTimeMillis();

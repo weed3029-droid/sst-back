@@ -62,7 +62,7 @@ public class CommonCodeService {
     }
 
     // 수정
-    public void modifyCommonCode(CommonCodeRequest request) {
+    public void updateCommonCode(CommonCodeRequest request) {
         commonCodeMapper.updateCommonCode(request);
     }
 
