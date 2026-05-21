@@ -32,18 +32,6 @@ public class MemberController {
 	
 	private final MemberService memberService;
 	
-
-	//@PreAuthorize("hasRole('ADMIN')")
-	@PreAuthorize("hasAnyRole('ADMIN','USER')")
-	@GetMapping("/{email}")
-	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@PathVariable(value="email") String email){
-		
-		Member member = memberService.getMemberInfoByEmail(email);
-		System.out.println(member);
-		
-		return ResponseEntity.ok(ApiResponse.success(member));
-	}
-	
 	@GetMapping("/me")
 	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@AuthenticationPrincipal CustomUserDetails userDetails){
 		
@@ -91,7 +79,7 @@ public class MemberController {
             @RequestBody WithdrawalRequest request, // 🚀 프론트에서 보내는 탈퇴 사유 수신
             HttpServletResponse response) {
         
-        memberService.withdrawMember(userDetails.getMember().getMbrId(), request, response);
+        memberService.deleteMember(userDetails.getMember().getMbrId(), request, response);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

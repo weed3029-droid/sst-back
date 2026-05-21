@@ -68,12 +68,12 @@ public class CommonCodeController {
 
     // 공통코드 수정
     @PutMapping("/{code}")
-    public void modifyCommonCode(
+    public void updateCommonCode(
             @PathVariable String code,
             @RequestBody CommonCodeRequest request
     ) {
         request.setCode(code);
-        commonCodeService.modifyCommonCode(request);
+        commonCodeService.updateCommonCode(request);
     }
 
     // 사용 여부 변경
