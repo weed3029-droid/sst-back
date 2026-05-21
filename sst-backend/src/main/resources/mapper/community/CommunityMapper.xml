@@ -178,6 +178,10 @@
 	        M.MBR_NICKNAME AS mbrNickname,
 	        C.COMM_CAT_CD AS commCatCd,
 	        C.COMM_AIS_NO AS commAisNo,
+	        
+	        TC1.CMM_CD_NAME AS theme1Name,
+			TC2.CMM_CD_NAME AS theme2Name,
+			TC3.CMM_CD_NAME AS theme3Name,
 	
 	        C.COMM_PLC_NO AS commPlcNo,
 	        P.PLC_NAME AS plcName,
@@ -202,6 +206,15 @@
 	
 	    LEFT JOIN AI_SCHEDULE AIS
 	      ON C.COMM_AIS_NO = AIS.AIS_NO
+	      
+	    LEFT JOIN CMM_CODE TC1
+		  ON AIS.AIS_THEME1_CD = TC1.CMM_CD
+		
+		LEFT JOIN CMM_CODE TC2
+		  ON AIS.AIS_THEME2_CD = TC2.CMM_CD
+		
+		LEFT JOIN CMM_CODE TC3
+		  ON AIS.AIS_THEME3_CD = TC3.CMM_CD
 	
 	    LEFT JOIN REGION AR
 	      ON AIS.AIS_RGN_NO = AR.RGN_NO
@@ -257,6 +270,7 @@
 	        COMM_TITLE = #{commTitle},
 	        COMM_CONTENT = #{commContent},
 	        COMM_MAIN_IMG_URL = #{commMainImgUrl},
+	        COMM_AIS_NO = #{commAisNo},
 	        COMM_PLC_NO = #{commPlcNo},
 	        COMM_UP_DATE = NOW()
 	    WHERE COMM_NO = #{commNo}
