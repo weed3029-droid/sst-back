@@ -18,10 +18,13 @@ import sst.global.files.core.FileProvider;
 import sst.global.files.dto.FileUploadResult;
 import sst.global.files.option.FileOptionsImpl;
 
+/**
+ * 로컬 디스크를 저장소로 사용하는 파일 관리 구현체입니다.
+ */
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class FileStorage implements FileProvider{
+public class FileStorage implements FileProvider {
 	
 	private final FileStorageConfig config;
 
@@ -36,10 +39,12 @@ public class FileStorage implements FileProvider{
 
         try {
             Path baseDir = config.resolveBaseDir();
-            String relative = virtualPath.replaceFirst("^/attachment/", "");
+            String prefix = config.getVirtualPrefix();
+            
+            // 동적 프리픽스 제거 (ex: /attachment/ 제거)
+            String relative = virtualPath.replaceFirst("^" + prefix + "/", "");
             Path target = baseDir.resolve(relative).normalize();
 
-            // Path Traversal 방어
             if (!target.startsWith(baseDir)) {
                 log.warn("[보안] 허용 범위 외 삭제 시도 차단: {}", target);
                 return;
@@ -49,7 +54,7 @@ public class FileStorage implements FileProvider{
                 Files.delete(target);
                 log.info("[파일삭제] 성공: {}", target);
             } else {
-                log.warn("[파일삭제] 대상 없음 또는 디렉토리: {}", target);
+                log.warn("[파일삭제] 대상 없음: {}", target);
             }
 
         } catch (IOException e) {
@@ -58,16 +63,10 @@ public class FileStorage implements FileProvider{
         }
     }
 
-    // FileOptionsImpl 에서 위임받아 실행 - 저장만 담당
     public FileUploadResult processUpload(MultipartFile file, String relativePath) {
-    	
         Path baseDir   = config.resolveBaseDir();
         Path targetDir = baseDir.resolve(relativePath).normalize();
         
-        log.info("[파일저장] baseDir: {}", baseDir);
-        log.info("[파일저장] targetDir: {}", targetDir);
-        
-        // Path Traversal 방어
         if (!targetDir.startsWith(baseDir)) {
         	log.error("[보안] 허용 범위 외 저장 경로 차단: {}", targetDir);
         	throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
@@ -82,14 +81,15 @@ public class FileStorage implements FileProvider{
             Files.createDirectories(targetDir);
             file.transferTo(targetFile.toFile());
             log.info("[파일저장] 성공: {}", targetFile);
-
         } catch (IOException e) {
             log.error("[파일저장] 실패: {}", targetFile, e);
             throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
         }
 
-        // 가상 경로: Path.relativize() 로 생성 → OS 구분자 무관
-        String virtualPath = "/attachment/" + baseDir.relativize(targetFile).toString().replace("\\", "/");
+        // 가상 경로 생성: 하드코딩 제거
+        String prefix = config.getVirtualPrefix();
+        String subPath = baseDir.relativize(targetFile).toString().replace("\\", "/");
+        String virtualPath = (prefix + "/" + subPath).replaceAll("/{2,}", "/");
 
         return FileUploadResult.builder()
 			                   .fileOrgNm(originalName)
@@ -101,7 +101,6 @@ public class FileStorage implements FileProvider{
 			                   .build();
     }
 
-    
     private static String getExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
         	log.error("지원하지 않는 확장자: {}", filename);
@@ -109,7 +108,7 @@ public class FileStorage implements FileProvider{
         }
         return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
     }
-
+    
     private static String sanitizePath(String path) {
         if (path == null || path.isBlank()) return "";
         return path.replace("\\", "/")

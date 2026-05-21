@@ -32,7 +32,7 @@ public class AdminCommunityService {
         return new PageResponse<>(list, total, pageRequest);
     }
 
-    // 🚀 [추가] 관리자: 커뮤니티 단건 상세 조회 (수정 폼 데이터 바인딩용)
+    // 관리자: 커뮤니티 단건 상세 조회 (수정 폼 데이터 바인딩용)
     @Transactional(readOnly = true)
     public Community getCommunityDetail(Long commNo) {
         return communityMapper.selectCommunityDetail(commNo);
@@ -40,7 +40,7 @@ public class AdminCommunityService {
 
     @Transactional
     public void modifyCommunityByAdmin(Community community) {
-        // 🚀 매퍼 호출 시 타입을 Community(Domain)로 정확히 전달합니다.
+        // 매퍼 호출 시 타입을 Community(Domain)로 정확히 전달합니다.
         int result = communityMapper.updateCommunityByAdmin(community);
         if (result == 0) {
             throw new CustomException(ErrorCode.NOT_FOUND);

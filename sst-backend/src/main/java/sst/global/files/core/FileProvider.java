@@ -10,7 +10,7 @@ public interface FileProvider {
 
     /**
      * 가상 경로로 파일 삭제
-     * @param virtualPath DB에 저장된 가상 경로 (e.g. "/uploads/member/...")
+     * @param virtualPath DB에 저장된 가상 경로 (e.g. "/attachment/member/...")
      */
     void delete(String virtualPath);
 }
