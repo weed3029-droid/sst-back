@@ -130,7 +130,7 @@ public class GlobalException {
 				uri
 		);
 		
-		return ResponseEntity.internalServerError().body(response);
+		return ResponseEntity.status(errorCode.status().value()).body(response);
 	}
 	/**
 	 * 전체 예외처리

@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import sst.global.files.domain.FileDomain;
 
 @Getter
 @ToString
@@ -14,17 +15,33 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Member {
-	private Long memberId; 
-	private String memberEmail; 
-	private String memberPassword; 
-	private String memberName; 
-	private String memberNickname; 
-	private String memberRole; 
-	private String memberPhone; 
-	private String memberStatus; 
-	private LocalDateTime memberCreatedAt; 
-	private LocalDateTime memberUpdatedAt; 
-	private String memberRefreshToken;
+	private Long mbrId;                  
+    private String mbrPassword;          
+    private String mbrName;              
+    private String mbrNickname;          
+    private String mbrEmail;             
+    private String mbrTelno;             
+    private String mbrZip;               
+    private String mbrAddr;              
+    private String mbrDaddr;   
+    private Long mbrProfileFileNo;
+    private String mbrProviderCd;        
+    private String mbrAuthCd;            
+    private String mbrRefreshToken;      
+    private LocalDateTime mbrJoinDate;   
+    private LocalDateTime mbrLastLgnDate;
+    private String mbrUseYn;
+    
+    @Builder.Default
+    // 프로필 파일 정보를 객체로 포함 / 빌더나 생성 시점에 기본적으로 빈 객체를 넣어줌
+    private FileDomain mbrProfileIcon = new FileDomain();
+    
+    // 배경 파일 정보도 나중에 이렇게 추가하면 됩니다.
+    @Builder.Default
+    private FileDomain mbrProfileBg = new FileDomain();
+    
+    // 회원 탈퇴나 정지 때의 사유
+    private String suspendReason;
 }
 
 

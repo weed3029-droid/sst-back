@@ -16,7 +16,7 @@ import sst.member.domain.Member;
 public class CustomUserDetails implements UserDetails, OAuth2User{
 
 	private static final long serialVersionUID = 1L;
-
+	
 	//인증된 회원 정보
 	private final Member member;
 	
@@ -42,18 +42,17 @@ public class CustomUserDetails implements UserDetails, OAuth2User{
     // 회원 권한 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(member.getMemberRole()));
+    	return List.of(new SimpleGrantedAuthority(member.getMbrAuthCd())); 
     }
 
     @Override
     public String getUsername() {
-        return member.getMemberEmail();
+    	return member.getMbrEmail(); 
     }
 
     @Override
     public String getPassword() {
-    	
-    	return member.getMemberPassword();
+    	return member.getMbrPassword(); 
     }
     
     // oauth2 (카카오)
@@ -70,7 +69,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User{
         if (userNameAttributeName != null && attributes.containsKey(userNameAttributeName)) {
             return attributes.get(userNameAttributeName).toString();
         }
-        return member.getMemberEmail();
+        return member.getMbrEmail();
     }
     
     // 계정 상태 — 별도 관리 없으므로 모두 true
