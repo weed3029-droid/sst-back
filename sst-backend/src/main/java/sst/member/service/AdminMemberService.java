@@ -132,25 +132,6 @@ public class AdminMemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
     
-    @Transactional(readOnly = true)
-    public PageResponse<Member> getMembersPaged(PageRequest pageRequest, String useYn) { // 🚀 파라미터 추가
-        
-        List<Member> list = memberMapper.findAllMembersPaged(
-                pageRequest.getOffset(), 
-                pageRequest.getSize(),
-                pageRequest.getSearchType(),
-                pageRequest.getKeyword(),
-                useYn // 🚀 Mapper에 전달
-        );
-        
-        int total = memberMapper.countAllMembers(
-                pageRequest.getSearchType(),
-                pageRequest.getKeyword(),
-                useYn // 🚀 Mapper에 전달
-        );
-
-        return new PageResponse<>(list, total, pageRequest);
-    }
     
     @Transactional
     public void updateMemberStatus(Long memberId, String useYn, String reason, Long adminId) {

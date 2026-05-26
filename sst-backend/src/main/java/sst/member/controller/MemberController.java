@@ -32,6 +32,9 @@ public class MemberController {
 	
 	private final MemberService memberService;
 	
+
+	//@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','USER')")
 	@GetMapping("/me")
 	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@AuthenticationPrincipal CustomUserDetails userDetails){
 		
