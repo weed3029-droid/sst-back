@@ -99,14 +99,17 @@
 	        c.CMNT_REG_DATE AS cmntRegDate,
 	        c.CMNT_UP_DATE AS cmntUpDate,
 	        c.CMNT_USE_YN AS cmntUseYn,
-	        m.MBR_NICKNAME AS mbrNickname
+	        m.MBR_NICKNAME AS mbrNickname,
+	        PF.FILE_PATH AS mbrProfileImgUrl
 	    FROM `COMMENT` c
 	    JOIN MEMBER m
 	        ON c.CMNT_MBR_ID = m.MBR_ID
+	    LEFT JOIN FILE PF
+	        ON m.MBR_PROFILE_FILE_NO = PF.FILE_NO
+	        AND PF.FILE_USE_YN = 'Y'
 	    WHERE c.CMNT_COMM_NO = #{commNo}
 	      AND c.CMNT_USE_YN = 'Y'
 	    ORDER BY c.CMNT_REG_DATE DESC
-	
 	</select>
 	
 	<!-- 댓글 등록 -->

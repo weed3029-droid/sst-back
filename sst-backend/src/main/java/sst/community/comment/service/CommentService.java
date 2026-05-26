@@ -18,41 +18,32 @@ public class CommentService {
 
     // 댓글 목록 조회
     public List<Comment> getCommentList(Long commNo) {
-
         return commentMapper.getCommentList(commNo);
     }
 
     // 댓글 등록
     @Transactional
     public int addComment(Comment comment) {
-
         int result = commentMapper.insertComment(comment);
-
         if(result > 0) {
-            commentMapper.increaseCommentCount(comment.getCmntCommNo());
+            commentMapper.syncCommentCount(comment.getCmntCommNo());
         }
-
         return result;
     }
 
     // 댓글 수정
     public int updateComment(Comment comment) {
-
         return commentMapper.updateComment(comment);
     }
 
     // 댓글 삭제
     @Transactional
     public int deleteComment(Long cmntNo) {
-
         Comment comment = commentMapper.getCommentById(cmntNo);
-
         int result = commentMapper.deleteComment(cmntNo);
-
         if(result > 0) {
-            commentMapper.decreaseCommentCount(comment.getCmntCommNo());
+            commentMapper.syncCommentCount(comment.getCmntCommNo());
         }
-
         return result;
     }
 }
