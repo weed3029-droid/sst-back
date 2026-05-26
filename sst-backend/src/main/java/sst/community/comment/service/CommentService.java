@@ -36,14 +36,14 @@ public class CommentService {
     }
 
     // 댓글 수정
-    public int modifyComment(Comment comment) {
+    public int updateComment(Comment comment) {
 
         return commentMapper.updateComment(comment);
     }
 
     // 댓글 삭제
     @Transactional
-    public int removeComment(Long cmntNo) {
+    public int deleteComment(Long cmntNo) {
 
         Comment comment = commentMapper.getCommentById(cmntNo);
 

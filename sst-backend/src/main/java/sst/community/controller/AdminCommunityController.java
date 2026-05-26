@@ -42,7 +42,7 @@ public class AdminCommunityController {
             @RequestBody Community community) {
         
         community.setCommNo(commNo); // 🚀 URL 경로의 번호를 객체에 세팅
-        adminCommunityService.modifyCommunityByAdmin(community);
+        adminCommunityService.updateCommunityByAdmin(community);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 

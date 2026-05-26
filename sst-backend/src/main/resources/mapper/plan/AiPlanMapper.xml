@@ -220,6 +220,7 @@
         JOIN CMM_CODE cat         ON pl.PLC_CAT_CD = cat.CMM_CD
         JOIN REGION r             ON s.AIS_RGN_NO  = r.RGN_NO
         WHERE s.AIS_NO = #{aisNo}
+        AND s.AIS_USE_YN = 'Y'
         ORDER BY d.AISD_DAY_NO, p.AISP_VISIT_ORDR
     </select>
 
@@ -246,10 +247,13 @@
     </delete>
 
     <!-- 일정 삭제 -->
-    <delete id="deleteSchedule" parameterType="long">
-        DELETE FROM AI_SCHEDULE
-        WHERE AIS_NO = #{aisNo}
-    </delete>
+    <!-- soft delete - use_yn을 N으로 변경 -->
+	<update id="deleteSchedule" parameterType="long">
+	    UPDATE AI_SCHEDULE
+	    SET AIS_USE_YN = 'N',
+	        AIS_UP_DATE = NOW()
+	    WHERE AIS_NO = #{aisNo}
+	</update>
 
 	    <!-- 복사용 원본 일정 조회 -->
 	<select id="selectScheduleForCopy" parameterType="long" resultType="sst.plan.dto.AiScheduleInsertDto">

@@ -1,13 +1,26 @@
 package sst.customersupport.service;
 
 import java.util.List;
-import sst.customersupport.domain.CustomerSupport;
 
-public interface CustomerSupportService {
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import sst.customersupport.domain.CustomerSupport;
+import sst.customersupport.mapper.CustomerSupportMapper;
+
+@Service
+@RequiredArgsConstructor
+public class CustomerSupportService {
+
+    private final CustomerSupportMapper customerSupportMapper;
 
     // 공지사항 조회
-    List<CustomerSupport> getNoticeList();
+    public List<CustomerSupport> getNoticeList() {
+        return customerSupportMapper.selectNoticeList();
+    }
 
     // FAQ 조회
-    List<CustomerSupport> getFaqList();
+    public List<CustomerSupport> getFaqList() {
+        return customerSupportMapper.selectFaqList();
+    }
 }

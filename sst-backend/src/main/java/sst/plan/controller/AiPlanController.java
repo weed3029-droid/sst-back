@@ -29,7 +29,7 @@ public class AiPlanController {
     private final AiPlanService aiPlanService;
 
     @GetMapping("/travel/list")
-    public List<PlaceResponseDto> AiPlanResponse(
+    public List<PlaceResponseDto> getTravelPlaces(
             @RequestParam("region") String region,
             @RequestParam("themes") String themes) {
         return aiPlanService.getTravelPlaces(region, themes);

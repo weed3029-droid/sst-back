@@ -20,9 +20,9 @@ public class ReviewController {
     // GET /api/reviews?plcNo={plcNo}
     // ─────────────────────────────────────────
     @GetMapping
-    public ResponseEntity<List<ReviewResponseDto>> selectReviews(
+    public ResponseEntity<List<ReviewResponseDto>> getReviews(
             @RequestParam("plcNo") Long plcNo) {
-        return ResponseEntity.ok(reviewService.selectReviews(plcNo));
+        return ResponseEntity.ok(reviewService.getReviews(plcNo));
     }
 
     // ─────────────────────────────────────────
@@ -30,9 +30,9 @@ public class ReviewController {
     // POST /api/reviews
     // ─────────────────────────────────────────
     @PostMapping
-    public ResponseEntity<ReviewResponseDto> insertReview(
+    public ResponseEntity<ReviewResponseDto> addReview(
             @RequestBody ReviewRequestDto dto) {
-        return ResponseEntity.ok(reviewService.insertReview(dto));
+        return ResponseEntity.ok(reviewService.addReview(dto));
     }
 
     // ─────────────────────────────────────────

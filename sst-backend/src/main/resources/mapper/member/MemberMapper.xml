@@ -362,8 +362,6 @@
 	    SET MBR_PROFILE_BG_FILE_NO = #{fileNo}
 	    WHERE MBR_ID = #{mbrId}
 	</update>
-	
-	
     
     <update id="updateRefreshTokenById">
         /* 리프레시토큰 수정 */

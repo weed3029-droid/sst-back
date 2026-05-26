@@ -31,20 +31,20 @@ public class CommentController {
 
     // 댓글 수정
     @PutMapping("/{cmntNo}")
-    public int modifyComment(
+    public int updateComment(
             @PathVariable("cmntNo") Long cmntNo,
             @RequestBody Comment comment) {
 
         comment.setCmntNo(cmntNo);
 
-        return commentService.modifyComment(comment);
+        return commentService.updateComment(comment);
     }
 
     // 댓글 삭제
     @DeleteMapping("/{cmntNo}")
-    public int removeComment(
+    public int deleteComment(
             @PathVariable("cmntNo") Long cmntNo) {
 
-        return commentService.removeComment(cmntNo);
+        return commentService.deleteComment(cmntNo);
     }
 }

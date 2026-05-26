@@ -54,8 +54,8 @@ public class AdminMemberController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<ApiResponse<Void>> withdrawMember(@PathVariable("memberId") Long memberId) {
-        adminMemberService.withdrawMemberByAdmin(memberId);
+    public ResponseEntity<ApiResponse<Void>> deleteMember(@PathVariable("memberId") Long memberId) {
+        adminMemberService.deleteMemberByAdmin(memberId);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
@@ -92,7 +92,7 @@ public class AdminMemberController {
     
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{memberId}/status")
-    public ResponseEntity<ApiResponse<Void>> toggleMemberStatus(
+    public ResponseEntity<ApiResponse<Void>> updateMemberStatus(
             @PathVariable("memberId") Long memberId,
             @RequestBody AdminMemberUpdateRequest request, // 🚀 기존 DTO 재활용!
             @AuthenticationPrincipal CustomUserDetails userDetails) { 

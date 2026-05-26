@@ -37,8 +37,6 @@
 	            .authorizeHttpRequests(auth -> auth
 	                // 에러 페이지 포워딩 시 인증 블락(403)을 방지
 	                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-	                // 업록드 경로에 대한 설정
-	                .requestMatchers("/uploads/**").permitAll() 
 	                // 로그아웃/내정보는 인증 필요
 	                .requestMatchers("/api/auth/logout", "/api/auth/me").authenticated()
 	                // 회원가입/로그인 허용
@@ -53,8 +51,6 @@
 	                .requestMatchers("/api/see/**").permitAll()
 	                // 홈/메인페이지 카드 조회 API 허용
 	                .requestMatchers("/api/home/**").permitAll()
-	                // 업로드 이미지 접근 허용
-	                .requestMatchers("/uploads/**").permitAll()
 	                // 먹거리 API 허용
 	                .requestMatchers("/api/food/**").permitAll()
 	                // 잘거리 API 허용
@@ -78,6 +74,8 @@
 	                .requestMatchers("/api/wishlist/**").permitAll()
 	                .requestMatchers("/api/search/**").permitAll()
 	                .requestMatchers("/api/community/**").permitAll()
+	                // 이미지 주소 허용
+	                .requestMatchers("/attachment/**").permitAll()
 	                // 그 외 모든 요청은 인증 필요
 	                .anyRequest().authenticated()
 	            )

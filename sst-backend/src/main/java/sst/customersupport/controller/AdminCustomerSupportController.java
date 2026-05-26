@@ -22,18 +22,18 @@ public class AdminCustomerSupportController {
 
     // 공지사항 수정
     @PutMapping("/api/admin/customersupport/notice/{csNo}")
-    public int modifyNotice(
+    public int updateNotice(
             @PathVariable("csNo") Long csNo,
             @RequestBody CustomerSupport customerSupport) {
 
         customerSupport.setCsNo(csNo);
-        return adminCustomerSupportService.modifyNotice(customerSupport);
+        return adminCustomerSupportService.updateNotice(customerSupport);
     }
 
     // 공지사항 삭제
     @DeleteMapping("/api/admin/customersupport/notice/{csNo}")
-    public int removeNotice(@PathVariable("csNo") Long csNo) {
-        return adminCustomerSupportService.removeNotice(csNo);
+    public int deleteNotice(@PathVariable("csNo") Long csNo) {
+        return adminCustomerSupportService.deleteNotice(csNo);
     }
 
     // FAQ 작성
@@ -44,17 +44,17 @@ public class AdminCustomerSupportController {
 
     // FAQ 수정
     @PutMapping("/api/admin/customersupport/faq/{csNo}")
-    public int modifyFaq(
+    public int updateFaq(
             @PathVariable("csNo") Long csNo,
             @RequestBody CustomerSupport customerSupport) {
 
         customerSupport.setCsNo(csNo);
-        return adminCustomerSupportService.modifyFaq(customerSupport);
+        return adminCustomerSupportService.updateFaq(customerSupport);
     }
 
     // FAQ 삭제
     @DeleteMapping("/api/admin/customersupport/faq/{csNo}")
-    public int removeFaq(@PathVariable("csNo") Long csNo) {
-        return adminCustomerSupportService.removeFaq(csNo);
+    public int deleteFaq(@PathVariable("csNo") Long csNo) {
+        return adminCustomerSupportService.deleteFaq(csNo);
     }
 }

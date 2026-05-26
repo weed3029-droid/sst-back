@@ -17,13 +17,13 @@ public class CustomerSupportController {
 
     // 공지사항 조회
     @GetMapping("/api/customersupport/notice")
-    public List<CustomerSupport> noticeList() {
+    public List<CustomerSupport> getNoticeList() {
         return customerSupportService.getNoticeList();
     }
 
     // FAQ 조회
     @GetMapping("/api/customersupport/faq")
-    public List<CustomerSupport> faqList() {
+    public List<CustomerSupport> getFaqList() {
         return customerSupportService.getFaqList();
     }
 }

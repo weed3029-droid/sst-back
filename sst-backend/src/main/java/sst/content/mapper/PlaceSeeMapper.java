@@ -36,15 +36,6 @@ public interface PlaceSeeMapper {
     // 🚀 추가: PLACE_SEE 상세 테이블 업데이트
     int updatePlaceSee(@Param("plcNo") Long plcNo, @Param("dto") SeeUpdateRequestDto dto);
     
-    // 🚀 태그 조회
-    List<String> findTagCodesByPlcNo(@Param("plcNo") Long plcNo);
-
-    // 🚀 태그 물리 삭제 (수정 시 기존 태그를 날리기 위함)[cite: 1]
-    int deleteTagsByPlcNo(@Param("plcNo") Long plcNo);
-
-    // 🚀 태그 다중 삽입[cite: 3]
-    int insertTags(@Param("plcNo") Long plcNo, @Param("tagCodes") List<String> tagCodes);
-    
     int countSeeListByRegion(@Param("rgnCd") Integer rgnCd, @Param("keyword") String keyword, @Param("useYn") String useYn);
     
     List<SeeResponseDto> findSeeListPaged(

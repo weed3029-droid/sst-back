@@ -63,7 +63,7 @@ public class AdminMemberService {
     }
     
     @Transactional
-    public void withdrawMemberByAdmin(Long memberId) {
+    public void deleteMemberByAdmin(Long memberId) {
         // 1. 회원 존재 여부 확인
         Member member = memberMapper.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));

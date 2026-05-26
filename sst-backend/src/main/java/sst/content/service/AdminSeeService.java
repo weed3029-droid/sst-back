@@ -42,10 +42,6 @@ public class AdminSeeService {
     @Transactional(readOnly = true)
     public SeeResponseDto getDetail(Long plcNo) {
         SeeResponseDto dto = placeSeeMapper.findById(plcNo);
-        // 🚀 상세 조회 시 태그 목록을 별도 쿼리로 가져와서 맵핑
-        if (dto != null) {
-            dto.setTagCodes(placeSeeMapper.findTagCodesByPlcNo(plcNo));
-        }
         return dto;
     }
 
@@ -54,18 +50,6 @@ public class AdminSeeService {
         placeSeeMapper.updatePlace(plcNo, dto);
         placeSeeMapper.updatePlaceSee(plcNo, dto);
 
-        // 🚀 태그 처리: 기존 매핑을 모두 물리 삭제 후, 새로 전달받은 태그들만 인서트[cite: 1]
-        placeSeeMapper.deleteTagsByPlcNo(plcNo);
-        if (dto.getTagCodes() != null && !dto.getTagCodes().isEmpty()) {
-            placeSeeMapper.insertTags(plcNo, dto.getTagCodes());
-        }
     }
 
-    // 🚀 장소 삭제 로직 추가
-    @Transactional
-    public void deleteSee(Long plcNo) {
-        placeSeeMapper.updatePlaceUseYn(plcNo, "N");
-    }
-    
-    
 }

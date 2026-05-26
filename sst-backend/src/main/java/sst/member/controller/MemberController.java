@@ -63,7 +63,7 @@ public class MemberController {
     // 비밀번호 변경(인증된 사용자만 접근 가능)
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PutMapping("/password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody PasswordChangeRequest request) {
         
@@ -77,12 +77,12 @@ public class MemberController {
      *  회원 탈퇴
      */
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> withdraw(
+    public ResponseEntity<ApiResponse<Void>> deleteMember(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody WithdrawalRequest request, // 🚀 프론트에서 보내는 탈퇴 사유 수신
             HttpServletResponse response) {
         
-        memberService.withdrawMember(userDetails.getMember().getMbrId(), request, response);
+        memberService.deleteMember(userDetails.getMember().getMbrId(), request, response);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

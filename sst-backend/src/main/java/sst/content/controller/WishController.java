@@ -24,13 +24,13 @@ public class WishController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<Map<String, Boolean>> checkWish(
+    public ResponseEntity<Map<String, Boolean>> isWished(
             @RequestParam("mbrId") Long mbrId,
             @RequestParam("plcNo") Long plcNo) {
         WishDto dto = new WishDto();
         dto.setWishMbrId(mbrId);
         dto.setWishPlcNo(plcNo);
-        boolean isWished = wishService.checkWish(dto);
+        boolean isWished = wishService.isWished(dto);
         return ResponseEntity.ok(Map.of("isWished", isWished));
     }
 

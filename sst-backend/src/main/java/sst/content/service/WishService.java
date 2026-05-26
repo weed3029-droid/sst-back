@@ -27,7 +27,7 @@ public class WishService {
     }
 
     @Transactional(readOnly = true)
-    public boolean checkWish(WishDto dto) {
+    public boolean isWished(WishDto dto) {
         return wishMapper.checkWish(dto) > 0;
     }
 

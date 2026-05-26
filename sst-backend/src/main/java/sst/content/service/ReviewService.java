@@ -18,7 +18,7 @@ public class ReviewService {
     // 리뷰 목록 조회
     // ─────────────────────────────────────────
     @Transactional(readOnly = true)
-    public List<ReviewResponseDto> selectReviews(Long plcNo) {
+    public List<ReviewResponseDto> getReviews(Long plcNo) {
         return reviewMapper.selectReviews(plcNo);
     }
 
@@ -26,7 +26,7 @@ public class ReviewService {
     // 리뷰 등록
     // ─────────────────────────────────────────
     @Transactional
-    public ReviewResponseDto insertReview(ReviewRequestDto dto) {
+    public ReviewResponseDto addReview(ReviewRequestDto dto) {
         int result = reviewMapper.insertReview(dto);
         if (result == 0) {
             throw new RuntimeException("리뷰 등록에 실패했습니다.");
