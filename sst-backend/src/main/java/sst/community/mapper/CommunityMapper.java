@@ -126,14 +126,6 @@ public interface CommunityMapper {
             @Param("catCd") String catCd
     );
 
-    // 관리자: 뽐낼거리 전체 목록 조회
-    List<Community> selectAdminCommunityListPaged(
-            @Param("catCd") String catCd,
-            @Param("offset") int offset,
-            @Param("size") int size,
-            @Param("keyword") String keyword
-    );
-
     /* =================================================================
     🚀 [관리자] 뽐낼거리 커뮤니티 관리 (Admin 필수 포함)
     ================================================================= */

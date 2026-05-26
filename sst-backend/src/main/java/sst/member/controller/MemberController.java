@@ -35,15 +35,6 @@ public class MemberController {
 
 	//@PreAuthorize("hasRole('ADMIN')")
 	@PreAuthorize("hasAnyRole('ADMIN','USER')")
-	@GetMapping("/{email}")
-	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@PathVariable(value="email") String email){
-		
-		Member member = memberService.getMemberInfoByEmail(email);
-		System.out.println(member);
-		
-		return ResponseEntity.ok(ApiResponse.success(member));
-	}
-	
 	@GetMapping("/me")
 	public ResponseEntity<ApiResponse<Member>> getMemberInfoByEmail(@AuthenticationPrincipal CustomUserDetails userDetails){
 		

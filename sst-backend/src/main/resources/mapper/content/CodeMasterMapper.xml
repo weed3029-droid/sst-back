@@ -7,19 +7,26 @@
 <mapper namespace="sst.content.mapper.CodeMasterMapper">
 
     <select id="selectPlaceCardsByRegionCode"
-            parameterType="int"
-            resultType="sst.content.dto.PlaceCardDto">
+        parameterType="int"
+        resultType="sst.content.dto.PlaceCardDto">
 
-        SELECT
-            PLC_NO AS plcNo,
-            PLC_ID AS plcId,
-            PLC_CAT_CD AS plcCatCd,
-            PLC_NAME AS plcName,
-            PLC_OVERVIEW AS plcOverview,
-            PLC_MAIN_IMG_URL AS plcMainImgUrl
-        FROM PLACE
-        WHERE PLC_RGN_CD = #{regionCode}
-
-    </select>
+	    SELECT
+	        PLC_NO AS plcNo,
+	        PLC_ID AS plcId,
+	        PLC_CAT_CD AS plcCatCd,
+	        PLC_NAME AS plcName,
+	        PLC_OVERVIEW AS plcOverview,
+	        PLC_MAIN_IMG_URL AS plcMainImgUrl
+	    FROM PLACE
+	    WHERE PLC_RGN_CD = #{regionCode}
+	      AND PLC_USE_YN = 'Y' 
+	    ORDER BY 
+	        CASE 
+	            WHEN PLC_MAIN_IMG_URL IS NOT NULL AND PLC_MAIN_IMG_URL != '' THEN 0 
+	            ELSE 1 
+	        END,
+	        PLC_NO DESC 
+	
+	</select>
 
 </mapper>
