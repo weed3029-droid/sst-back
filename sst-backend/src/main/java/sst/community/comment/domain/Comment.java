@@ -31,5 +31,8 @@ public class Comment {
     // 회원 닉네임 (조인용)
     private String mbrNickname;
     
+    // 프로필 이미지
+    private String mbrProfileImgUrl;
+    
     
 }
