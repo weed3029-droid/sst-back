@@ -35,8 +35,10 @@ public class SignUpRequest {
 	private String mbrName;
 	
 	@NotBlank(message = "회원의 연락처는 필수 입력 값입니다.")
-	@Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", 
-    		 message = "핸드폰 번호 양식이 맞지 않습니다. (01x-xxx(x)-xxxx)")
+	@Pattern(
+	    regexp = "^(01(?:0|1|[6-9])|02|0[3-9]\\d)-(?:\\d{3}|\\d{4})-\\d{4}$", 
+	    message = "전화번호 양식이 맞지 않습니다. (예: 010-xxxx-xxxx, 02-xxx-xxxx)"
+	)
 	private String mbrTelno; 
 	
 	@NotBlank(message = "우편번호는 필수 입력 값입니다.")
