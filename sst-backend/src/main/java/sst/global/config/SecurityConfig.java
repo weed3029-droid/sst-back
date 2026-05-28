@@ -76,6 +76,8 @@
 	                .requestMatchers("/api/community/**").permitAll()
 	                // 이미지 주소 허용
 	                .requestMatchers("/attachment/**").permitAll()
+	                // 카카오 인증주소 허용
+	                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 	                // 그 외 모든 요청은 인증 필요
 	                .anyRequest().authenticated()
 	            )
