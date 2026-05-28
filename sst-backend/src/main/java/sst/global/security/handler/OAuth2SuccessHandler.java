@@ -47,7 +47,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
 			
 			// 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
-			String targetUrl = "http://localhost:5173/oauth/redirect";
+			String targetUrl = "https://sstour.cloud/oauth/redirect";
 	        getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	
     }
