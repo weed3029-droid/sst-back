@@ -31,6 +31,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
+		String requestURI = request.getRequestURI();
+		// 🚀 OAuth2 로그인 관련 경로는 JWT 검증을 무시하고 다음 필터로 넘김
+		if (requestURI.startsWith("/oauth2/") || requestURI.startsWith("/login/oauth2/")) {
+		    filterChain.doFilter(request, response);
+		    return;
+		}
+		
 		// httpOnly 쿠키에서 Access Token 추출
         String accessToken = cookieUtil.extractCookie(request, CookieUtil.ACCESS_TOKEN_COOKIE);
 
