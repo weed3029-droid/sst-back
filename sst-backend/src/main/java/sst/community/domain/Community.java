@@ -43,4 +43,7 @@ public class Community {
 	
 	// 관리자 페이지 리스트 조회 시 누적 신고 수를 매핑하기 위한 필드
 	private int reportCnt;
+	
+	// 프로필 이미지 
+	private String mbrProfileImgUrl;
 }

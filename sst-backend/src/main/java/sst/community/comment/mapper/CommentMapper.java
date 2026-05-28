@@ -28,6 +28,9 @@ public interface CommentMapper {
 
     // 댓글 수 증가
     int increaseCommentCount(Long commNo);
+    
+    // 댓글 수 동기화
+    int syncCommentCount(Long commNo);
 
     // 댓글 수 감소
     int decreaseCommentCount(Long commNo);

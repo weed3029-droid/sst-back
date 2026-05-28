@@ -11,6 +11,7 @@
 	        C.COMM_NO AS commNo,
 	        C.COMM_MBR_ID AS commMbrId,
 	        M.MBR_NICKNAME AS mbrNickname,
+	        PF.FILE_PATH AS mbrProfileImgUrl,
 	        C.COMM_CAT_CD AS commCatCd,
 	        C.COMM_AIS_NO AS commAisNo,
 	        TC1.CMM_CD_NAME AS theme1Name,
@@ -32,6 +33,10 @@
 	    FROM COMMUNITY C
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
+	      
+	    LEFT JOIN FILE PF
+		  ON M.MBR_PROFILE_FILE_NO = PF.FILE_NO
+		  AND PF.FILE_USE_YN = 'Y'
 	
 	    LEFT JOIN AI_SCHEDULE AIS
 	      ON C.COMM_AIS_NO = AIS.AIS_NO
@@ -176,6 +181,7 @@
 	        C.COMM_NO AS commNo,
 	        C.COMM_MBR_ID AS commMbrId,
 	        M.MBR_NICKNAME AS mbrNickname,
+	        PF.FILE_PATH AS mbrProfileImgUrl,
 	        C.COMM_CAT_CD AS commCatCd,
 	        C.COMM_AIS_NO AS commAisNo,
 	        
@@ -203,6 +209,10 @@
 	    FROM COMMUNITY C
 	    JOIN MEMBER M
 	      ON C.COMM_MBR_ID = M.MBR_ID
+	    
+	    LEFT JOIN FILE PF
+		  ON M.MBR_PROFILE_FILE_NO = PF.FILE_NO
+		  AND PF.FILE_USE_YN = 'Y'
 	
 	    LEFT JOIN AI_SCHEDULE AIS
 	      ON C.COMM_AIS_NO = AIS.AIS_NO

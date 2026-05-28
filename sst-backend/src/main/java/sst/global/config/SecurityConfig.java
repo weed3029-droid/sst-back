@@ -74,6 +74,8 @@
 	                .requestMatchers("/api/wishlist/**").permitAll()
 	                .requestMatchers("/api/search/**").permitAll()
 	                .requestMatchers("/api/community/**").permitAll()
+	                // 이미지 주소 허용
+	                .requestMatchers("/attachment/**").permitAll()
 	                // 그 외 모든 요청은 인증 필요
 	                .anyRequest().authenticated()
 	            )
