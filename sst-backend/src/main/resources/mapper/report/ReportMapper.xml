@@ -141,6 +141,24 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     FROM REPORT
     WHERE RPT_NO = #{rptNo}
 	</select>
+	
+	<!-- 신고 이력 존재 여부 확인 -->
+	<select id="existsReport" parameterType="sst.report.dto.ReportRequest" resultType="int">
+	    SELECT COUNT(*)
+	    FROM REPORT
+	    WHERE RPT_REPORTER_NO = #{rptReporterNo}
+	      AND RPT_TYPE_CD = #{rptTypeCd}
+	      AND RPT_STATUS_CD != 'RST004'
+	      <if test="rptCommNo != null">
+	        AND RPT_COMM_NO = #{rptCommNo}
+	      </if>
+	      <if test="rptCmntNo != null">
+	        AND RPT_CMNT_NO = #{rptCmntNo}
+	      </if>
+	      <if test="rptReviewNo != null">
+	        AND RPT_REVIEW_NO = #{rptReviewNo}
+	      </if>
+	</select>
 
     <!-- 타겟별 유효 신고 수 조회 (RST004 반려 제외) -->
     <select id="countValidReportsByTarget" parameterType="sst.report.domain.Report" resultType="int">

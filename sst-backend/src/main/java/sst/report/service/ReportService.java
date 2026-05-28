@@ -76,4 +76,37 @@ public class ReportService {
             }
         }
     }
+    
+    // 내가 해당 대상을 이미 신고했는지 여부 확인
+    public boolean isReported(
+            Long reporterNo,
+            String type,
+            Long commNo,
+            Long cmntNo,
+            Long reviewNo) {
+
+        ReportRequest request = new ReportRequest();
+        request.setRptReporterNo(reporterNo);
+
+        if ("post".equals(type)) {
+            if (commNo == null) return false;
+            request.setRptTypeCd("RPT002");
+            request.setRptCommNo(commNo);
+
+        } else if ("comment".equals(type)) {
+            if (cmntNo == null) return false;
+            request.setRptTypeCd("RPT003");
+            request.setRptCmntNo(cmntNo);
+
+        } else if ("review".equals(type)) {
+            if (reviewNo == null) return false;
+            request.setRptTypeCd("RPT001");
+            request.setRptReviewNo(reviewNo);
+
+        } else {
+            return false;
+        }
+
+        return reportMapper.existsReport(request) > 0;
+    }
 }
