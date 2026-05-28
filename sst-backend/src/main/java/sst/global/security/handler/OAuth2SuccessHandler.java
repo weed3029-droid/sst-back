@@ -2,7 +2,6 @@
 package sst.global.security.handler;
 
 import java.io.IOException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -25,31 +24,31 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final CookieUtil cookieUtil;
     private final MemberMapper memberMapper;
 
-    @Value("${app.frontend-url}")
-    private String frontendUrl;
-
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Member member = userDetails.getMember();
+			CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+			Member member = userDetails.getMember();
+			
+			// 토큰 생성 (기존 로직과 동일)
 
-        // 토큰 생성 (기존 로직과 동일)
-        String accessToken  = jwtTokenProvider.createAccessToken(member.getMbrEmail(), member.getMbrAuthCd());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMbrEmail());
-
-        // Refresh Token DB 업데이트
-        memberMapper.updateRefreshTokenById(member.getMbrId(), refreshToken);
-        // 소셜 로그인 성공 시 마지막 로그인 시간 업데이트
-        memberMapper.updateLastLoginDate(member.getMbrId());
-
-        // HttpOnly 쿠키에 토큰 탑재 (기존 로직과 동일)
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(accessToken).toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
-
-        // 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
-        String targetUrl = frontendUrl + "/oauth/redirect";
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+			String accessToken = jwtTokenProvider.createAccessToken(member.getMbrEmail(), member.getMbrAuthCd());
+	        String refreshToken = jwtTokenProvider.createRefreshToken(member.getMbrEmail());
+	        
+			// Refresh Token DB 업데이트
+	        memberMapper.updateRefreshTokenById(member.getMbrId(), refreshToken);
+	        
+	        // 소셜 로그인 성공 시 마지막 로그인 시간 업데이트
+            memberMapper.updateLastLoginDate(member.getMbrId());
+            
+			// HttpOnly 쿠키에 토큰 탑재 (기존 로직과 동일)
+			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(accessToken).toString());
+			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
+			
+			// 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
+			String targetUrl = "https://sstour.cloud/oauth/redirect";
+	        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+	
     }
 }
