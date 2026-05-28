@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import sst.report.domain.Report;
 import sst.report.dto.AdminReportResponseDto;
+import sst.report.dto.ReportRequest;
 
 @Mapper
 public interface ReportMapper {
@@ -14,6 +15,9 @@ public interface ReportMapper {
 
     // 중복 신고 확인
     int countDuplicateReport(Report report);
+    
+    // 신고 이력 존재 여부 확인
+    int existsReport(ReportRequest request);
 
     // 신고 목록 페이징 조회
     List<AdminReportResponseDto> findAllReportsPaged(
