@@ -1,10 +1,8 @@
 package sst.report.mapper;
 
 import java.util.List;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
 import sst.report.domain.Report;
 import sst.report.dto.AdminReportResponseDto;
 
@@ -16,41 +14,45 @@ public interface ReportMapper {
 
     // 중복 신고 확인
     int countDuplicateReport(Report report);
-    
 
-    
+    // 신고 목록 페이징 조회
     List<AdminReportResponseDto> findAllReportsPaged(
-            @Param("statusCd") String statusCd, 
-            @Param("rptTypeCd") String rptTypeCd, 
-            @Param("searchType") String searchType, 
-            @Param("keyword") String keyword, 
-            @Param("offset") int offset, 
+            @Param("statusCd") String statusCd,
+            @Param("rptTypeCd") String rptTypeCd,
+            @Param("searchType") String searchType,
+            @Param("keyword") String keyword,
+            @Param("offset") int offset,
             @Param("size") int size);
 
+    // 신고 전체 개수 조회
     int countAllReports(
-            @Param("statusCd") String statusCd, 
-            @Param("rptTypeCd") String rptTypeCd, 
-            @Param("searchType") String searchType, 
+            @Param("statusCd") String statusCd,
+            @Param("rptTypeCd") String rptTypeCd,
+            @Param("searchType") String searchType,
             @Param("keyword") String keyword);
-    
-    // 🚀 [추가] 1. 관리자: 신고 처리 상태 업데이트 (RST001 -> RST003 등)
-    int updateReportStatus(@Param("rptNo") Long rptNo, 
-                           @Param("statusCd") String statusCd, 
-                           @Param("adminId") Long adminId);
 
-    // 🚀 [추가] 2. 방금 처리된 신고 상세 조회 (어떤 대상을 신고했는지 확인용)
+    // 신고 상태 변경
+    int updateReportStatus(
+            @Param("rptNo") Long rptNo,
+            @Param("statusCd") String statusCd,
+            @Param("adminId") Long adminId);
+
+    // 신고 상세 조회
     Report findReportById(@Param("rptNo") Long rptNo);
 
-    // 🚀 [추가] 3. 타겟별 유효한 누적 신고 수 조회 (반려 제외)
+    // 타겟별 유효 신고 수 조회 (RST004 반려 제외)
     int countValidReportsByTarget(Report report);
-
-    // 🚀 [추가] 4. 누적 5회 이상 시 대상 비활성화(블라인드) 처리
-    int blindReview(@Param("rvwNo") Long rvwNo);
-    int blindCommunity(@Param("commNo") Long commNo);
-    int blindComment(@Param("cmntNo") Long cmntNo);
 
     // 대상별 신고 누적 수 조회
     int countReportsByTarget(Report report);
 
-    
+    // 블라인드 처리
+    int blindReview(@Param("rvwNo") Long rvwNo);
+    int blindCommunity(@Param("commNo") Long commNo);
+    int blindComment(@Param("cmntNo") Long cmntNo);
+
+    // 블라인드 해제
+    int unblindReview(@Param("rvwNo") Long rvwNo);
+    int unblindCommunity(@Param("commNo") Long commNo);
+    int unblindComment(@Param("cmntNo") Long cmntNo);
 }

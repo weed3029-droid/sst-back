@@ -11,6 +11,7 @@ import sst.global.response.ApiResponse;
 import sst.global.security.domain.CustomUserDetails;
 import sst.report.dto.AdminReportResponseDto;
 import sst.report.service.AdminReportService;
+import sst.report.service.ReportService;
 
 @RestController
 @RequestMapping("/api/admin/reports")
@@ -18,27 +19,34 @@ import sst.report.service.AdminReportService;
 public class AdminReportController {
 
     private final AdminReportService adminReportService;
+    private final ReportService reportService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<AdminReportResponseDto>>> getReports(
             @RequestParam(name = "statusCd", required = false) String statusCd,
-            @RequestParam(name = "rptTypeCd", required = false) String rptTypeCd, 
-            PageRequest pageRequest) { 
+            @RequestParam(name = "rptTypeCd", required = false) String rptTypeCd,
+            PageRequest pageRequest) {
         return ResponseEntity.ok(ApiResponse.success(adminReportService.getReportsPaged(statusCd, rptTypeCd, pageRequest)));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{rptNo}/status")
-    public ResponseEntity<ApiResponse<String>> updateReportStatus( // 🚀 1. Void 대신 String을 반환하도록 수정
+    public ResponseEntity<ApiResponse<String>> updateReportStatus(
             @PathVariable("rptNo") Long rptNo,
-            @RequestParam("statusCd") String statusCd, 
+            @RequestParam("statusCd") String statusCd,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        
-        // 🚀 2. Service에서 반환하는 결과 메시지(자동 블라인드 여부 등)를 변수에 담습니다.
         String message = adminReportService.updateReportStatus(rptNo, statusCd, userDetails.getMember().getMbrId());
-        
-        // 🚀 3. ApiResponse에 이 메시지를 담아 프론트엔드로 전달합니다.
         return ResponseEntity.ok(ApiResponse.success(message));
+    }
+
+    // 신고 반려 처리
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{rptNo}/reject")
+    public ResponseEntity<Void> rejectReport(
+            @PathVariable("rptNo") Long rptNo,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        reportService.rejectReport(rptNo, userDetails.getMember().getMbrId());
+        return ResponseEntity.ok().build();
     }
 }
