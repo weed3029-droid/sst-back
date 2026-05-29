@@ -2,10 +2,13 @@
 package sst.global.security.handler;
 
 import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +27,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final CookieUtil cookieUtil;
     private final MemberMapper memberMapper;
 
+    @Value("${app.oauth2.redirect-url}")
+    private String redirectUrl;
+    
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
@@ -47,8 +53,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
 			
 			// 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
-			String targetUrl = "https://sstour.cloud/oauth/redirect";
-	        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+			getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	
     }
 }
