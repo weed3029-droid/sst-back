@@ -121,4 +121,7 @@ public interface MemberMapper {
         
         Map<String, Object> findLatestStatusLog(@Param("mbrId") Long mbrId, @Param("targetStatus") String targetStatus);
         Map<String, Object> findLatestWithdrawalLog(@Param("mbrId") Long mbrId);
+        
+     // 다중 회원 조회 메서드
+     List<Member> findMembersByNameAndTelno(@Param("name") String name, @Param("telno") String telno);
 }

@@ -376,4 +376,21 @@
         SET MBR_LAST_LGN_DATE = NOW()
         WHERE MBR_ID = #{mbrId};
     </update>
+    
+    <select id="findMembersByNameAndTelno" resultMap="memberResultMap">
+        SELECT 
+              M.*,
+              F.FILE_ORG_NM, 
+              F.FILE_SAVE_NM, 
+              F.FILE_PATH, 
+              F.FILE_EXT, 
+              F.FILE_SIZE, 
+              F.FILE_MIME_TYPE, 
+              F.FILE_TYPE
+        FROM MEMBER M
+        LEFT JOIN FILE F ON M.MBR_PROFILE_FILE_NO = F.FILE_NO AND F.FILE_USE_YN = 'Y'
+        WHERE M.MBR_NAME = #{name} 
+          AND M.MBR_TELNO = #{telno}
+          AND M.MBR_USE_YN = 'Y'
+    </select>
 </mapper>

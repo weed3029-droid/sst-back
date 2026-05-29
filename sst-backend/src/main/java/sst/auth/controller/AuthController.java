@@ -1,5 +1,7 @@
 package sst.auth.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import sst.auth.dto.FindEmailRequest;
 import sst.auth.dto.LoginRequest;
 import sst.auth.dto.LoginResponse;
+import sst.auth.dto.ResetPasswordRequest;
 import sst.auth.dto.SignUpRequest;
 import sst.auth.service.AuthService;
 import sst.global.response.ApiResponse;
@@ -122,6 +126,20 @@ public class AuthController {
         // URL 쿼리 파라미터로 받은 이메일 검사
         boolean isDuplicate = authService.checkEmailDuplicate(email);
         return ResponseEntity.ok(ApiResponse.success(isDuplicate));
+    }
+    
+    // 이메일 찾기 (다수 계정 반환 가능성 고려)
+    @PostMapping("/find-email")
+    public ResponseEntity<ApiResponse<List<String>>> findEmail(@Valid @RequestBody FindEmailRequest request) {
+        List<String> maskedEmails = authService.findEmail(request.getName(), request.getTelno());
+        return ResponseEntity.ok(ApiResponse.success(maskedEmails));
+    }
+
+    // 비밀번호 재설정 (resetPassword 로 네이밍 변경 적용)
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getEmail(), request.getName());
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }
 
