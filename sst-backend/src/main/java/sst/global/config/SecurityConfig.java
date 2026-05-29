@@ -77,16 +77,24 @@
 	                // 이미지 주소 허용
 	                .requestMatchers("/attachment/**").permitAll()
 	                // 카카오 인증주소 허용
-	                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+	                .requestMatchers("/api/oauth2/**", "/api/login/oauth2/**").permitAll()
 	                // 그 외 모든 요청은 인증 필요
 	                .anyRequest().authenticated()
 	            )
 	            .oauth2Login(oauth2 -> oauth2
-	                .userInfoEndpoint(userInfo -> userInfo
-	                    .userService(customOAuth2UserService)
-	                )
-	                .successHandler(oAuth2SuccessHandler)
-	            )
+	    	            // 호출 예: window.location.href = "http://localhost:8080/api/oauth2/authorization/kakao"
+	    	            .authorizationEndpoint(auth -> auth
+	    	                .baseUri("/api/oauth2/authorization")
+	    	            )
+	    	            // 카카오 인증 완료 후, 인가 코드를 들고 돌아오는 백엔드 도착점 변경
+	    	            .redirectionEndpoint(redirect -> redirect
+	    	                .baseUri("/api/login/oauth2/code/*")
+	    	            )
+	    	            .userInfoEndpoint(userInfo -> userInfo
+	    	                .userService(customOAuth2UserService)
+	    	            )
+	    	            .successHandler(oAuth2SuccessHandler)
+	    	        )
 	            .exceptionHandling(exception ->
 	                exception
 	                    .authenticationEntryPoint((request, response, authException) ->
