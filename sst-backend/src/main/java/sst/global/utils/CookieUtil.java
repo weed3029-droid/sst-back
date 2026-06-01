@@ -45,18 +45,22 @@ public class CookieUtil {
      * Refresh Token httpOnly 쿠키 생성
      * Path로 제한하여 노출 방지  
      * @param refreshToken JWT Refresh Token 문자열
+     * @param rememberMe 로그인 유지 여부
      * @return Set-Cookie 헤더에 추가할 ResponseCookie 객체
      */
-    public ResponseCookie createRefreshTokenCookie(String refreshToken) {
+    public ResponseCookie createRefreshTokenCookie(String refreshToken, boolean rememberMe) {
+        
+        // 🚀 핵심: 사용자가 체크했으면 14일, 안 했으면 -1 (세션 쿠키)
+        long dynamicMaxAge = rememberMe ? (14 * 24 * 60 * 60) : -1;
+
         return ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
-                .httpOnly(true)          // JavaScript에서 접근 불가 (XSS 방어)
-                .secure(secure)          // HTTPS 환경에서만 전송
-                .sameSite("Lax")         // CSRF 방어
-                .path("/api/auth")       // 재발급·로그아웃 경로에서만 전송
-                .maxAge(REFRESH_TOKEN_MAX_AGE)
+                .httpOnly(true)          // JavaScript 접근 불가 (XSS 방어)
+                .secure(secure)          // HTTPS 환경 전송
+                .sameSite("Lax")         // CSRF 방어 
+                .path("/api/auth")       // 재발급·로그아웃에서만 전송 
+                .maxAge(dynamicMaxAge)   // 🚀 기존 상수 대신 동적 수명 적용!
                 .build();
     }
-
     /**
      * Access Token 쿠키 삭제 (Max-Age=0)
      * @return 삭제용 Set-Cookie 헤더에 추가할 ResponseCookie 객체

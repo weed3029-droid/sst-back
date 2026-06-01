@@ -94,7 +94,7 @@ public class AuthService {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(accessToken).toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
-                cookieUtil.createRefreshTokenCookie(refreshToken).toString());
+                cookieUtil.createRefreshTokenCookie(refreshToken, request.isRememberMe()).toString());
         
         return LoginResponse.builder()
 			                .mbrId(member.getMbrId())

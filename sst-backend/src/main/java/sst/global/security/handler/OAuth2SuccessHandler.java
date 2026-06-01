@@ -48,10 +48,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 	        // 소셜 로그인 성공 시 마지막 로그인 시간 업데이트
             memberMapper.updateLastLoginDate(member.getMbrId());
             
+            boolean isSocialRememberMe = true;
 			// HttpOnly 쿠키에 토큰 탑재 (기존 로직과 동일)
 			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(accessToken).toString());
-			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
-			
+			response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken, isSocialRememberMe).toString());
 			// 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
 			getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 	
