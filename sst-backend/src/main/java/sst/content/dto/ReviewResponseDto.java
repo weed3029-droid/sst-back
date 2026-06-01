@@ -28,4 +28,6 @@ public class ReviewResponseDto {
     
     private String rvwUseYn; // 상태 (Y/N)
     private String plcName;  // 조인용 장소명
+    private Integer plcRgnCd; // 장소 지역 코드
+    private String plcCatCd; // 장소 카테고리 코드
 }
