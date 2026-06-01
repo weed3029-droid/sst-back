@@ -34,6 +34,7 @@
 	        
 	        <!-- 추가 1: 관리자가 어떤 게시글인지 알 수 있도록 글 제목 추가 -->
 	        post.COMM_TITLE AS commTitle, 
+	        post.COMM_CAT_CD AS commCatCd,
 	        
 	        c.CMNT_MBR_ID AS cmntMbrId, 
 	        c.CMNT_CONTENT AS cmntContent, 

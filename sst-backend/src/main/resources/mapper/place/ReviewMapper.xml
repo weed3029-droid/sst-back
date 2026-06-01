@@ -32,7 +32,7 @@
           r.RVW_NO AS rvwNo, r.RVW_PLC_NO AS rvwPlcNo, r.RVW_MBR_ID AS rvwMbrId,
           r.RVW_RATING AS rvwRating, r.RVW_CONTENT AS rvwContent, 
           DATE_FORMAT(r.RVW_REG_DATE, '%Y-%m-%d') AS rvwRegDate, r.RVW_USE_YN AS rvwUseYn, 
-          m.MBR_NICKNAME AS nickname, p.PLC_NAME AS plcName
+          m.MBR_NICKNAME AS nickname, p.PLC_NAME AS plcName, p.PLC_RGN_CD AS plcRgnCd, p.PLC_CAT_CD AS plcCatCd
       FROM REVIEW r
       JOIN MEMBER m ON r.RVW_MBR_ID = m.MBR_ID
       JOIN PLACE p ON r.RVW_PLC_NO = p.PLC_NO
