@@ -16,4 +16,8 @@ public class CodeMasterService {
     public List<PlaceCardDto> getPlaceCardsByRegionCode(int regionCode) {
         return codeMasterMapper.selectPlaceCardsByRegionCode(regionCode);
     }
+
+    public List<PlaceCardDto> getTopPickPlaceCardsByRegionCode(int regionCode) {
+        return codeMasterMapper.selectTopPickPlaceCardsByRegionCode(regionCode);
+    }
 }

@@ -19,4 +19,9 @@ public class HomeController {
     public List<PlaceCardDto> getPlaceCards(@RequestParam("regionCode") int regionCode) {
         return codeMasterService.getPlaceCardsByRegionCode(regionCode);
     }
+
+    @GetMapping("/api/home/top-picks")
+    public List<PlaceCardDto> getTopPickPlaceCards(@RequestParam("regionCode") int regionCode) {
+        return codeMasterService.getTopPickPlaceCardsByRegionCode(regionCode);
+    }
 }
