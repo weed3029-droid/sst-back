@@ -2,10 +2,13 @@
 package sst.global.security.handler;
 
 import java.io.IOException;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,6 +27,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final CookieUtil cookieUtil;
     private final MemberMapper memberMapper;
 
+    @Value("${app.oauth2.redirect-url}")
+    private String redirectUrl;
+    
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
@@ -32,6 +38,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		Member member = userDetails.getMember();
 		
 		// 토큰 생성 (기존 로직과 동일)
+
 		String accessToken = jwtTokenProvider.createAccessToken(member.getMbrEmail(), member.getMbrAuthCd());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getMbrEmail());
         
@@ -41,13 +48,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 소셜 로그인 성공 시 마지막 로그인 시간 업데이트
         memberMapper.updateLastLoginDate(member.getMbrId());
         
+        boolean isSocialRememberMe = true;
 		// HttpOnly 쿠키에 토큰 탑재 (기존 로직과 동일)
 		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(accessToken).toString());
-		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken).toString());
-		
+		response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refreshToken, isSocialRememberMe).toString());
 		// 프론트엔드의 OAuth2 처리용 중간 정거장 컴포넌트로 리다이렉트
-		String targetUrl = "http://localhost:5173/oauth/redirect";
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-	
+		getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+
     }
 }

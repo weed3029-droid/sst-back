@@ -34,4 +34,30 @@ public class ReportController {
         // 🚀 3. 정상적으로 처리된 결과(1)를 HTTP 200 OK와 함께 반환합니다.
         return ResponseEntity.ok(result);
     }
+    
+    // 내가 해당 대상을 이미 신고했는지 여부 확인
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> isReported(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("type") String type,
+            @RequestParam(value = "commNo", required = false) Long commNo,
+            @RequestParam(value = "cmntNo", required = false) Long cmntNo,
+            @RequestParam(value = "reviewNo", required = false) Long reviewNo) {
+    	
+    	if (userDetails == null || userDetails.getMember() == null) {
+    	    return ResponseEntity.ok(false);
+    	}
+
+        Member member = userDetails.getMember();
+
+        boolean reported = reportService.isReported(
+                member.getMbrId(),
+                type,
+                commNo,
+                cmntNo,
+                reviewNo
+        );
+
+        return ResponseEntity.ok(reported);
+    }
 }

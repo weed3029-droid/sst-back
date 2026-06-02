@@ -1,6 +1,12 @@
 package sst.auth.service;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpHeaders;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +32,7 @@ public class AuthService {
 	private final MemberMapper memberMapper;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final CookieUtil cookieUtil;
+	private final JavaMailSender javaMailSender;
 	
 	/**
 	 * 회원 가입
@@ -87,7 +94,7 @@ public class AuthService {
         response.addHeader(HttpHeaders.SET_COOKIE,
                 cookieUtil.createAccessTokenCookie(accessToken).toString());
         response.addHeader(HttpHeaders.SET_COOKIE,
-                cookieUtil.createRefreshTokenCookie(refreshToken).toString());
+                cookieUtil.createRefreshTokenCookie(refreshToken, request.isRememberMe()).toString());
         
         return LoginResponse.builder()
 			                .mbrId(member.getMbrId())
@@ -214,7 +221,63 @@ public class AuthService {
         return memberMapper.existsByEmail(email) > 0;
     }
     
-    
+    // 이메일 찾기 로직
+    @Transactional(readOnly = true)
+    public List<String> findEmail(String name, String telno) {
+        // 🚀 MemberMapper의 명명 규칙(find~) 적용
+        List<Member> members = memberMapper.findMembersByNameAndTelno(name, telno);
+        
+        if (members.isEmpty()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return members.stream()
+                .map(member -> maskEmail(member.getMbrEmail()))
+                .collect(Collectors.toList());
+    }
+
+    // 비밀번호 재설정 로직 (resetPassword 로 네이밍 변경 적용)
+    @Transactional
+    public void resetPassword(String email, String name) {
+        Member member = memberMapper.findMemberByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 본인 확인을 위한 이름 검증
+        if (!member.getMbrName().equals(name)) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        // 임시 비밀번호 8자리 난수 생성
+        String tempPassword = UUID.randomUUID().toString().substring(0, 8);
+        
+        memberMapper.updatePassword(member.getMbrId(), passwordEncoder.encode(tempPassword));
+
+        // 이메일 발송
+        sendTempPasswordEmail(email, tempPassword);
+    }
+
+    // 내부 유틸: 이메일 마스킹
+    private String maskEmail(String email) {
+        int atIndex = email.indexOf("@");
+        if (atIndex <= 3) return email; 
+        
+        String visiblePart = email.substring(0, 3);
+        String maskedPart = "*".repeat(atIndex - 3);
+        String domainPart = email.substring(atIndex);
+        
+        return visiblePart + maskedPart + domainPart;
+    }
+
+    // 내부 유틸: 이메일 전송
+    private void sendTempPasswordEmail(String toEmail, String tempPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("[SSTour] 임시 비밀번호 발급 안내");
+        message.setText("안녕하세요.\n요청하신 임시 비밀번호는 다음과 같습니다.\n\n" 
+                        + tempPassword 
+                        + "\n\n로그인 후 보안을 위해 반드시 비밀번호를 변경해 주세요.");
+        javaMailSender.send(message);
+    }
 }
 
 

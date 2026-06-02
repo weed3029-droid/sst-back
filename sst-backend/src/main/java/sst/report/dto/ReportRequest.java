@@ -11,4 +11,5 @@ public class ReportRequest {
     private Long rptCmntNo;
     private String rptReasonCd;
     private String rptReasonContent;
+    private Long rptReporterNo;
 }
