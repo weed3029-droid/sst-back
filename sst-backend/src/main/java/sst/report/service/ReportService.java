@@ -8,12 +8,14 @@ import sst.global.exception.ErrorCode;
 import sst.report.domain.Report;
 import sst.report.dto.ReportRequest;
 import sst.report.mapper.ReportMapper;
+import sst.community.comment.mapper.CommentMapper;
 
 @Service
 @RequiredArgsConstructor
 public class ReportService {
 
     private final ReportMapper reportMapper;
+    private final CommentMapper commentMapper;
 
     // 신고 등록
     @Transactional
@@ -48,6 +50,10 @@ public class ReportService {
                 reportMapper.blindCommunity(report.getRptCommNo());
             } else if ("RPT003".equals(report.getRptTypeCd())) {
                 reportMapper.blindComment(report.getRptCmntNo());
+
+                // 댓글이 블라인드 처리되면 게시글 댓글 수를 다시 동기화
+                Long commNo = commentMapper.findCommNoByCmntNo(report.getRptCmntNo());
+                commentMapper.syncCommentCount(commNo);
             }
             return 2; // 블라인드 처리됨
         }
@@ -73,6 +79,10 @@ public class ReportService {
                 reportMapper.unblindCommunity(report.getRptCommNo());
             } else if ("RPT003".equals(report.getRptTypeCd())) {
                 reportMapper.unblindComment(report.getRptCmntNo());
+                
+                // 댓글이 블라인드 해제되면 게시글 댓글 수를 다시 동기화
+                Long commNo = commentMapper.findCommNoByCmntNo(report.getRptCmntNo());
+                commentMapper.syncCommentCount(commNo);
             }
         }
     }
