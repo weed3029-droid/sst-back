@@ -6,6 +6,7 @@
 
 <mapper namespace="sst.content.mapper.CodeMasterMapper">
 
+	<!-- 기존 지역별 카드 조회 -->
 	<select id="selectPlaceCardsByRegionCode"
 	        parameterType="int"
 	        resultType="sst.content.dto.PlaceCardDto">
@@ -35,6 +36,56 @@
 		ELSE 2
 		END,
 		PLC_NO DESC
+
+	</select>
+
+	<!-- 메인 상단 추천 카드 전용: 지역별 + 카테고리별 대표 1개씩 -->
+	<select id="selectTopPickPlaceCardsByRegionCode"
+	        parameterType="int"
+	        resultType="sst.content.dto.PlaceCardDto">
+
+		SELECT
+		ranked.PLC_NO AS plcNo,
+		ranked.PLC_ID AS plcId,
+		ranked.PLC_CAT_CD AS plcCatCd,
+		ranked.PLC_NAME AS plcName,
+		ranked.PLC_OVERVIEW AS plcOverview,
+		ranked.PLC_MAIN_IMG_URL AS plcMainImgUrl
+		FROM (
+		SELECT
+		P.PLC_NO,
+		P.PLC_ID,
+		P.PLC_CAT_CD,
+		P.PLC_NAME,
+		P.PLC_OVERVIEW,
+		P.PLC_MAIN_IMG_URL,
+		ROW_NUMBER() OVER (
+		PARTITION BY P.PLC_CAT_CD
+		ORDER BY
+		COALESCE(P.PLC_AVG_RATING, 0) DESC,
+		COALESCE(P.PLC_REVIEW_CNT, 0) DESC,
+		CASE
+		WHEN P.PLC_MAIN_IMG_URL IS NOT NULL
+		AND P.PLC_MAIN_IMG_URL != ''
+		AND P.PLC_OVERVIEW IS NOT NULL
+		AND TRIM(P.PLC_OVERVIEW) != ''
+		THEN 3
+
+		WHEN P.PLC_MAIN_IMG_URL IS NOT NULL
+		AND P.PLC_MAIN_IMG_URL != ''
+		THEN 2
+
+		ELSE 1
+		END DESC,
+		RAND()
+		) AS rn
+		FROM PLACE P
+		WHERE P.PLC_RGN_CD = #{regionCode}
+		AND P.PLC_USE_YN = 'Y'
+		AND P.PLC_CAT_CD IN ('PLC001', 'PLC002', 'PLC003', 'PLC004')
+		) ranked
+		WHERE ranked.rn = 1
+		ORDER BY FIELD(ranked.PLC_CAT_CD, 'PLC001', 'PLC002', 'PLC003', 'PLC004')
 
 	</select>
 
