@@ -35,6 +35,9 @@ public interface CommentMapper {
     // 댓글 수 감소
     int decreaseCommentCount(Long commNo);
     
+    // 댓글 번호로 해당 댓글이 속한 게시글 번호 조회
+    Long findCommNoByCmntNo(Long cmntNo);
+    
     // ==========================================
     // 🚀 관리자용 메서드 (admin 접두사 추가)
     // ==========================================
