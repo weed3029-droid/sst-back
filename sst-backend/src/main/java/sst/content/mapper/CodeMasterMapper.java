@@ -10,4 +10,6 @@ import java.util.List;
 public interface CodeMasterMapper {
 
     List<PlaceCardDto> selectPlaceCardsByRegionCode(@Param("regionCode") int regionCode);
+
+    List<PlaceCardDto> selectTopPickPlaceCardsByRegionCode(@Param("regionCode") int regionCode);
 }
