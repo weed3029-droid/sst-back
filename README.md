@@ -69,6 +69,8 @@
 
 ## 아키텍처
 
+![image](프로젝트infra.jpg)
+
 ```
 [Client - React]
        │  HTTPS
