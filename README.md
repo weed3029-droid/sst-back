@@ -1,6 +1,7 @@
 # 경기도 스마트 여행 플래너 — Backend
 
 > **팀명**: 식스센스 (SixSense) · **팀원**: 김영훈, 김지태, 노송현, 소제우, 손상진, 한상인
+> **배포사이트**: https://sstour.cloud/
 
 경기도 내 여행지 정보를 제공하고, 사용자 선택에 따라 AI가 동선 최적화된 여행 일정을 자동으로 생성해주는 웹 서비스의 **Java Spring 백엔드** 레포지토리입니다.
 
@@ -171,8 +172,6 @@ CMM_GROUP_CODE ──< CMM_CODE
 ---
 
 ## API 엔드포인트
-
-> 상세 API 명세는 Swagger UI (`/swagger-ui/index.html`) 에서 확인 가능합니다.
 
 ### 인증
 | Method | URI | 설명 |
