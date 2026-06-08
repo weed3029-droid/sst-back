@@ -212,6 +212,6 @@ cloud.sstour.sst
 
 ---
 
-> 📎 **관련 레포지토리**
+> **관련 레포지토리**
 > - [Frontend (React)](https://github.com/mojitt/sst-front)
 > - [FastAPI (AI)](https://github.com/mojitt/sst-fastApi)
